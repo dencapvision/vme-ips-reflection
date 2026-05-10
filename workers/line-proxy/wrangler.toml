@@ -1,0 +1,6 @@
+name = "line-proxy"
+main = "src/index.ts"
+compatibility_date = "2024-05-10"
+
+# [vars]
+# LINE_CHANNEL_ACCESS_TOKEN = "added via wrangler secret put"
