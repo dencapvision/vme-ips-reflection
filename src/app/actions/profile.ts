@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 export async function getProfile() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
 
@@ -23,7 +23,7 @@ export async function getProfile() {
 }
 
 export async function getPublicProfile(id: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: profile, error } = await supabase
     .from('profiles')
     .select('*')
@@ -40,7 +40,7 @@ export async function getPublicProfile(id: string) {
 }
 
 export async function updateProfile(formData: FormData) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
   if (!user) throw new Error('Unauthorized')

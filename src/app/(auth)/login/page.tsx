@@ -2,11 +2,12 @@ import { login } from '@/app/actions/auth'
 import { Icons } from '@/components/Icons'
 import Link from 'next/link'
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: { message: string }
+  searchParams: Promise<{ message: string }>
 }) {
+  const { message } = await searchParams
   return (
     <div style={{
       minHeight: "100vh",
@@ -30,9 +31,9 @@ export default function LoginPage({
         </div>
 
         <form action={login} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {searchParams?.message && (
+          {message && (
             <div style={{ padding: 12, background: "#fee2e2", color: "#b91c1c", borderRadius: 8, fontSize: 13, textAlign: "center" }}>
-              {searchParams.message}
+              {message}
             </div>
           )}
           

@@ -1,12 +1,13 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icons } from "./Icons";
 
 type TabKey = "home" | "reflect" | "community" | "plan" | "lib" | "me";
 
-const items: Array<{ k: TabKey; label: string; href: string; Icon: (p?: any) => JSX.Element }> = [
+const items: Array<{ k: TabKey; label: string; href: string; Icon: (p?: any) => React.ReactElement }> = [
   { k: "home",      label: "หน้าหลัก",    href: "/",           Icon: Icons.home   },
   { k: "reflect",   label: "ถอดบทเรียน",  href: "/topics",     Icon: Icons.spark  },
   { k: "community", label: "ชุมชน",       href: "/community",  Icon: Icons.users  },

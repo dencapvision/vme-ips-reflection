@@ -93,4 +93,7 @@ export const Icons = {
   users:  (p: IconProps = {}) => (
     <Base {...p} d={<><circle cx="8.5" cy="7.5" r="3.5"/><path d="M1 21c.5-4 3.5-6.5 7.5-6.5s7 2.5 7.5 6.5"/><circle cx="18" cy="9" r="2.5"/><path d="M15 21c.2-2.5 1.5-4.5 3-5"/></>}/>
   ),
+  logout: (p: IconProps = {}) => (
+    <Base {...p} d={<><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></>}/>
+  ),
 };

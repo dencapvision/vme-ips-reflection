@@ -1,3 +1,4 @@
+import React from "react";
 import Link from "next/link";
 import { Icons } from "@/components/Icons";
 import { Chip, ProgressBar, ProgressRing, SectionHeader } from "@/components/UI";
@@ -152,7 +153,7 @@ function ContinueCard({
 
 function QuickAction({
   Icon, title, sub, color, href,
-}: { Icon: (p?: any) => JSX.Element; title: string; sub: string; color: "saffron" | "sage" | "gold" | "plum"; href: string }) {
+}: { Icon: (p?: any) => React.ReactElement; title: string; sub: string; color: "saffron" | "sage" | "gold" | "plum"; href: string }) {
   const map = {
     saffron: { bg: "var(--saffron-50)",  fg: "var(--saffron-600)", br: "var(--saffron-100)" },
     sage:    { bg: "#EEF3ED",            fg: "#3D5C3B",            br: "#D6E1D4" },

@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     const { name, email, message } = body;
 
     // 1. Insert into Supabase
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: contact, error: dbError } = await supabase
       .from('contacts')
       .insert([{ name, email, message }])

@@ -9,8 +9,9 @@ export function generateStaticParams() {
   return TOPICS.map(t => ({ id: t.id }));
 }
 
-export default function TopicNotePage({ params }: { params: { id: string } }) {
-  const topic = getTopic(params.id);
+export default async function TopicNotePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const topic = getTopic(id);
   if (!topic) return notFound();
 
   return (

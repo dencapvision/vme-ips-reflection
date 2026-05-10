@@ -1,7 +1,7 @@
 import { Icons } from "@/components/Icons";
 import { AppHeader } from "@/components/AppHeader";
 import { TabBar } from "@/components/TabBar";
-import { getProfile, logout } from "@/app/actions/auth"; // Need to export logout there
+import { logout } from "@/app/actions/auth";
 import { getProfile as fetchProfile } from "@/app/actions/profile";
 import Link from "next/link";
 import { redirect } from "next/navigation";

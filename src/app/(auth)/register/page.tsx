@@ -2,11 +2,12 @@ import { signup } from '@/app/actions/auth'
 import { Icons } from '@/components/Icons'
 import Link from 'next/link'
 
-export default function RegisterPage({
+export default async function RegisterPage({
   searchParams,
 }: {
-  searchParams: { message: string }
+  searchParams: Promise<{ message: string }>
 }) {
+  const { message } = await searchParams
   return (
     <div style={{
       minHeight: "100vh",
@@ -30,9 +31,9 @@ export default function RegisterPage({
         </div>
 
         <form action={signup} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {searchParams?.message && (
+          {message && (
             <div style={{ padding: 12, background: "#fee2e2", color: "#b91c1c", borderRadius: 8, fontSize: 13, textAlign: "center" }}>
-              {searchParams.message}
+              {message}
             </div>
           )}
           

@@ -1,3 +1,4 @@
+import React from "react";
 import { Icons } from "@/components/Icons";
 import { AppHeader } from "@/components/AppHeader";
 import { TabBar } from "@/components/TabBar";
@@ -50,7 +51,7 @@ export default function JournalPage() {
               <div style={{ position: "absolute", left: 19, top: 8, bottom: 8, width: 1.5, background: "var(--ink-200)" }}/>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {d.entries.map((e, ei) => {
-                  const I = (Icons as any)[e.icon] as (p?: any) => JSX.Element;
+                  const I = (Icons as any)[e.icon] as (p?: any) => React.ReactElement;
                   return (
                     <div key={ei} style={{ display: "flex", gap: 12, position: "relative" }}>
                       <div style={{

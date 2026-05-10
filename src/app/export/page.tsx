@@ -1,3 +1,4 @@
+import React from "react";
 import { Icons } from "@/components/Icons";
 import { TopHeaderBack } from "@/components/AppHeader";
 import { DualLabel, Toggle } from "@/components/UI";
@@ -58,7 +59,7 @@ export default function ExportPage() {
 }
 
 function FormatCard({ Icon, label, sub, active }: {
-  Icon: (p?: any) => JSX.Element; label: string; sub: string; active?: boolean;
+  Icon: (p?: any) => React.ReactElement; label: string; sub: string; active?: boolean;
 }) {
   return (
     <div style={{

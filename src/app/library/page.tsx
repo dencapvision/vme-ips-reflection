@@ -1,3 +1,4 @@
+import React from "react";
 import { Icons } from "@/components/Icons";
 import { AppHeader } from "@/components/AppHeader";
 import { Chip, SectionHeader } from "@/components/UI";
@@ -67,7 +68,7 @@ export default function LibraryPage() {
 }
 
 function Cat({ Icon, label, sub, color }: {
-  Icon: (p?: any) => JSX.Element; label: string; sub: string; color: "saffron" | "sage" | "gold" | "plum";
+  Icon: (p?: any) => React.ReactElement; label: string; sub: string; color: "saffron" | "sage" | "gold" | "plum";
 }) {
   const map = {
     saffron: { bg: "var(--saffron-50)",  fg: "var(--saffron-700)", br: "var(--saffron-100)" },
