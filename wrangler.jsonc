@@ -6,10 +6,10 @@
   "observability": {
     "enabled": true
   },
-  "services": [
+  "r2_buckets": [
     {
-      "binding": "WORKER_SELF_REFERENCE",
-      "service": "vme-ips-reflection"
+      "binding": "NEXT_INC_CACHE_R2_BUCKET",
+      "bucket_name": "ips-reflect-opennext-cache"
     }
   ]
 }
