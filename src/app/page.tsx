@@ -62,6 +62,35 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* น้องวีมี่ banner */}
+      <div style={{ padding: "0 22px 14px" }}>
+        <Link href="/wimee" style={{
+          display: "flex", alignItems: "center", gap: 14,
+          background: "linear-gradient(135deg, #EDE0F0 0%, #FBF0E2 100%)",
+          borderRadius: "var(--r-lg)", padding: "14px 16px",
+          border: "1px solid #DDD0DE", textDecoration: "none",
+        }}>
+          <div style={{
+            width: 48, height: 48, borderRadius: 24, flexShrink: 0,
+            background: "linear-gradient(135deg, #C084AB 0%, #D45F1C 100%)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            boxShadow: "0 2px 8px rgba(180,80,30,0.3)",
+          }}>
+            <Icons.lotus size={26} stroke="#fff" sw={1.6}/>
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "#6B4A6E", fontFamily: "var(--font-en)", marginBottom: 3 }}>AI FACILITATOR</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "var(--ink-900)" }}>น้องวีมี่ 🙏</div>
+            <div style={{ fontSize: 12, color: "var(--ink-600)", marginTop: 1 }}>ที่ปรึกษากัลยาณมิตรส่วนตัวของพี่</div>
+          </div>
+          <div style={{
+            padding: "7px 14px", borderRadius: "var(--r-pill)",
+            background: "var(--saffron-500)", color: "#fff",
+            fontSize: 12.5, fontWeight: 600, flexShrink: 0,
+          }}>คุยเลย</div>
+        </Link>
+      </div>
+
       <div style={{ padding: "0 22px 20px" }}>
         <SectionHeader title="เครื่องมือด่วน" en="QUICK ACTIONS"/>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>

@@ -90,4 +90,7 @@ export const Icons = {
   flag:   (p: IconProps = {}) => <Base {...p} d={<><path d="M5 21V4"/><path d="M5 4h12l-2 4 2 4H5"/></>}/>,
   layers: (p: IconProps = {}) => <Base {...p} d={<><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></>}/>,
   globe:  (p: IconProps = {}) => <Base {...p} d={<><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></>}/>,
+  users:  (p: IconProps = {}) => (
+    <Base {...p} d={<><circle cx="8.5" cy="7.5" r="3.5"/><path d="M1 21c.5-4 3.5-6.5 7.5-6.5s7 2.5 7.5 6.5"/><circle cx="18" cy="9" r="2.5"/><path d="M15 21c.2-2.5 1.5-4.5 3-5"/></>}/>
+  ),
 };

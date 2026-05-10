@@ -4,14 +4,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icons } from "./Icons";
 
-type TabKey = "home" | "reflect" | "plan" | "lib" | "me";
+type TabKey = "home" | "reflect" | "community" | "plan" | "lib" | "me";
 
 const items: Array<{ k: TabKey; label: string; href: string; Icon: (p?: any) => JSX.Element }> = [
-  { k: "home",    label: "หน้าหลัก",    href: "/",          Icon: Icons.home   },
-  { k: "reflect", label: "ถอดบทเรียน",   href: "/topics",    Icon: Icons.spark  },
-  { k: "plan",    label: "แผนงาน",      href: "/strategic", Icon: Icons.target },
-  { k: "lib",     label: "คลังความรู้",   href: "/library",   Icon: Icons.book   },
-  { k: "me",      label: "โปรไฟล์",     href: "/profile",   Icon: Icons.user   },
+  { k: "home",      label: "หน้าหลัก",    href: "/",           Icon: Icons.home   },
+  { k: "reflect",   label: "ถอดบทเรียน",  href: "/topics",     Icon: Icons.spark  },
+  { k: "community", label: "ชุมชน",       href: "/community",  Icon: Icons.users  },
+  { k: "plan",      label: "แผนงาน",      href: "/strategic",  Icon: Icons.target },
+  { k: "lib",       label: "คลังความรู้",  href: "/library",    Icon: Icons.book   },
+  { k: "me",        label: "โปรไฟล์",     href: "/profile",    Icon: Icons.user   },
 ];
 
 export function TabBar() {
@@ -20,6 +21,7 @@ export function TabBar() {
     path === "/"                          ? "home" :
     path.startsWith("/profile")           ? "me" :
     path.startsWith("/library")           ? "lib" :
+    path.startsWith("/community")         ? "community" :
     path.startsWith("/strategic") ||
     path.startsWith("/smart")             ? "plan" :
     path.startsWith("/topics")  ||
