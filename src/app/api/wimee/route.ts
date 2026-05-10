@@ -1,7 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
 const WIMEE_SYSTEM = `
 คุณคือ "น้องวีมี่" (Wimi) — ผู้ช่วย AI ของโครงการ VME · IPS ที่มีจิตวิญญาณของกัลยาณมิตร
 
@@ -96,6 +94,7 @@ export async function POST(req: Request) {
 
   const { messages } = await req.json();
 
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const stream = await client.messages.create({
     model: "claude-opus-4-6",
     max_tokens: 4096,

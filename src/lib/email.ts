@@ -1,7 +1,5 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 interface SendEmailParams {
   to: string | string[];
   subject: string;
@@ -9,6 +7,7 @@ interface SendEmailParams {
 }
 
 export async function sendEmail({ to, subject, html }: SendEmailParams) {
+  const resend = new Resend(process.env.RESEND_API_KEY);
   try {
     const data = await resend.emails.send({
       from: "CAP-Vision <onboarding@resend.dev>", // TODO: Change to your verified domain
