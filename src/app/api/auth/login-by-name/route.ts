@@ -4,10 +4,19 @@ import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData()
-    const first_name = (formData.get('first_name') as string).trim()
-    const last_name = (formData.get('last_name') as string).trim()
-    const phone = (formData.get('phone') as string).replace(/\D/g, '')
+    let body: any = {}
+    const contentType = request.headers.get('content-type') || ''
+    
+    if (contentType.includes('application/json')) {
+      body = await request.json()
+    } else {
+      const formData = await request.formData()
+      body = Object.fromEntries(formData)
+    }
+
+    const first_name = (body.first_name as string || '').trim()
+    const last_name = (body.last_name as string || '').trim()
+    const phone = (body.phone as string || '').replace(/\D/g, '')
 
     const supabaseAdmin = createAdminClient()
 
