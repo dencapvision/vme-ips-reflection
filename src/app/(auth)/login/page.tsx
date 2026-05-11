@@ -65,8 +65,8 @@ function LoginContent() {
 
       <div className="w-full max-w-md bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-gray-100 p-8 md:p-10 relative z-10">
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 shadow-lg shadow-amber-200/50 mb-6">
-            <Icons.lotus size={32} stroke="white" />
+          <div className="relative w-24 h-24 mx-auto mb-6 rounded-full overflow-hidden border-2 border-white shadow-xl">
+            <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">IPS Reflection</h1>
           <p className="text-gray-500">สมุดสรุปบทเรียนและเครื่องมือช่วยสอน VME</p>

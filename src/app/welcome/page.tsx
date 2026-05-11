@@ -28,38 +28,43 @@ export default function WelcomePage() {
             Platform การสรุปบทเรียนและทบทวนความรู้
           </div>
           
-          <div className="relative w-32 h-32 md:w-40 md:h-40 mx-auto mb-8 group cursor-pointer">
-            {/* Golden Sphere Background with animated glow */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-amber-400 via-amber-200 to-amber-600 rounded-full shadow-[0_0_80px_rgba(245,158,11,0.4)] group-hover:shadow-[0_0_100px_rgba(245,158,11,0.6)] transition-all duration-700"></div>
+          <div className="relative w-48 h-48 md:w-64 md:h-64 mx-auto mb-10 group">
+            {/* Animated Glow effect */}
+            <div className="absolute inset-0 bg-amber-400/20 rounded-full blur-[60px] group-hover:bg-amber-400/40 transition-all duration-1000 animate-pulse"></div>
             
-            {/* Inner glass layer */}
-            <div className="absolute inset-2 bg-white/20 backdrop-blur-md rounded-full border border-white/40 flex items-center justify-center overflow-hidden">
-              <Icons.lotus size={64} stroke="white" fill="white" />
+            {/* Logo Container */}
+            <div className="relative w-full h-full rounded-full overflow-hidden border-4 border-white shadow-2xl transition-transform duration-700 group-hover:scale-105">
+              <img 
+                src="/logo.png" 
+                alt="IPS Reflection Logo" 
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-tr from-amber-600/10 via-transparent to-white/20"></div>
             </div>
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 tracking-tight">
-            VME · <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-amber-500">IPS Reflection</span>
+          <h1 className="text-6xl md:text-8xl font-bold text-gray-900 mb-8 tracking-tight leading-tight">
+            VME · <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 animate-gradient">IPS Reflection</span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-gray-600 max-w-2xl mx-auto mb-12 leading-relaxed">
+          <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto mb-14 leading-relaxed font-light">
             ยกระดับการเรียนรู้ด้วยระบบสรุปบทเรียนอัจฉริยะ 
-            พร้อมเครื่องมือที่จะเปลี่ยนความรู้ให้เป็นผลลัพธ์ที่จับต้องได้
+            ที่จะเปลี่ยน <span className="font-semibold text-gray-900 italic">"ความรู้"</span> ให้เป็น <span className="font-semibold text-gray-900 italic">"ความสำเร็จ"</span> ที่จับต้องได้จริง
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <Link 
               href="/login" 
-              className="px-10 py-5 bg-gray-900 text-white rounded-2xl font-bold text-lg shadow-2xl hover:bg-gray-800 hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3 group"
+              className="px-12 py-5 bg-gradient-to-r from-gray-900 to-gray-800 text-white rounded-2xl font-bold text-xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.25)] hover:-translate-y-1.5 transition-all active:scale-95 flex items-center justify-center gap-3 group"
             >
               เริ่มต้นใช้งาน
-              <Icons.arrow className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <Icons.arrow className="w-6 h-6 group-hover:translate-x-1.5 transition-transform" />
             </Link>
             <Link 
               href="/login?mode=email" 
-              className="px-10 py-5 bg-white text-gray-900 border border-gray-200 rounded-2xl font-bold text-lg shadow-lg hover:bg-gray-50 hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3"
+              className="px-12 py-5 bg-white text-gray-900 border-2 border-gray-100 rounded-2xl font-bold text-xl shadow-xl hover:bg-gray-50 hover:border-amber-200 hover:-translate-y-1.5 transition-all active:scale-95 flex items-center justify-center gap-3"
             >
-              สำหรับผู้ดูแลระบบ
+              แผงควบคุมระบบ
             </Link>
           </div>
         </div>

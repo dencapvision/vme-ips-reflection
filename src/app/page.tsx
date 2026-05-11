@@ -105,15 +105,14 @@ export default async function HomePage() {
           <div style={{ position: "absolute", top: "-20px", right: "-20px", width: "80px", height: "80px", background: "rgba(245, 158, 11, 0.05)", borderRadius: "50%" }} />
           
           <div style={{
-            width: 56, height: 56, borderRadius: "50%", flexShrink: 0,
-            background: "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            boxShadow: "0 6px 15px rgba(217, 119, 6, 0.25)",
-            border: "2px solid white",
+            width: 58, height: 58, borderRadius: "50%", flexShrink: 0,
+            overflow: "hidden",
+            boxShadow: "0 8px 20px rgba(217, 119, 6, 0.3)",
+            border: "2.5px solid white",
             position: "relative",
             zIndex: 1
           }}>
-            <Icons.lotus size={30} stroke="#fff" sw={1.8}/>
+            <img src="/logo.png" alt="Logo" style={{ width: "100%", height: "100%", objectCover: "cover" }} />
           </div>
           <div style={{ flex: 1, minWidth: 0, position: "relative", zIndex: 1 }}>
             <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.15em", color: "#B45309", marginBottom: 4 }}>AI FACILITATOR</div>
