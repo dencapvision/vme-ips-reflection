@@ -5,6 +5,7 @@ type IconProps = {
   stroke?: string;
   fill?: string;
   sw?: number;
+  className?: string;
 };
 
 const Base = ({
@@ -13,6 +14,7 @@ const Base = ({
   stroke = "currentColor",
   fill = "none",
   sw = 1.6,
+  className,
 }: IconProps & { d: React.ReactNode }) => (
   <svg
     width={size}
@@ -23,6 +25,7 @@ const Base = ({
     strokeWidth={sw}
     strokeLinecap="round"
     strokeLinejoin="round"
+    className={className}
   >
     {d}
   </svg>

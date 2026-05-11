@@ -33,3 +33,9 @@ export async function loginWithName(formData: FormData) {
   
   // Actually, let's keep the API route for name login but fix it.
 }
+
+export async function logout() {
+  const supabase = await createClient()
+  await supabase.auth.signOut()
+  redirect('/login')
+}
