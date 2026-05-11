@@ -22,18 +22,21 @@ create table if not exists public.knowledge_base (
 alter table public.knowledge_base enable row level security;
 
 -- RLS Policies
+drop policy if exists "Allow read access to all users" on public.knowledge_base;
 create policy "Allow read access to all users" on public.knowledge_base
   for select using (true);
 
+drop policy if exists "Allow insert access to admin" on public.knowledge_base;
 create policy "Allow insert access to admin" on public.knowledge_base
   for insert with check (auth.role() = 'authenticated');
   
+drop policy if exists "Allow delete access to admin" on public.knowledge_base;
 create policy "Allow delete access to admin" on public.knowledge_base
   for delete using (auth.role() = 'authenticated');
 
 -- Create RPC for vector similarity search
 -- Note: We drop it first to avoid "cannot change return type" error if it already exists
-drop function if exists public.match_knowledge(vector, float, int);
+drop function if exists public.match_knowledge(vector, double precision, integer);
 
 create or replace function public.match_knowledge (
   query_embedding vector(768),
