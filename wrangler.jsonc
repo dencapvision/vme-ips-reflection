@@ -1,32 +1,32 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "vme-ips-reflection",
-  "main": ".open-next/worker.js",
-  "compatibility_date": "2026-05-10",
-  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
-  "assets": {
-    "directory": ".open-next/assets",
-    "binding": "ASSETS"
-  },
-  "services": [
-    {
-      "binding": "WORKER_SELF_REFERENCE",
-      "service": "vme-ips-reflection"
-    }
-  ],
-  "images": {
-    "binding": "IMAGES"
-  },
-  "observability": {
-    "enabled": true
-  },
-"custom_domains": [
+    "$schema": "node_modules/wrangler/config-schema.json",
+    "name": "vme-ips-reflection",
+    "main": ".open-next/worker.js",
+    "compatibility_date": "2026-05-10",
+    "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+    "assets": {
+      "directory": ".open-next/assets",
+      "binding": "ASSETS"
+    },
+    "services": [
+      {
+        "binding": "WORKER_SELF_REFERENCE",
+        "service": "vme-ips-reflection"
+      }
+    ],
+    "images": {
+      "binding": "IMAGES"
+    },
+    "observability": {
+      "enabled": true
+    },
+    "custom_domains": [
       { "zone_name": "denmasterfa.com", "hostname": "vme-ips.denmasterfa.com" }
     ],
-  "r2_buckets": [
-    {
-      "binding": "NEXT_INC_CACHE_R2_BUCKET",
-      "bucket_name": "ips-reflect-opennext-cache"
-    }
-  ]
-}
+    "r2_buckets": [
+      {
+        "binding": "NEXT_INC_CACHE_R2_BUCKET",
+        "bucket_name": "ips-reflect-opennext-cache"
+      }
+    ]
+  }
