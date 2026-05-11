@@ -20,9 +20,6 @@
     "observability": {
       "enabled": true
     },
-    "custom_domains": [
-      { "zone_name": "denmasterfa.com", "hostname": "vme-ips.denmasterfa.com" }
-    ],
     "r2_buckets": [
       {
         "binding": "NEXT_INC_CACHE_R2_BUCKET",
