@@ -1,6 +1,5 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -20,7 +19,6 @@ export async function login(formData: FormData) {
     redirect(`/login?mode=email&message=${encodeURIComponent(error.message)}`)
   }
 
-  revalidatePath('/', 'layout')
   redirect('/')
 }
 
@@ -62,7 +60,6 @@ export async function loginByName(formData: FormData) {
     redirect(`/login?message=${encodeURIComponent('เบอร์โทรศัพท์ไม่ถูกต้อง')}`)
   }
 
-  revalidatePath('/', 'layout')
   redirect('/')
 }
 
