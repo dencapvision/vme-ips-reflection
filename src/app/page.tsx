@@ -99,17 +99,18 @@ export default async function HomePage() {
           border: "1px solid #E5D5F2", textDecoration: "none",
         }}>
           <div style={{
-            width: 48, height: 48, borderRadius: 24, flexShrink: 0,
-            background: "linear-gradient(135deg, #B68FD6 0%, #F2A2C0 100%)",
+            width: 52, height: 52, borderRadius: "50%", flexShrink: 0,
+            background: "var(--gold-gradient)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            boxShadow: "0 2px 8px rgba(182,143,214,0.3)",
+            boxShadow: "0 4px 12px rgba(200, 160, 74, 0.3)",
+            border: "2px solid white",
           }}>
-            <Icons.lotus size={26} stroke="#fff" sw={1.6}/>
+            <Icons.lotus size={28} stroke="#fff" sw={1.8}/>
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "#8E6DA1", fontFamily: "var(--font-en)", marginBottom: 3 }}>AI FACILITATOR</div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: "#4A345E" }}>น้องแก้วใส 🙏</div>
-            <div style={{ fontSize: 12, color: "#6A5A7A", marginTop: 1 }}>ยอดกัลยาณมิตร พร้อมปรึกษาเรื่องทุน IPS ค่ะ</div>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "#8B733C", fontFamily: "var(--font-en)", marginBottom: 3 }}>AI FACILITATOR</div>
+            <div style={{ fontSize: 17, fontWeight: 700, color: "#3D2B1F" }}>น้องแก้วใส 🙏</div>
+            <div style={{ fontSize: 12, color: "#6B5B4B", marginTop: 1 }}>ยอดกัลยาณมิตร พร้อมปรึกษาเรื่องทุน IPS ค่ะ</div>
           </div>
           <div style={{
             padding: "7px 14px", borderRadius: "var(--r-pill)",
