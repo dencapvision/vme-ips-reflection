@@ -1,5 +1,5 @@
-﻿import { NextResponse } from 'next/server'
-import { listKnowledgeFiles } from '@/lib/pdf-pipeline'
+import { NextResponse } from 'next/server'
+import { listKnowledgeFiles } from '@/lib/knowledge'
 
 export async function GET() {
   try {

@@ -1,5 +1,5 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
-import { deleteKnowledgeFile } from '@/lib/pdf-pipeline'
+import { NextRequest, NextResponse } from 'next/server'
+import { deleteKnowledgeFile } from '@/lib/knowledge'
 
 export async function DELETE(req: NextRequest) {
   try {
