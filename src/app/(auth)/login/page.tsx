@@ -80,7 +80,22 @@ function LoginContent() {
         )}
 
         {mode === 'email' ? (
-          <form action={loginWithEmail} className="space-y-6">
+          <form 
+            onSubmit={async (e) => {
+              e.preventDefault()
+              setIsLoading(true)
+              setError('')
+              const formData = new FormData(e.currentTarget)
+              const result = await loginWithEmail(formData)
+              if (result?.error) {
+                setError(result.error)
+                setIsLoading(false)
+              } else {
+                window.location.href = '/'
+              }
+            }} 
+            className="space-y-6"
+          >
             <div className="space-y-2">
               <label className="text-sm font-semibold text-gray-700 ml-1">อีเมล</label>
               <div className="relative">
@@ -114,10 +129,18 @@ function LoginContent() {
             </div>
 
             <button
+              disabled={isLoading}
               type="submit"
-              className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold rounded-2xl shadow-lg shadow-amber-200 hover:shadow-xl hover:shadow-amber-200/50 hover:-translate-y-0.5 transition-all active:scale-[0.98] mt-4"
+              className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold rounded-2xl shadow-lg shadow-amber-200 hover:shadow-xl hover:shadow-amber-200/50 hover:-translate-y-0.5 transition-all active:scale-[0.98] disabled:opacity-50 mt-4 flex items-center justify-center gap-2"
             >
-              เข้าสู่ระบบ
+              {isLoading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  กำลังเข้าสู่ระบบ...
+                </>
+              ) : (
+                'เข้าสู่ระบบ'
+              )}
             </button>
 
             <Link

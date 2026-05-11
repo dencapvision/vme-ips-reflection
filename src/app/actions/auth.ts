@@ -7,18 +7,23 @@ export async function loginWithEmail(formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 
-  const supabase = await createClient()
+  try {
+    const supabase = await createClient()
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  })
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
 
-  if (error) {
-    redirect(`/login?mode=email&message=${encodeURIComponent(error.message)}`)
+    if (error) {
+      return { error: error.message }
+    }
+
+    return { success: true }
+  } catch (err: any) {
+    console.error('Login error:', err)
+    return { error: err.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ' }
   }
-
-  redirect('/')
 }
 
 export async function loginWithName(formData: FormData) {
