@@ -2,21 +2,32 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { createAdminClient } from '@/lib/supabase/admin'
 
+export const runtime = 'edge'
+
 export async function POST(request: NextRequest) {
   try {
     let body: any = {}
     const contentType = request.headers.get('content-type') || ''
     
-    if (contentType.includes('application/json')) {
-      body = await request.json()
-    } else {
-      const formData = await request.formData()
-      body = Object.fromEntries(formData)
+    try {
+      if (contentType.includes('application/json')) {
+        body = await request.json()
+      } else {
+        const formData = await request.formData()
+        body = Object.fromEntries(formData)
+      }
+    } catch (e) {
+      console.error('Error parsing body:', e)
+      return NextResponse.json({ error: 'ไม่สามารถอ่านข้อมูลที่ส่งมาได้' }, { status: 400 })
     }
 
     const first_name = (body.first_name as string || '').trim()
     const last_name = (body.last_name as string || '').trim()
     const phone = (body.phone as string || '').replace(/\D/g, '')
+
+    if (!first_name || !last_name) {
+      return NextResponse.json({ error: 'กรุณากรอกชื่อและนามสกุล' }, { status: 400 })
+    }
 
     const supabaseAdmin = createAdminClient()
 
@@ -30,9 +41,7 @@ export async function POST(request: NextRequest) {
     if (profileError) throw profileError
 
     if (!profile) {
-      return NextResponse.redirect(
-        new URL(`/login?message=${encodeURIComponent('ไม่พบข้อมูลผู้ใช้งาน กรุณาตรวจสอบชื่อ-นามสกุล')}`, request.url)
-      )
+      return NextResponse.json({ error: 'ไม่พบข้อมูลผู้ใช้งาน กรุณาตรวจสอบชื่อ-นามสกุล' }, { status: 404 })
     }
 
     const { data: { user: authUser }, error: userError } = await supabaseAdmin.auth.admin.getUserById(profile.id)
@@ -40,9 +49,7 @@ export async function POST(request: NextRequest) {
     if (userError) throw userError
 
     if (!authUser?.email) {
-      return NextResponse.redirect(
-        new URL(`/login?message=${encodeURIComponent('ไม่พบข้อมูลการเข้าสู่ระบบ กรุณาติดต่อผู้ดูแลระบบ')}`, request.url)
-      )
+      return NextResponse.json({ error: 'ไม่พบข้อมูลการเข้าสู่ระบบ กรุณาติดต่อผู้ดูแลระบบ' }, { status: 400 })
     }
 
     const cookiesToSet: Array<{ name: string; value: string; options: any }> = []
@@ -68,12 +75,10 @@ export async function POST(request: NextRequest) {
     })
 
     if (signInError) {
-      return NextResponse.redirect(
-        new URL(`/login?message=${encodeURIComponent('เบอร์โทรศัพท์ไม่ถูกต้อง')}`, request.url)
-      )
+      return NextResponse.json({ error: 'เบอร์โทรศัพท์ไม่ถูกต้อง' }, { status: 401 })
     }
 
-    const response = NextResponse.redirect(new URL('/', request.url))
+    const response = NextResponse.json({ success: true, redirect: '/' })
 
     cookiesToSet.forEach(({ name, value, options }) => {
       response.cookies.set(name, value, options)
@@ -82,8 +87,7 @@ export async function POST(request: NextRequest) {
     return response
   } catch (err: any) {
     console.error('Login-by-name error:', err)
-    return NextResponse.redirect(
-      new URL(`/login?message=${encodeURIComponent(err.message || 'เกิดข้อผิดพลาดภายในระบบ')}`, request.url)
-    )
+    return NextResponse.json({ error: err.message || 'เกิดข้อผิดพลาดภายในระบบ' }, { status: 500 })
   }
 }
+

@@ -106,6 +106,7 @@ function LoginContent() {
                   name="email"
                   type="email"
                   required
+                  autoComplete="email"
                   placeholder="admin@example.com"
                   className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:bg-white focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all outline-none"
                 />
@@ -122,6 +123,7 @@ function LoginContent() {
                   name="password"
                   type="password"
                   required
+                  autoComplete="current-password"
                   placeholder="••••••••"
                   className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:bg-white focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all outline-none"
                 />
