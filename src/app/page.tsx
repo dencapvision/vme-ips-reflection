@@ -112,7 +112,7 @@ export default async function HomePage() {
             position: "relative",
             zIndex: 1
           }}>
-            <img src="/logo.png" alt="Logo" style={{ width: "100%", height: "100%", objectCover: "cover" }} />
+            <img src="/logo.png" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           </div>
           <div style={{ flex: 1, minWidth: 0, position: "relative", zIndex: 1 }}>
             <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.15em", color: "#B45309", marginBottom: 4 }}>AI FACILITATOR</div>
