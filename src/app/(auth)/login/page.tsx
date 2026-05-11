@@ -145,11 +145,11 @@ export default async function LoginPage({
 
         <div style={{ textAlign: "center", marginTop: 24, fontSize: 12, color: "var(--ink-400)" }}>
           {isAdminMode ? (
-            <Link href="/login" style={{ color: "var(--ink-400)", textDecoration: "none" }}>
+            <Link href="/login" prefetch={false} style={{ color: "var(--ink-400)", textDecoration: "none" }}>
               ← กลับ
             </Link>
           ) : (
-            <Link href="/login?mode=email" style={{ color: "var(--ink-400)", textDecoration: "none" }}>
+            <Link href="/login?mode=email" prefetch={false} style={{ color: "var(--ink-400)", textDecoration: "none" }}>
               ผู้ดูแลระบบ
             </Link>
           )}
