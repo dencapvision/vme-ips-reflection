@@ -93,29 +93,40 @@ export default async function HomePage() {
       {/* น้องแก้วใส banner */}
       <div style={{ padding: "0 22px 14px" }}>
         <Link href="/kaewsai" style={{
-          display: "flex", alignItems: "center", gap: 14,
-          background: "linear-gradient(135deg, #F9F1FF 0%, #FFF5F9 100%)",
-          borderRadius: "var(--r-lg)", padding: "14px 16px",
-          border: "1px solid #E5D5F2", textDecoration: "none",
+          display: "flex", alignItems: "center", gap: 16,
+          background: "linear-gradient(135deg, #fff 0%, #FBF7F1 100%)",
+          borderRadius: "24px", padding: "18px",
+          border: "1px solid #F3E4D4", textDecoration: "none",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.03)",
+          position: "relative",
+          overflow: "hidden"
         }}>
+          {/* Subtle decoration */}
+          <div style={{ position: "absolute", top: "-20px", right: "-20px", width: "80px", height: "80px", background: "rgba(245, 158, 11, 0.05)", borderRadius: "50%" }} />
+          
           <div style={{
-            width: 52, height: 52, borderRadius: "50%", flexShrink: 0,
-            background: "var(--gold-gradient)",
+            width: 56, height: 56, borderRadius: "50%", flexShrink: 0,
+            background: "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            boxShadow: "0 4px 12px rgba(200, 160, 74, 0.3)",
+            boxShadow: "0 6px 15px rgba(217, 119, 6, 0.25)",
             border: "2px solid white",
+            position: "relative",
+            zIndex: 1
           }}>
-            <Icons.lotus size={28} stroke="#fff" sw={1.8}/>
+            <Icons.lotus size={30} stroke="#fff" sw={1.8}/>
           </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "#8B733C", fontFamily: "var(--font-en)", marginBottom: 3 }}>AI FACILITATOR</div>
-            <div style={{ fontSize: 17, fontWeight: 700, color: "#3D2B1F" }}>น้องแก้วใส 🙏</div>
-            <div style={{ fontSize: 12, color: "#6B5B4B", marginTop: 1 }}>ยอดกัลยาณมิตร พร้อมปรึกษาเรื่องทุน IPS ค่ะ</div>
+          <div style={{ flex: 1, minWidth: 0, position: "relative", zIndex: 1 }}>
+            <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.15em", color: "#B45309", marginBottom: 4 }}>AI FACILITATOR</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: "#1F2937" }}>น้องแก้วใส 🙏</div>
+            <div style={{ fontSize: 13, color: "#4B5563", marginTop: 1, lineHeight: "1.4" }}>ยอดกัลยาณมิตร พร้อมปรึกษาเรื่องทุน IPS ค่ะ</div>
           </div>
           <div style={{
-            padding: "7px 14px", borderRadius: "var(--r-pill)",
-            background: "#A67BCA", color: "#fff",
-            fontSize: 12.5, fontWeight: 600, flexShrink: 0,
+            padding: "8px 16px", borderRadius: "14px",
+            background: "#1F2937", color: "#fff",
+            fontSize: 13, fontWeight: 700, flexShrink: 0,
+            boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+            position: "relative",
+            zIndex: 1
           }}>คุยเลย</div>
         </Link>
       </div>
