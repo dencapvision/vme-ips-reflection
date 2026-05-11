@@ -1,4 +1,3 @@
-import { login, loginByName } from '@/app/actions/auth'
 import { Icons } from '@/components/Icons'
 import Link from 'next/link'
 
@@ -44,7 +43,7 @@ export default async function LoginPage({
         )}
 
         {isAdminMode ? (
-          <form action={login} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <form action="/api/auth/login" method="POST" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div>
               <label htmlFor="email" style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 6, color: "var(--ink-700)" }}>
                 อีเมล
@@ -84,7 +83,7 @@ export default async function LoginPage({
             </button>
           </form>
         ) : (
-          <form action={loginByName} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <form action="/api/auth/login-by-name" method="POST" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               <div>
                 <label htmlFor="first_name" style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 6, color: "var(--ink-700)" }}>
