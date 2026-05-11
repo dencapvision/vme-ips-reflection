@@ -6,20 +6,27 @@ import { createAdminClient } from '@/lib/supabase/admin'
 
 // Login for admin — uses email + password
 export async function login(formData: FormData) {
-  const supabase = await createClient()
+  try {
+    const supabase = await createClient()
 
-  const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
+    const data = {
+      email: formData.get('email') as string,
+      password: formData.get('password') as string,
+    }
+
+    const { error } = await supabase.auth.signInWithPassword(data)
+
+    if (error) {
+      redirect(`/login?mode=email&message=${encodeURIComponent(error.message)}`)
+    }
+
+    redirect('/')
+  } catch (e: any) {
+    // Re-throw Next.js redirect (not an actual error)
+    if (e?.digest?.startsWith('NEXT_REDIRECT')) throw e
+    console.error('[login]', e?.message, e?.stack)
+    redirect(`/login?mode=email&message=${encodeURIComponent('Error: ' + (e?.message ?? String(e)))}`)
   }
-
-  const { error } = await supabase.auth.signInWithPassword(data)
-
-  if (error) {
-    redirect(`/login?mode=email&message=${encodeURIComponent(error.message)}`)
-  }
-
-  redirect('/')
 }
 
 // Login for members — uses first name + last name + phone (phone = password)
