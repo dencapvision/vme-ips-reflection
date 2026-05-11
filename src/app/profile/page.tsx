@@ -107,6 +107,31 @@ export default async function ProfilePage() {
           </div>
         </div>
 
+        {/* Admin Section */}
+        {profile.role?.toLowerCase().includes('admin') && (
+          <div className="card" style={{ padding: 16, marginBottom: 18, border: "1px solid #E5D5F2", background: "#F9F1FF" }}>
+            <div style={{
+              fontSize: 11, fontWeight: 700, letterSpacing: "0.08em",
+              color: "#8E6DA1", fontFamily: "var(--font-en)", marginBottom: 12,
+            }}>ADMINISTRATOR</div>
+            
+            <Link href="/admin/knowledge" style={{ 
+              display: "flex", alignItems: "center", gap: 12, textDecoration: "none", color: "inherit",
+              padding: "12px", background: "white", borderRadius: "12px", border: "1px solid #E5D5F2"
+            }}>
+              <div style={{
+                width: 36, height: 36, borderRadius: 10, background: "#F3E8FF",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}><Icons.book size={18} stroke="#8E6DA1"/></div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: "#4A345E" }}>จัดการคลังความรู้</div>
+                <div style={{ fontSize: 11, color: "#8E6DA1" }}>อัปโหลดและจัดการ PDF สำหรับ AI</div>
+              </div>
+              <Icons.arrow size={16} stroke="#8E6DA1"/>
+            </Link>
+          </div>
+        )}
+
         <div className="card" style={{ overflow: "hidden" }}>
           <div style={{
             padding: "14px 16px", display: "flex", alignItems: "center", gap: 12,

@@ -4,7 +4,12 @@ import { Icons } from "@/components/Icons";
 import { Chip, ProgressBar, ProgressRing, SectionHeader } from "@/components/UI";
 import { TabBar } from "@/components/TabBar";
 
-export default function HomePage() {
+import { getProfile } from "@/app/actions/profile";
+
+export default async function HomePage() {
+  const profile = await getProfile();
+  const displayName = profile?.first_name ? `คุณ${profile.first_name}` : "กัลยาณมิตร";
+
   return (
     <>
       <div style={{
@@ -13,8 +18,8 @@ export default function HomePage() {
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
           <div>
-            <div style={{ fontSize: 12, color: "var(--ink-500)", marginBottom: 2 }}>วันอาทิตย์ที่ 10 พ.ค. 2569</div>
-            <div style={{ fontSize: 22, fontWeight: 600 }}>สวัสดี คุณวิภา</div>
+            <div style={{ fontSize: 12, color: "var(--ink-500)", marginBottom: 2 }}>{new Date().toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}</div>
+            <div style={{ fontSize: 22, fontWeight: 600 }}>สวัสดี {displayName}</div>
           </div>
           <button style={{
             width: 38, height: 38, borderRadius: 19, background: "var(--white)",
@@ -63,30 +68,52 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* น้องวีมี่ banner */}
+      {/* Admin Section */}
+      {profile?.role?.toLowerCase().includes('admin') && (
+        <div style={{ padding: "0 22px 20px" }}>
+          <SectionHeader title="แผงควบคุมผู้ดูแล" en="ADMIN PANEL"/>
+          <Link href="/admin/knowledge" style={{ 
+            display: "flex", alignItems: "center", gap: 14, textDecoration: "none", color: "inherit",
+            padding: "16px", background: "#F9F1FF", borderRadius: "var(--r-lg)", border: "1px solid #E5D5F2"
+          }}>
+            <div style={{
+              width: 44, height: 44, borderRadius: 12, background: "white",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: "0 2px 6px rgba(182,143,214,0.1)"
+            }}><Icons.book size={22} stroke="#8E6DA1"/></div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: "#4A345E" }}>จัดการคลังความรู้ AI</div>
+              <div style={{ fontSize: 12, color: "#8E6DA1", marginTop: 2 }}>อัปโหลดและฝึกฝนน้องแก้วใสด้วย PDF</div>
+            </div>
+            <Icons.arrow size={18} stroke="#8E6DA1"/>
+          </Link>
+        </div>
+      )}
+
+      {/* น้องแก้วใส banner */}
       <div style={{ padding: "0 22px 14px" }}>
-        <Link href="/wimee" style={{
+        <Link href="/kaewsai" style={{
           display: "flex", alignItems: "center", gap: 14,
-          background: "linear-gradient(135deg, #EDE0F0 0%, #FBF0E2 100%)",
+          background: "linear-gradient(135deg, #F9F1FF 0%, #FFF5F9 100%)",
           borderRadius: "var(--r-lg)", padding: "14px 16px",
-          border: "1px solid #DDD0DE", textDecoration: "none",
+          border: "1px solid #E5D5F2", textDecoration: "none",
         }}>
           <div style={{
             width: 48, height: 48, borderRadius: 24, flexShrink: 0,
-            background: "linear-gradient(135deg, #C084AB 0%, #D45F1C 100%)",
+            background: "linear-gradient(135deg, #B68FD6 0%, #F2A2C0 100%)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            boxShadow: "0 2px 8px rgba(180,80,30,0.3)",
+            boxShadow: "0 2px 8px rgba(182,143,214,0.3)",
           }}>
             <Icons.lotus size={26} stroke="#fff" sw={1.6}/>
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "#6B4A6E", fontFamily: "var(--font-en)", marginBottom: 3 }}>AI FACILITATOR</div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: "var(--ink-900)" }}>น้องวีมี่ 🙏</div>
-            <div style={{ fontSize: 12, color: "var(--ink-600)", marginTop: 1 }}>ที่ปรึกษากัลยาณมิตรส่วนตัวของพี่</div>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "#8E6DA1", fontFamily: "var(--font-en)", marginBottom: 3 }}>AI FACILITATOR</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#4A345E" }}>น้องแก้วใส 🙏</div>
+            <div style={{ fontSize: 12, color: "#6A5A7A", marginTop: 1 }}>ยอดกัลยาณมิตร พร้อมปรึกษาเรื่องทุน IPS ค่ะ</div>
           </div>
           <div style={{
             padding: "7px 14px", borderRadius: "var(--r-pill)",
-            background: "var(--saffron-500)", color: "#fff",
+            background: "#A67BCA", color: "#fff",
             fontSize: 12.5, fontWeight: 600, flexShrink: 0,
           }}>คุยเลย</div>
         </Link>
@@ -98,7 +125,7 @@ export default function HomePage() {
           <QuickAction href="/reflect" Icon={Icons.spark}  title="What / So What" sub="ถอดบทเรียน"      color="saffron"/>
           <QuickAction href="/swot"    Icon={Icons.layers} title="SWOT 4 ช่อง"   sub="วิเคราะห์สถานการณ์" color="sage"/>
           <QuickAction href="/smart"   Icon={Icons.target} title="SMART Goal"    sub="ตั้งเป้า 2569"     color="gold"/>
-          <QuickAction href="/ai"      Icon={Icons.ai}     title="AI ช่วยร่าง"    sub="คำชวนบวช"        color="plum"/>
+          <QuickAction href="/kaewsai"  Icon={Icons.ai}     title="น้องแก้วใส"    sub="AI ที่ปรึกษา"        color="plum"/>
         </div>
       </div>
 

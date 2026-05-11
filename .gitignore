@@ -1,6 +1,11 @@
 node_modules
 .next
+.open-next
 out
 .env*.local
 .DS_Store
 *.tsbuildinfo
+.vercel
+scripts/
+
+.vercel

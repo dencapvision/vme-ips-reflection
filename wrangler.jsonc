@@ -3,6 +3,7 @@
   "name": "vme-ips-reflection",
   "compatibility_date": "2026-05-10",
   "compatibility_flags": ["nodejs_compat"],
+  "pages_build_output_dir": ".open-next/assets",
   "observability": {
     "enabled": true
   },
