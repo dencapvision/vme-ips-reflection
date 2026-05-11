@@ -1,6 +1,6 @@
-import type { OpenNextConfig } from "@opennextjs/cloudflare";
+import type { OpenNextConfig } from "@opennextjs/aws/types/open-next.js";
 
-const config: OpenNextConfig = {
+const config = {
   default: {
     override: {
       wrapper: "cloudflare-node",
@@ -8,7 +8,7 @@ const config: OpenNextConfig = {
       proxyExternalRequest: "fetch",
       incrementalCache: "dummy",
       tagCache: "dummy",
-      queue: "direct",
+      queue: "dummy",
     },
   },
   edgeExternals: ["node:crypto"],
@@ -20,9 +20,9 @@ const config: OpenNextConfig = {
       proxyExternalRequest: "fetch",
       incrementalCache: "dummy",
       tagCache: "dummy",
-      queue: "direct",
+      queue: "dummy",
     },
   },
-};
+} satisfies OpenNextConfig;
 
 export default config;
