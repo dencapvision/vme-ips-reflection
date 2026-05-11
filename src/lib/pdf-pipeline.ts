@@ -1,6 +1,5 @@
-import * as pdfParseModule from 'pdf-parse'
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const pdfParse: (buffer: Buffer) => Promise<any> = (pdfParseModule as any).default ?? pdfParseModule
+// pdf-parse is a CommonJS module without a default export
+const pdfParse = require('pdf-parse');
 import { createEmbedding } from './embedding'
 import { createClient } from '@supabase/supabase-js'
 
