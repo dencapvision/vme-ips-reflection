@@ -6,7 +6,17 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { loginWithEmail } from '@/app/actions/auth'
 
+import { Suspense } from 'react'
+
 export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#fafafa] font-['Sarabun',sans-serif] p-4">กำลังโหลด...</div>}>
+      <LoginContent />
+    </Suspense>
+  )
+}
+
+function LoginContent() {
   const searchParams = useSearchParams()
   const mode = searchParams.get('mode')
   const message = searchParams.get('message')

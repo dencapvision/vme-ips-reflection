@@ -16,12 +16,13 @@ export default function LibraryPage() {
       </div>
 
       <div style={{ padding: "4px 22px 30px" }}>
-        {/* --- AI Knowledge Search Section --- */}
         <div style={{ marginBottom: 24 }}>
             <div style={{ marginBottom: 16 }}>
                 <SectionHeader title="ถามน้องแก้วใส AI" en="SMART KNOWLEDGE SEARCH" />
             </div>
-            <LibraryAI />
+            <React.Suspense fallback={<div>กำลังโหลดผู้ช่วย AI...</div>}>
+                <LibraryAI />
+            </React.Suspense>
         </div>
 
         <SectionHeader title="คัดสรรมาเพื่อคุณ" en="FEATURED" />
