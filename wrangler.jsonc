@@ -25,5 +25,9 @@
         "binding": "NEXT_INC_CACHE_R2_BUCKET",
         "bucket_name": "ips-reflect-opennext-cache"
       }
-    ]
+    ],
+    "vars": {
+      "NEXT_PUBLIC_SUPABASE_URL": "https://nheppvjayzxlblkeanxs.supabase.co",
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oZXBwdmpheXp4bGJsa2VhbnhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNzYyMDcsImV4cCI6MjA4NjY1MjIwN30.gL5j6E9nlQH7JPfvzE0kqgjlgCFjL0e3p-hu039O6K0"
+    }
   }
