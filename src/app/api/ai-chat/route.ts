@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { searchKnowledge } from '@/lib/pdf-pipeline'
 
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1024,
-      system: `คุณคือ WIMEE ผู้ช่วย AI ของโครงการ VME · IPS Reflection
+      system: `คุณคือ น้องแก้วใส (Nong Kaew Sai) ผู้ช่วย AI ของโครงการ VME · IPS Reflection
 ช่วยอาสาการศึกษาถอดบทเรียน วางแผน และค้นหาความรู้จากโครงการ
 ตอบเป็นภาษาไทย กระชับ ชัดเจน เป็นกันเอง
 อ้างอิงจากข้อมูลที่ให้มาเป็นหลัก ถ้าไม่มีข้อมูลให้บอกตรงๆ

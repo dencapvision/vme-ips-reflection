@@ -3,6 +3,7 @@ import { Icons } from "@/components/Icons";
 import { AppHeader } from "@/components/AppHeader";
 import { Chip, SectionHeader } from "@/components/UI";
 import { TabBar } from "@/components/TabBar";
+import LibraryAI from "@/components/LibraryAI";
 
 export default function LibraryPage() {
   return (
@@ -15,6 +16,15 @@ export default function LibraryPage() {
       </div>
 
       <div style={{ padding: "4px 22px 30px" }}>
+        {/* --- AI Knowledge Search Section --- */}
+        <div style={{ marginBottom: 24 }}>
+            <div style={{ marginBottom: 16 }}>
+                <SectionHeader title="ถามน้องแก้วใส AI" en="SMART KNOWLEDGE SEARCH" />
+            </div>
+            <LibraryAI />
+        </div>
+
+        <SectionHeader title="คัดสรรมาเพื่อคุณ" en="FEATURED" />
         <div style={{
           background: "linear-gradient(140deg, #FDF1E6 0%, var(--white) 60%, #F0E9F1 100%)",
           borderRadius: "var(--r-xl)", padding: 18, marginBottom: 18, border: "1px solid var(--saffron-100)",

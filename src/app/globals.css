@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai+Looped:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=IBM+Plex+Sans+Thai+Looped:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;1,400&display=swap');
 
 :root {
   /* Saffron robe palette */
@@ -31,12 +31,13 @@
   --cream: #FBF7F1;
 
   --gold: #C8A04A;
+  --gold-gradient: linear-gradient(135deg, #FFD700 0%, #C8A04A 100%);
   --sage: #6E8B6B;
   --plum: #6B4A6E;
   --green: #4F7A4D;
   --red:   #B14A4A;
 
-  --font-th: 'IBM Plex Sans Thai Looped', system-ui, sans-serif;
+  --font-th: 'Sarabun', 'IBM Plex Sans Thai Looped', system-ui, sans-serif;
   --font-en: 'IBM Plex Sans', system-ui, sans-serif;
   --font-serif: 'IBM Plex Serif', Georgia, serif;
 

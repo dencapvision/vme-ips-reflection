@@ -26,11 +26,16 @@ export const viewport: Viewport = {
   themeColor: "#FBF7F1",
 };
 
+import GuidedPrompts from "@/components/GuidedPrompts";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="th" className={`${sarabun.variable} ${playfair.variable}`}>
-      <body className="font-sans antialiased text-gray-900 bg-gray-50 selection:bg-blue-100">
-        <div className="app-shell">{children}</div>
+      <body className={`${sarabun.className} antialiased text-gray-900 bg-gray-50 selection:bg-blue-100`}>
+        <div className="app-shell">
+          {children}
+          <GuidedPrompts />
+        </div>
       </body>
     </html>
   );
