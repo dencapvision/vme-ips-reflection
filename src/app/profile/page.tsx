@@ -107,6 +107,61 @@ export default async function ProfilePage() {
           </div>
         </div>
 
+        {/* Community & Support Section */}
+        <div className="card" style={{ padding: 16, marginBottom: 18, border: "1px solid #E3F2FD", background: "#F1F8FE" }}>
+          <div style={{
+            fontSize: 11, fontWeight: 700, letterSpacing: "0.08em",
+            color: "#42A5F5", fontFamily: "var(--font-en)", marginBottom: 12,
+          }}>COMMUNITY & SUPPORT</div>
+          
+          <Link href="/forum" style={{
+            display: "flex", alignItems: "center", gap: 12, textDecoration: "none", color: "inherit",
+            padding: "12px", background: "white", borderRadius: "12px", border: "1px solid #E3F2FD",
+            marginBottom: 8
+          }}>
+            <div style={{
+              width: 36, height: 36, borderRadius: 10, background: "#E3F2FD",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}><Icons.chat size={18} stroke="#42A5F5"/></div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "#1565C0" }}>กระทู้สนทนา</div>
+              <div style={{ fontSize: 11, color: "#42A5F5" }}>แลกเปลี่ยนเรียนรู้ในกลุ่มสมาชิก</div>
+            </div>
+            <Icons.arrow size={16} stroke="#42A5F5"/>
+          </Link>
+
+          <Link href="/library" style={{
+            display: "flex", alignItems: "center", gap: 12, textDecoration: "none", color: "inherit",
+            padding: "12px", background: "white", borderRadius: "12px", border: "1px solid #E3F2FD",
+            marginBottom: 8
+          }}>
+            <div style={{
+              width: 36, height: 36, borderRadius: 10, background: "#E3F2FD",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}><Icons.book size={18} stroke="#42A5F5"/></div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "#1565C0" }}>คลังความรู้ & ดาวน์โหลด</div>
+              <div style={{ fontSize: 11, color: "#42A5F5" }}>เอกสารโครงการ สื่อ PR และหนังสือเชิญ</div>
+            </div>
+            <Icons.arrow size={16} stroke="#42A5F5"/>
+          </Link>
+
+          <a href="https://lin.ee/VuY5Ujn" target="_blank" rel="noopener noreferrer" style={{
+            display: "flex", alignItems: "center", gap: 12, textDecoration: "none", color: "inherit",
+            padding: "12px", background: "white", borderRadius: "12px", border: "1px solid #E3F2FD"
+          }}>
+            <div style={{
+              width: 36, height: 36, borderRadius: 10, background: "#E3F2FD",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}><Icons.phone size={18} stroke="#42A5F5"/></div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "#1565C0" }}>ติดต่อทีมงาน VME</div>
+              <div style={{ fontSize: 11, color: "#42A5F5" }}>LINE OA: @109pocpd</div>
+            </div>
+            <Icons.arrow size={16} stroke="#42A5F5"/>
+          </a>
+        </div>
+
         {/* Admin Section */}
         {profile.role?.toLowerCase().includes('admin') && (
           <div className="card" style={{ padding: 16, marginBottom: 18, border: "1px solid #E5D5F2", background: "#F9F1FF" }}>

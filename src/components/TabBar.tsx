@@ -5,10 +5,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icons } from "./Icons";
 
-type TabKey = "home" | "plan" | "reflect" | "kaewsai" | "me";
+type TabKey = "home" | "library" | "plan" | "reflect" | "kaewsai" | "me";
 
 const items: Array<{ k: TabKey; label: string; href: string; Icon: (p?: any) => React.ReactElement }> = [
   { k: "home",    label: "หน้าหลัก",    href: "/",           Icon: Icons.home   },
+  { k: "library", label: "คลังความรู้",  href: "/library",    Icon: Icons.book   },
   { k: "plan",    label: "แผนงาน",      href: "/smart",      Icon: Icons.target },
   { k: "reflect", label: "ถอดบทเรียน",  href: "/reflect",    Icon: Icons.spark  },
   { k: "kaewsai", label: "น้องแก้วใส",  href: "/kaewsai",    Icon: Icons.ai     },
@@ -19,6 +20,7 @@ export function TabBar() {
   const path = usePathname() ?? "/";
   const activeKey: TabKey =
     path === "/"                          ? "home" :
+    path.startsWith("/library")           ? "library" :
     path.startsWith("/profile")           ? "me" :
     path.startsWith("/kaewsai")           ? "kaewsai" :
     path.startsWith("/smart") ||

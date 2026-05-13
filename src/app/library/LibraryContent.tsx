@@ -167,6 +167,50 @@ export default function LibraryContent() {
 
       {/* Featured PDF Section (Placeholder for consistency) */}
       <section>
+        <SectionHeader title="ดาวน์โหลดสื่อ & หนังสือเชิญ" en="PR MEDIA & INVITATIONS" />
+        <div className="mt-4 grid grid-cols-1 gap-3">
+          <div style={{
+            background: "linear-gradient(140deg, #E3F2FD 0%, var(--white) 60%, #F1F8FE 100%)",
+            borderRadius: "var(--r-xl)", padding: 18, border: "1px solid #BBDEFB",
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
+              <div>
+                <div style={{ fontFamily: "var(--font-en)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "#1976D2" }}>DOWNLOAD</div>
+                <div style={{ fontSize: 18, fontWeight: 600, marginTop: 4, lineHeight: 1.3 }}>สื่อประชาสัมพันธ์โครงการ IPS10</div>
+                <div style={{ fontSize: 12, color: "var(--ink-600)", marginTop: 6 }}>โปสเตอร์, วิดีโอแนะนำ, และคอนเทนต์โซเชียล</div>
+              </div>
+              <div style={{ width: 48, height: 48, borderRadius: 14, background: "var(--white)", border: "1px solid #BBDEFB", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Icons.download size={24} stroke="#1976D2"/>
+              </div>
+            </div>
+            <button className="btn-saffron" style={{ padding: "11px 18px", fontSize: 13, background: "#1976D2", borderColor: "#1976D2" }}>
+              เข้าสู่พื้นที่ดาวน์โหลด <Icons.arrow size={14} sw={2}/>
+            </button>
+          </div>
+
+          <div style={{
+            background: "linear-gradient(140deg, #FDF1E6 0%, var(--white) 60%, #FCE3CE 100%)",
+            borderRadius: "var(--r-xl)", padding: 18, border: "1px solid var(--saffron-100)",
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
+              <div>
+                <div style={{ fontFamily: "var(--font-en)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "var(--saffron-600)" }}>OFFICIAL</div>
+                <div style={{ fontSize: 18, fontWeight: 600, marginTop: 4, lineHeight: 1.3 }}>หนังสือเชิญร่วมโครงการ</div>
+                <div style={{ fontSize: 12, color: "var(--ink-600)", marginTop: 6 }}>ไฟล์ PDF สำหรับพิมพ์หรือส่งต่อทางแอปพลิเคชัน</div>
+              </div>
+              <div style={{ width: 48, height: 48, borderRadius: 14, background: "var(--white)", border: "1px solid var(--saffron-100)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Icons.doc size={24} stroke="var(--saffron-600)"/>
+              </div>
+            </div>
+            <button className="btn-saffron" style={{ padding: "11px 18px", fontSize: 13 }}>
+              ดาวน์โหลดหนังสือเชิญ <Icons.download size={14} sw={2}/>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured PDF Section (Placeholder for consistency) */}
+      <section>
         <SectionHeader title="คัดสรรมาเพื่อคุณ" en="FEATURED DOCUMENTS" />
         <div style={{
           background: "linear-gradient(140deg, #FDF1E6 0%, var(--white) 60%, #F0E9F1 100%)",
