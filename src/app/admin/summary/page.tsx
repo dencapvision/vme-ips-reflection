@@ -22,7 +22,9 @@ export default async function AdminSummaryPage() {
           display: "flex", alignItems: "center", justifyContent: "center",
           border: "1px solid var(--ink-200)", color: "inherit"
         }}>
-          <Icons.arrow size={18} style={{ transform: "rotate(180deg)" }} />
+          <div style={{ display: "flex", transform: "rotate(180deg)" }}>
+            <Icons.arrow size={18} />
+          </div>
         </Link>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>สรุปข้อมูลรายบุคคล</h1>
