@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('[admin-login] Verifying password...')
-    const passwordOk = verifyPassword(password, admin.password_hash)
+    const passwordOk = await verifyPassword(password, admin.password_hash)
 
     if (!passwordOk) {
       console.warn('[admin-login] Password mismatch for:', email)
