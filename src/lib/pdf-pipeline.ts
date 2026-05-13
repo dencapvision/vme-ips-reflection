@@ -71,13 +71,16 @@ export function chunkText(
 }
 
 // ── Extract PDF text via Gemini (no local library — works in Cloudflare Workers) ──
-async function extractTextFromPDF(pdfBuffer: Buffer): Promise<string> {
+async function extractTextFromPDF(pdfBuffer: Uint8Array): Promise<string> {
   if (pdfBuffer.length > 15 * 1024 * 1024) {
     throw new Error('ไฟล์ใหญ่เกิน 15MB สำหรับการ extract — กรุณาบีบอัดหรือแบ่งไฟล์')
   }
-  const base64 = pdfBuffer.toString('base64')
+  
+  // Use Buffer for base64 conversion if available (polyfilled in unenv)
+  // or fallback to a standard way if needed.
+  const base64 = Buffer.from(pdfBuffer).toString('base64')
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -106,7 +109,7 @@ async function extractTextFromPDF(pdfBuffer: Buffer): Promise<string> {
 
 // ── Main pipeline ────────────────────────────────────────────────
 export async function processPDFBuffer(
-  pdfBuffer: Buffer,
+  pdfBuffer: Uint8Array,
   documentId: string,
   filename: string,
   onProgress?: (event: ProgressEvent) => void

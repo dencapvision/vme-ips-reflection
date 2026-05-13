@@ -97,7 +97,7 @@ export async function POST(req: Request) {
 
     const { messages } = await req.json();
 
-    const geminiModel = getGeminiModel('gemini-1.5-flash', WIMEE_SYSTEM);
+    const geminiModel = getGeminiModel('gemini-2.0-flash', WIMEE_SYSTEM);
 
     // Map history (excluding the last message)
     const history = messages.slice(0, -1).map((m: any) => ({

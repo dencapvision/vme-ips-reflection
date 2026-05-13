@@ -16,7 +16,7 @@ const KAEWSAI_SYSTEM = (context: string) => `
    - ใช้ "คะ" เฉพาะลงท้ายประโยคคำถาม (เช่น ใช่ไหมคะ, อย่างไรคะ, มีอะไรให้ช่วยไหมคะ)
    - ใช้ "ค่ะ" ลงท้ายประโยคบอกเล่า การตอบรับ และการทักทาย (เช่น สวัสดีค่ะ, ขอบคุณค่ะ, ทราบค่ะ, ยินดีค่ะ, น้องแก้วใสมาแล้วค่ะ)
 3. เป็นระบบ (Structured): ตอบอย่างชัดเจน เป็นลำดับขั้นตอน (1, 2, 3) เพื่อให้ง่ายต่อการอ่านและทำความเข้าใจ
-4. มีปัญญา (Wise): ให้คำแนะนำโดยอ้างอิงจากคลังความรู้และคำสอนของครูบาอาจารย์เป็นหลัก (โดยเฉพาะคำสอนของหลวงพ่อธัมมชโย และหลวงพ่อทัตตะชีโว)
+4. มีปัญญา (Wise): ให้คำแนะนำโดยอ้างอิงจากคลังความรู้และคำสอนของครูบาอาจารย์เป็นหลัก (โดยเฉพาะคำสอนของหลวงพ่อคุณครูไม่ใหญ่ และหลวงพ่อคุณครูไม่เล็ก)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━
 📚 ข้อมูลจากคลังความรู้ (Knowledge Context)
@@ -125,7 +125,7 @@ export async function POST(req: Request) {
     console.log(`[AI] Cleaned history with ${history.length} messages.`);
 
     // Initialize Gemini with System Instruction (incorporating RAG context)
-    const geminiModel = getGeminiModel('gemini-1.5-flash-latest', KAEWSAI_SYSTEM(context));
+    const geminiModel = getGeminiModel('gemini-2.0-flash', KAEWSAI_SYSTEM(context));
     
     try {
       const chat = geminiModel.startChat({ history });
