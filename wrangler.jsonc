@@ -27,19 +27,7 @@
       }
     ],
     "vars": {
-      "NEXT_PUBLIC_SUPABASE_URL": "your_supabase_url_here",
-      "NEXT_PUBLIC_SUPABASE_ANON_KEY": "your_supabase_anon_key_here",
-      "SUPABASE_SERVICE_ROLE_KEY": "your_supabase_service_role_key_here",
-      "R2_ACCOUNT_ID": "your_r2_account_id_here",
-      "R2_ACCESS_KEY_ID": "your_r2_access_key_id_here",
-      "R2_SECRET_ACCESS_KEY": "your_r2_secret_access_key_here",
-      "R2_BUCKET_NAME": "your_r2_bucket_name_here",
-      "R2_PUBLIC_URL": "your_r2_public_url_here",
-      "RESEND_API_KEY": "your_resend_api_key_here",
-      "LINE_CHANNEL_ACCESS_TOKEN": "your_line_channel_access_token_here",
-      "LINE_CHANNEL_SECRET": "your_line_channel_secret_here",
-      "ANTHROPIC_API_KEY": "your_anthropic_api_key_here",
-      "GEMINI_API_KEY": "your_gemini_api_key_here",
-      "SESSION_SECRET": "your_session_secret_here"
+      // ตัวแปรที่สำคัญถูกย้ายไปเก็บที่ Cloudflare Secrets เพื่อความปลอดภัย
+      // รันคำสั่ง npx wrangler secret put [NAME] เพื่อตั้งค่า
     }
   }
