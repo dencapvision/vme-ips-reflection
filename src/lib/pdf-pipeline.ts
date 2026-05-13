@@ -102,9 +102,13 @@ export async function processPDFBuffer(
   try {
     emit('parsing', 5, 'กำลัง parse PDF...')
 
+    // pdf-parse v2 uses class-based API (not the v1 function call)
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const pdfParse = require('pdf-parse')
-    const { text: rawText, numpages } = await pdfParse(pdfBuffer, { max: 0 })
+    const { PDFParse } = require('pdf-parse')
+    const parser = new PDFParse({ data: pdfBuffer })
+    const parsed = await parser.getText()
+    const rawText: string = parsed.text ?? ''
+    const numpages: number = parsed.total ?? parsed.pages?.length ?? 0
 
     if (!rawText || rawText.trim().length < 80) {
       throw new Error('PDF ไม่มีข้อความ หรือเป็น scanned image — กรุณาใช้ OCR ก่อน')
