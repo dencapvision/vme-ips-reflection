@@ -89,22 +89,40 @@ export async function POST(req: Request) {
     // CRITICAL: Gemini history must:
     // 1. Start with 'user' role.
     // 2. Alternate between 'user' and 'model'.
+    // 3. End with 'model' (since sendMessage adds the final 'user' message).
     const rawHistory = messages.slice(0, -1);
-    const firstUserIndex = rawHistory.findIndex((m: any) => m.role === 'user');
     
     let history: { role: string; parts: { text: string }[] }[] = [];
-    if (firstUserIndex !== -1) {
-      history = rawHistory.slice(firstUserIndex).map((m: any) => ({
-        role: m.role === 'assistant' ? 'model' : 'user',
+    let lastRole = "";
+
+    for (const m of rawHistory) {
+      const role = m.role === 'assistant' ? 'model' : 'user';
+      
+      // Skip if this is the first message and it's not a user
+      if (history.length === 0 && role !== 'user') continue;
+      
+      // Skip if it's the same role as the previous message (merge or skip)
+      if (role === lastRole) {
+        // Option: Append text to previous message parts
+        if (history.length > 0) {
+          history[history.length - 1].parts[0].text += "\n" + m.content;
+        }
+        continue;
+      }
+
+      history.push({
+        role: role,
         parts: [{ text: m.content }]
-      }));
+      });
+      lastRole = role;
     }
 
-    // Ensure alternating sequence (simple check)
-    // If the last item in history is also 'user', we remove it or merge it
-    // but usually sendMessage takes the final 'user' message anyway.
+    // Ensure history ends with 'model' so the next sendMessage (which is 'user') is valid
+    if (history.length > 0 && history[history.length - 1].role === 'user') {
+      history.pop();
+    }
 
-    console.log(`[AI] Prepared history with ${history.length} messages.`);
+    console.log(`[AI] Cleaned history with ${history.length} messages.`);
 
     // Initialize Gemini with System Instruction (incorporating RAG context)
     const geminiModel = getGeminiModel('gemini-1.5-flash-latest', KAEWSAI_SYSTEM(context));
