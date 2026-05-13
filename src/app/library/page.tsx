@@ -33,10 +33,12 @@ export default function LibraryPage() {
         <div style={{ marginTop: 32 }}>
           <SectionHeader title="หมวดหมู่ความรู้" en="CATEGORIES" />
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 16, marginBottom: 18 }}>
-            <Cat Icon={Icons.lotus}  label="DCI"   sub="12 บทความ" color="saffron"/>
-            <Cat Icon={Icons.book}   label="IPS"   sub="8 บทความ"  color="sage"/>
-            <Cat Icon={Icons.layers} label="หลักสูตร" sub="6 บทความ"  color="gold"/>
-            <Cat Icon={Icons.ai}     label="AI"    sub="5 บทความ"  color="plum"/>
+            <Cat Icon={Icons.lotus}  label="ธัมมชโย" sub="คำสอนหลวงพ่อ" color="saffron"/>
+            <Cat Icon={Icons.lotus}  label="ทัตตะชีโว" sub="คำสอนหลวงพ่อ" color="sage"/>
+            <Cat Icon={Icons.book}   label="IPS"   sub="8 บทความ"  color="gold"/>
+            <Cat Icon={Icons.layers} label="หลักสูตร" sub="6 บทความ"  color="plum"/>
+            <Cat Icon={Icons.user}   label="คู่มือ VME" sub="5 บทความ" color="sage"/>
+            <Cat Icon={Icons.video}  label="สื่อ PR"   sub="10 ไฟล์"   color="gold"/>
           </div>
         </div>
       </div>
