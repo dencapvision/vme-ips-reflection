@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { TopHeaderBack } from "@/components/AppHeader";
 import { supabase, categoryColor, type ForumCategory } from "@/lib/supabase";
+import { Icons } from "@/components/Icons";
 
 export default function NewPostPage() {
   const router = useRouter();
@@ -149,9 +150,25 @@ export default function NewPostPage() {
           type="submit"
           disabled={submitting}
           className="btn-saffron"
-          style={{ width: "100%", opacity: submitting ? 0.6 : 1 }}
+          style={{ 
+            width: "100%", 
+            height: 52,
+            marginTop: 10,
+            opacity: submitting ? 0.6 : 1,
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 10
+          }}
         >
-          {submitting ? "กำลังโพสต์..." : "โพสต์กระทู้"}
+          {submitting ? (
+            <>
+              <div className="spinner-small" />
+              <span>กำลังโพสต์...</span>
+            </>
+          ) : (
+            <>
+              <Icons.spark size={18} stroke="#fff" />
+              <span>โพสต์กระทู้สนทนา</span>
+            </>
+          )}
         </button>
       </form>
     </>

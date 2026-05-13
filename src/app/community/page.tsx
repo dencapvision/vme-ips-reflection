@@ -163,15 +163,22 @@ function PostCard({ post, commentsCount }: { post: ForumPost; commentsCount: num
 
 function EmptyState() {
   return (
-    <div style={{ textAlign: "center", padding: "56px 16px", color: "var(--ink-500)" }}>
-      <div style={{ marginBottom: 12, opacity: 0.4 }}>
-        <Icons.users size={48} stroke="var(--ink-400)" />
+    <div style={{ 
+      textAlign: "center", padding: "64px 22px", 
+      background: "var(--white)", borderRadius: "var(--r-xl)",
+      border: "1.5px dashed var(--ink-100)",
+      marginTop: 20
+    }}>
+      <div style={{ marginBottom: 20, display: "inline-flex", padding: 20, background: "var(--saffron-50)", borderRadius: "50%" }}>
+        <Icons.chat size={40} stroke="var(--saffron-400)" sw={1.5} />
       </div>
-      <div style={{ fontSize: 15, fontWeight: 600, color: "var(--ink-700)", marginBottom: 6 }}>ยังไม่มีกระทู้</div>
-      <div style={{ fontSize: 13 }}>เป็นคนแรกที่แชร์ความรู้ให้ชุมชน VME!</div>
-      <Link href="/community/new" className="btn-saffron" style={{ marginTop: 20, display: "inline-flex" }}>
-        <Icons.plus size={16} stroke="#fff" sw={2.2} />
-        สร้างกระทู้แรก
+      <div style={{ fontSize: 17, fontWeight: 700, color: "var(--ink-800)", marginBottom: 8 }}>เริ่มต้นบทสนทนาแรก</div>
+      <div style={{ fontSize: 13, color: "var(--ink-500)", maxWidth: 240, margin: "0 auto 24px", lineHeight: 1.6 }}>
+        แชร์ความรู้ เทคนิค หรือตั้งคำถามเพื่อพัฒนาศีลธรรมไปด้วยกันในชุมชน VME
+      </div>
+      <Link href="/community/new" className="btn-saffron" style={{ display: "inline-flex", padding: "12px 24px" }}>
+        <Icons.plus size={18} stroke="#fff" sw={2.5} style={{ marginRight: 6 }} />
+        ตั้งกระทู้สนทนา
       </Link>
     </div>
   );

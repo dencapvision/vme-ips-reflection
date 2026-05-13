@@ -177,7 +177,7 @@ export default function PostPage() {
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {comments.map((c) => (
-              <CommentItem key={c.id} comment={c} />
+              <CommentItem key={c.id} comment={c} isAuthor={c.author_name === post.author_name} />
             ))}
           </div>
         )}
@@ -216,26 +216,37 @@ export default function PostPage() {
   );
 }
 
-function CommentItem({ comment }: { comment: ForumComment }) {
+function CommentItem({ comment, isAuthor }: { comment: ForumComment; isAuthor: boolean }) {
   return (
     <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
       <div style={{
-        width: 28, height: 28, borderRadius: 14, flexShrink: 0,
-        background: "var(--ink-100)",
+        width: 32, height: 32, borderRadius: 16, flexShrink: 0,
+        background: isAuthor ? "var(--saffron-100)" : "var(--ink-100)",
         display: "flex", alignItems: "center", justifyContent: "center",
-        fontSize: 12, fontWeight: 700, color: "var(--ink-600)",
+        fontSize: 13, fontWeight: 700, color: isAuthor ? "var(--saffron-700)" : "var(--ink-600)",
+        border: isAuthor ? "1px solid var(--saffron-200)" : "none",
       }}>
         {comment.author_name.charAt(0)}
       </div>
       <div style={{ flex: 1 }}>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 4 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
           <span style={{ fontSize: 13, fontWeight: 600, color: "var(--ink-800)" }}>{comment.author_name}</span>
+          {isAuthor && (
+            <span style={{ 
+              fontSize: 9, fontWeight: 700, color: "var(--saffron-600)", 
+              background: "var(--saffron-50)", padding: "1px 6px", 
+              borderRadius: 4, border: "0.5px solid var(--saffron-200)",
+              textTransform: "uppercase"
+            }}>ผู้เขียน</span>
+          )}
           <span style={{ fontSize: 11, color: "var(--ink-400)" }}>{timeAgo(comment.created_at)}</span>
         </div>
         <div style={{
           fontSize: 14, lineHeight: 1.6, color: "var(--ink-800)", whiteSpace: "pre-wrap",
-          background: "var(--ink-50)", borderRadius: "var(--r-md)",
+          background: isAuthor ? "var(--saffron-50)" : "var(--ink-50)", 
+          borderRadius: "0 12px 12px 12px",
           padding: "10px 14px",
+          border: isAuthor ? "1px solid var(--saffron-100)" : "none",
         }}>
           {comment.content}
         </div>
@@ -246,7 +257,7 @@ function CommentItem({ comment }: { comment: ForumComment }) {
 
 const inputStyle: React.CSSProperties = {
   width: "100%",
-  padding: "11px 14px",
+  padding: "12px 16px",
   borderRadius: "var(--r-md)",
   border: "1.5px solid var(--ink-200)",
   background: "var(--white)",
@@ -254,4 +265,5 @@ const inputStyle: React.CSSProperties = {
   fontFamily: "var(--font-th)",
   color: "var(--ink-900)",
   outline: "none",
+  transition: "border-color 0.2s",
 };

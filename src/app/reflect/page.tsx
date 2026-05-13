@@ -6,9 +6,11 @@ import { ReflectionForm } from "@/components/ReflectionForm";
 
 export default function ReflectionPage() {
   const reflectFields = [
-    { id: "what", label: "1. WHAT - ทำอะไรมา?", en: "WHAT", placeholder: "เป้าหมายและผลลัพธ์ที่เกิดขึ้นในปีที่ผ่านมา...", color: "var(--ink-700)", tint: "var(--white)", border: "var(--ink-200)" },
-    { id: "sowhat", label: "2. SO WHAT - เห็นอะไรบ้าง?", en: "SO WHAT", placeholder: "สังเกตเห็นอะไร? ความท้าทาย สิ่งดีๆ โอกาสใหม่ๆ...", color: "var(--ink-700)", tint: "var(--white)", border: "var(--ink-200)" },
-    { id: "nowwhat", label: "3. NOW WHAT - จะทำอะไรต่อ?", en: "NOW WHAT", placeholder: "บทสรุปที่จะนำไปทำต่อในปี 2569 คืออะไร?...", color: "var(--ink-700)", tint: "var(--white)", border: "var(--ink-200)" },
+    { id: "new_skills", label: "1. ความรู้ และ ทักษะใหม่ๆที่ได้รับในครั้งนี้", en: "NEW KNOWLEDGE & SKILLS", placeholder: "สิ่งที่ท่านได้เรียนรู้และพัฒนาขึ้นจากการสัมมนาในครั้งนี้...", color: "var(--ink-700)", tint: "var(--white)", border: "var(--ink-200)" },
+    { id: "feelings", label: "2. ความรู้สึกที่เกิดขึ้นหลังจากการสัมมนา", en: "FEELINGS & REFLECTION", placeholder: "ความรู้สึกในใจหลังจบกิจกรรม (ดีใจ, มีพลัง, เห็นความหวัง...)", color: "var(--ink-700)", tint: "var(--white)", border: "var(--ink-200)" },
+    { id: "intentions", label: "3. ความตั้งใจที่ท่านจะทำให้เกิดขึ้นใหม่ในการทำหน้าที่ VME", en: "NEW INTENTIONS", placeholder: "ความตั้งใจหรือเป้าหมายใหม่ที่อยากทำให้สำเร็จ...", color: "var(--ink-700)", tint: "var(--white)", border: "var(--ink-200)" },
+    { id: "difference", label: "4. การทำหน้าที่ VME ในพื้นที่ มีอะไรบ้างที่ท่านตั้งใจทำให้แตกต่างจากที่เคยทำผ่านมา", en: "DIFFERENT APPROACH", placeholder: "สิ่งที่ท่านจะปรับปรุงหรือเปลี่ยนแปลงในการทำงานจริง...", color: "var(--ink-700)", tint: "var(--white)", border: "var(--ink-200)" },
+    { id: "message_to_self", label: "5. ท่านอยากบอกอะไรกับตัวเอง ในวันที่รู้สึกท้อหรือหมดไฟ จะได้ลุกและลุยต่อ", en: "MESSAGE TO SELF", placeholder: "ข้อความให้กำลังใจตัวเองเพื่อเป็นแรงผลักดันในอนาคต...", color: "var(--ink-700)", tint: "var(--white)", border: "var(--ink-200)" },
   ];
 
   return (
@@ -19,11 +21,38 @@ export default function ReflectionPage() {
 
       <div style={{ padding: "0 22px 100px" }}>
         <div style={{ marginBottom: 20 }}>
-          <DualLabel en="WHAT / SO WHAT / NOW WHAT" th="ถอดบทเรียนสั้นๆ"/>
+          <DualLabel en="REFLECTION JOURNEY" th="ถอดบทเรียนและตั้งเป้าหมาย"/>
           <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
             <Chip variant="gold">ทบทวนตัวเอง</Chip>
-            <Chip>ส่วนบุคคล</Chip>
+            <Chip>VME Insight</Chip>
           </div>
+        </div>
+
+        {/* Task Explanation */}
+        <div style={{ 
+          background: "var(--saffron-50)", 
+          border: "1px solid var(--saffron-200)",
+          borderRadius: "var(--r-md)",
+          padding: "16px",
+          marginBottom: "24px",
+          position: "relative",
+          overflow: "hidden"
+        }}>
+          <div style={{ 
+            position: "absolute", top: -10, right: -10, opacity: 0.1, color: "var(--saffron-600)" 
+          }}>
+            <Icons.ai size={80} />
+          </div>
+          <h3 style={{ 
+            fontSize: "14px", fontWeight: 700, color: "var(--saffron-800)", marginBottom: "8px",
+            display: "flex", alignItems: "center", gap: "6px"
+          }}>
+            <Icons.ai size={16} /> แนวทางการสรุปบทเรียน
+          </h3>
+          <p style={{ fontSize: "12px", color: "var(--saffron-900)", lineHeight: "1.6", margin: 0 }}>
+            การสะท้อนความคิด (Reflection) คือกระบวนการตกตะกอนสิ่งที่ได้รับ เพื่อเปลี่ยนประสบการณ์ให้เป็นพลังในการก้าวเดินต่อไป 
+            โปรดใช้เวลาสั้นๆ ทบทวนความรู้สึกและความตั้งใจของท่านผ่าน 5 คำถามสำคัญนี้ เพื่อสร้าง Roadmap ส่วนบุคคลในการทำหน้าที่ VME ให้ดียิ่งขึ้น
+          </p>
         </div>
 
         <ReflectionForm category="reflect" fields={reflectFields} layout="list" />

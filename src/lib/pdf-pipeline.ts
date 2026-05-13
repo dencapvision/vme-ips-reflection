@@ -1,20 +1,3 @@
-// Polyfill DOMMatrix for Cloudflare Workers / Node.js (pdfjs-dist requires this browser API)
-if (typeof globalThis.DOMMatrix === 'undefined') {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ;(globalThis as any).DOMMatrix = class DOMMatrix {
-    m11=1;m12=0;m13=0;m14=0; m21=0;m22=1;m23=0;m24=0
-    m31=0;m32=0;m33=1;m34=0; m41=0;m42=0;m43=0;m44=1
-    is2D=true; isIdentity=true
-    constructor(_init?: string | number[]) {}
-    inverse()             { return new (this.constructor as any)() }
-    multiply()            { return new (this.constructor as any)() }
-    translate()           { return new (this.constructor as any)() }
-    scale()               { return new (this.constructor as any)() }
-    rotate()              { return new (this.constructor as any)() }
-    transformPoint(p: any){ return p }
-  }
-}
-
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
@@ -87,6 +70,40 @@ export function chunkText(
   return chunks
 }
 
+// ── Extract PDF text via Gemini (no local library — works in Cloudflare Workers) ──
+async function extractTextFromPDF(pdfBuffer: Buffer): Promise<string> {
+  if (pdfBuffer.length > 15 * 1024 * 1024) {
+    throw new Error('ไฟล์ใหญ่เกิน 15MB สำหรับการ extract — กรุณาบีบอัดหรือแบ่งไฟล์')
+  }
+  const base64 = pdfBuffer.toString('base64')
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{
+          parts: [
+            { text: 'Extract ALL text from this PDF. Return only the plain text with paragraphs preserved. No commentary or markdown.' },
+            { inline_data: { mime_type: 'application/pdf', data: base64 } }
+          ]
+        }],
+        generationConfig: { temperature: 0, maxOutputTokens: 65536 }
+      })
+    }
+  )
+  if (!res.ok) {
+    const err = await res.text()
+    throw new Error(`Gemini PDF extract error (${res.status}): ${err.slice(0, 200)}`)
+  }
+  const data = await res.json()
+  const text: string = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
+  if (!text || text.trim().length < 50) {
+    throw new Error('ดึงข้อความจาก PDF ไม่ได้ — อาจเป็น scanned image หรือ PDF ที่มีแต่รูปภาพ')
+  }
+  return text
+}
+
 // ── Main pipeline ────────────────────────────────────────────────
 export async function processPDFBuffer(
   pdfBuffer: Buffer,
@@ -102,19 +119,14 @@ export async function processPDFBuffer(
   try {
     emit('parsing', 5, 'กำลัง parse PDF...')
 
-    // pdf-parse v2 uses class-based API (not the v1 function call)
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { PDFParse } = require('pdf-parse')
-    const parser = new PDFParse({ data: pdfBuffer })
-    const parsed = await parser.getText()
-    const rawText: string = parsed.text ?? ''
-    const numpages: number = parsed.total ?? parsed.pages?.length ?? 0
+    // Use Gemini to extract text — no local library needed, works in Cloudflare Workers
+    const rawText = await extractTextFromPDF(pdfBuffer)
 
     if (!rawText || rawText.trim().length < 80) {
-      throw new Error('PDF ไม่มีข้อความ หรือเป็น scanned image — กรุณาใช้ OCR ก่อน')
+      throw new Error('PDF ไม่มีข้อความ หรือเป็น scanned image')
     }
 
-    emit('chunking', 15, `${numpages} หน้า → กำลัง chunk...`)
+    emit('chunking', 15, 'กำลัง chunk...')
 
     const chunks = chunkText(rawText)
     emit('embedding', 20, `${chunks.length} chunks → กำลัง embed...`)
