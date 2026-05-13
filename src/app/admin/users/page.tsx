@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { getProfile } from '@/app/actions/profile'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createUser, deleteUser } from '@/app/actions/admin'
 import { redirect } from 'next/navigation'
@@ -13,17 +13,10 @@ export default async function UsersAdminPage({
   searchParams: Promise<{ error?: string; success?: string }>
 }) {
   // Verify admin access
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  const profile = await getProfile()
+  if (!profile) redirect('/login')
 
-  const { data: myProfile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  if (!myProfile?.role?.toLowerCase().includes('admin')) redirect('/')
+  if (!profile.role?.toLowerCase().includes('admin')) redirect('/')
 
   // List all users
   const supabaseAdmin = createAdminClient()
@@ -62,24 +55,24 @@ export default async function UsersAdminPage({
         {/* Create User Form */}
         <div style={{ background: "white", borderRadius: 16, border: "1px solid #E5D5F2", padding: 20, marginBottom: 20 }}>
           <h2 style={{ fontSize: 15, fontWeight: 700, color: "#4A345E", marginBottom: 16, marginTop: 0 }}>เพิ่มผู้ใช้งานใหม่</h2>
-          <form action={createUser} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <form action={createUser} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 12 }}>
               <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 600, marginBottom: 4, color: "#6A5A7A" }}>ชื่อจริง *</label>
-                <input name="first_name" required placeholder="ชื่อ" style={inputStyle} />
+                <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 6, color: "#6A5A7A" }}>ชื่อจริง *</label>
+                <input name="first_name" required placeholder="กรอกชื่อจริง" style={inputStyle} />
               </div>
               <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 600, marginBottom: 4, color: "#6A5A7A" }}>นามสกุล *</label>
-                <input name="last_name" required placeholder="นามสกุล" style={inputStyle} />
+                <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 6, color: "#6A5A7A" }}>นามสกุล *</label>
+                <input name="last_name" required placeholder="กรอกนามสกุล" style={inputStyle} />
               </div>
             </div>
             <div>
-              <label style={{ display: "block", fontSize: 12, fontWeight: 600, marginBottom: 4, color: "#6A5A7A" }}>เบอร์โทรศัพท์ * (ใช้เป็นรหัสผ่าน)</label>
-              <input name="phone" type="tel" required placeholder="0812345678" style={inputStyle} />
+              <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 6, color: "#6A5A7A" }}>เบอร์โทรศัพท์ * (ใช้เป็นรหัสผ่านเข้าใช้งาน)</label>
+              <input name="phone" type="tel" required placeholder="08x-xxx-xxxx" style={inputStyle} />
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 12 }}>
               <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 600, marginBottom: 4, color: "#6A5A7A" }}>บทบาท</label>
+                <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 6, color: "#6A5A7A" }}>บทบาท (Role)</label>
                 <select name="role" style={inputStyle}>
                   {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
@@ -167,7 +160,7 @@ export default async function UsersAdminPage({
 }
 
 const inputStyle: React.CSSProperties = {
-  width: "100%", padding: "10px 14px", borderRadius: 10,
-  border: "1px solid #E5D5F2", fontSize: 14, outline: "none",
+  width: "100%", padding: "14px 18px", borderRadius: 12,
+  border: "1px solid #E5D5F2", fontSize: 16, outline: "none",
   background: "white", boxSizing: "border-box",
 }

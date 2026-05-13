@@ -2,21 +2,14 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { getProfile } from '@/app/actions/profile'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 async function requireAdmin() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  const profile = await getProfile()
+  if (!profile) redirect('/login')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile?.role?.toLowerCase().includes('admin')) {
+  if (!profile.role?.toLowerCase().includes('admin')) {
     redirect('/')
   }
 }

@@ -7,12 +7,12 @@ import { Icons } from "@/components/Icons";
 type Message = { role: "user" | "assistant"; content: string };
 
 const SUGGESTIONS = [
-  { icon: "✨", text: "ช่วยอธิบายโครงการ IPS แบบเข้าใจง่ายหน่อยค่ะ" },
-  { icon: "🌍", text: "หลักสูตร NESE คืออะไร ดีต่ออนาคตยังไงคะ?" },
-  { icon: "❤️", text: "คุณพ่อคุณแม่ไม่เห็นด้วย จะพูดยังไงดีคะ?" },
-  { icon: "🧘", text: "บวชแล้วจะได้อะไรบ้างคะ น้องแก้วใสช่วยบอกที" },
-  { icon: "💡", text: "ช่วยร่างข้อความเชิญชวนเพื่อนทาง LINE หน่อยค่ะ" },
-  { icon: "🌸", text: "รู้สึกกังวลเรื่องอนาคต ขอกำลังใจหน่อยค่ะ" },
+  { icon: "🙏", text: "แนะนำโครงการ IPS ให้ท่านผู้สูงอายุเข้าใจง่าย" },
+  { icon: "✨", text: "ขอกำลังใจและธรรมะเป็นพลังใจในวันนี้" },
+  { icon: "📖", text: "หลักสูตร NESE มีความสำคัญต่อการสร้างเยาวชนอย่างไร?" },
+  { icon: "🤝", text: "วิธีการร่วมเป็นจิตอาสาเพื่อสนับสนุนงานศาสนา" },
+  { icon: "📣", text: "ร่างข้อความเชิญชวนกัลยาณมิตรมาร่วมงานบุญ" },
+  { icon: "💡", text: "แนวทางสื่อสารกับครอบครัวเรื่องการเข้าวัดปฏิบัติธรรม" },
 ];
 
 export default function KaewSaiPage() {
@@ -56,8 +56,12 @@ export default function KaewSaiPage() {
         }),
       });
 
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      if (!res.body) throw new Error("No stream body");
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || `ขออภัยค่ะ ระบบขัดข้อง (${res.status})`);
+      }
+      
+      if (!res.body) throw new Error("การเชื่อมต่อสัญญาณขาดหายไปค่ะ");
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
@@ -72,8 +76,9 @@ export default function KaewSaiPage() {
 
       setMessages((prev) => [...prev, { role: "assistant", content: full }]);
       setStreamingText("");
-    } catch {
-      setError("น้องแก้วใสขออภัยค่ะ พอดีสัญญาณขัดข้องนิดหน่อย ลองใหม่อีกครั้งนะคะ 🙏");
+    } catch (err: any) {
+      console.error("KaewSai Page Error:", err);
+      setError(`น้องแก้วใสขออภัยค่ะ พอดีสัญญาณขัดข้อง (${err.message}) ลองใหม่อีกครั้งนะคะ 🙏`);
     } finally {
       setStreaming(false);
     }
@@ -247,17 +252,17 @@ function WelcomeScreen({ onSuggest }: { onSuggest: (t: string) => void }) {
       }}>
         <KaewSaiAvatar size={72} />
         <div style={{ marginTop: 14, fontSize: 20, fontWeight: 700, color: "#4A345E" }}>
-          สวัสดีค่ะคุณพี่ 🙏
+          กราบสวัสดีท่านกัลยาณมิตรค่ะ 🙏
         </div>
         <div style={{ fontSize: 14.5, fontWeight: 600, color: "#8E6DA1", marginTop: 4 }}>
-          หนูคือ "น้องแก้วใส" ยอดกัลยาณมิตรค่ะ
+          น้องแก้วใส ยินดีรับใช้และเป็นกัลยาณมิตรค่ะ
         </div>
         <div style={{
           marginTop: 12, fontSize: 13.5, color: "#6A5A7A", lineHeight: 1.7,
         }}>
-          หนูพร้อมเป็นที่ปรึกษาในเส้นทางศาสนทายาท IPS
-          ไม่ว่าจะเป็นเรื่องทุนการศึกษา การแก้ข้อสงสัยของผู้ปกครอง 
-          หรือขอกำลังใจในการฝึกตน น้องแก้วใสยินดีช่วยเต็มที่เลยนะคะ
+          น้องแก้วใสพร้อมเป็นที่ปรึกษาและกัลยาณมิตรในโครงการ IPS
+          เพื่อสนับสนุนการสืบค้นข้อมูลด้านการศึกษา และงานจิตอาสา
+          ท่านมีเรื่องใดที่ประสงค์ให้น้องแก้วใสช่วยอำนวยความสะดวกในวันนี้คะ?
         </div>
       </div>
 

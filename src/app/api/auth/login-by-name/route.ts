@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
+
 import { createAdminClient } from '@/lib/supabase/admin'
 
 
@@ -10,14 +11,17 @@ export async function POST(request: NextRequest) {
     
     try {
       if (contentType.includes('application/json')) {
-        body = await request.json()
-      } else {
+        const text = await request.text()
+        if (text) {
+          body = JSON.parse(text)
+        }
+      } else if (contentType.includes('multipart/form-data') || contentType.includes('application/x-www-form-urlencoded')) {
         const formData = await request.formData()
         body = Object.fromEntries(formData)
       }
     } catch (e) {
-      console.error('Error parsing body:', e)
-      return NextResponse.json({ error: 'ไม่สามารถอ่านข้อมูลที่ส่งมาได้' }, { status: 400 })
+      console.error('Error parsing body detail:', e)
+      return NextResponse.json({ error: `ไม่สามารถอ่านข้อมูลที่ส่งมาได้: ${e instanceof Error ? e.message : 'Unknown error'}` }, { status: 400 })
     }
 
     const first_name = (body.first_name as string || '').trim()

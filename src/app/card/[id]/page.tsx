@@ -48,8 +48,27 @@ export default async function DigitalCardPage({ params }: { params: Promise<{ id
               คุณ{profile.first_name} {profile.last_name}
             </h1>
             
-            <div style={{ fontSize: 14, color: "var(--ink-600)", fontWeight: 500, textAlign: "center", marginBottom: 20 }}>
+            <div style={{ fontSize: 14, color: "var(--ink-600)", fontWeight: 500, textAlign: "center", marginBottom: 4 }}>
               {profile.role} {profile.group_name && `· ${profile.group_name}`}
+            </div>
+
+            {profile.organization && (
+              <div style={{ fontSize: 13, color: "var(--saffron-700)", fontWeight: 600, textAlign: "center", marginBottom: 12 }}>
+                {profile.organization}
+              </div>
+            )}
+
+            {profile.address && (
+              <div style={{ fontSize: 12, color: "var(--ink-500)", textAlign: "center", marginBottom: 20, maxWidth: '80%' }}>
+                {profile.address}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
+              {profile.facebook_url && <a href={profile.facebook_url} target="_blank" style={socialIconStyle}><Icons.facebook size={18} stroke="var(--ink-600)"/></a>}
+              {profile.instagram_url && <a href={profile.instagram_url} target="_blank" style={socialIconStyle}><Icons.instagram size={18} stroke="var(--ink-600)"/></a>}
+              {profile.tiktok_url && <a href={profile.tiktok_url} target="_blank" style={socialIconStyle}><Icons.tiktok size={18} stroke="var(--ink-600)"/></a>}
+              {profile.youtube_url && <a href={profile.youtube_url} target="_blank" style={socialIconStyle}><Icons.youtube size={18} stroke="var(--ink-600)"/></a>}
             </div>
 
             {(profile.motto || profile.virtue) && (
@@ -65,41 +84,54 @@ export default async function DigitalCardPage({ params }: { params: Promise<{ id
 
             <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 12 }}>
               {profile.phone && (
-                <a href={`tel:${profile.phone}`} style={{
-                  display: "flex", alignItems: "center", gap: 12, padding: "14px 16px",
-                  background: "var(--ink-50)", borderRadius: 12, textDecoration: "none", color: "var(--ink-800)"
-                }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 18, background: "white", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <Icons.chat size={16} stroke="var(--saffron-600)"/>
+                <a href={`tel:${profile.phone}`} style={contactItemStyle}>
+                  <div style={contactIconWrapStyle}>
+                    <Icons.phone size={16} stroke="var(--saffron-600)"/>
                   </div>
                   <div style={{ flex: 1, fontWeight: 500 }}>{profile.phone}</div>
                 </a>
               )}
               
-              {profile.line_id && (
-                <div style={{
-                  display: "flex", alignItems: "center", gap: 12, padding: "14px 16px",
-                  background: "var(--ink-50)", borderRadius: 12, color: "var(--ink-800)"
-                }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 18, background: "white", display: "flex", alignItems: "center", justifyContent: "center", color: "#00B900" }}>
+              {(profile.line_id || profile.line_url) && (
+                <a href={profile.line_url || `https://line.me/ti/p/~${profile.line_id}`} target="_blank" style={{...contactItemStyle, textDecoration: 'none'}}>
+                  <div style={{ ...contactIconWrapStyle, color: "#00B900" }}>
                     <Icons.users size={16} stroke="currentColor"/>
                   </div>
-                  <div style={{ flex: 1, fontWeight: 500 }}>LINE: {profile.line_id}</div>
+                  <div style={{ flex: 1, fontWeight: 500 }}>LINE: {profile.line_id || 'ติดต่อผ่านลิงก์'}</div>
+                </a>
+              )}
+
+              {profile.line_qr_url && (
+                <div style={{ padding: 12, background: 'var(--ink-50)', borderRadius: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                   <img src={profile.line_qr_url} alt="Line QR" style={{ width: 120, height: 120, borderRadius: 8 }} />
+                   <div style={{ fontSize: 11, color: 'var(--ink-400)' }}>สแกนเพื่อเพิ่มเพื่อนใน LINE</div>
                 </div>
               )}
 
               {profile.province && (
-                <div style={{
-                  display: "flex", alignItems: "center", gap: 12, padding: "14px 16px",
-                  background: "var(--ink-50)", borderRadius: 12, color: "var(--ink-800)"
-                }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 18, background: "white", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div style={contactItemStyle}>
+                  <div style={contactIconWrapStyle}>
                     <Icons.pin size={16} stroke="var(--saffron-600)"/>
                   </div>
                   <div style={{ flex: 1, fontWeight: 500 }}>{profile.province}</div>
                 </div>
               )}
             </div>
+
+            {profile.activity_photos && profile.activity_photos.length > 0 && (
+              <div style={{ width: '100%', marginTop: 32 }}>
+                <h2 style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink-900)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Icons.spark size={16} stroke="var(--saffron-600)"/> กิจกรรมทบทวนความดี
+                </h2>
+                <div style={{ display: 'grid', gridTemplateColumns: profile.activity_photos.length === 1 ? '1fr' : 'repeat(2, 1fr)', gap: 8 }}>
+                  {profile.activity_photos.map((url: string, i: number) => (
+                    <div key={i} style={{ aspectRatio: '1/1', borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+                      <img src={url} alt={`Activity ${i+1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div style={{ marginTop: 32, fontSize: 12, color: "var(--ink-400)", textAlign: "center" }}>
               Powered by VME · IPS REFLECTION
@@ -109,4 +141,38 @@ export default async function DigitalCardPage({ params }: { params: Promise<{ id
       </div>
     </div>
   );
+}
+
+const socialIconStyle = {
+  width: 40,
+  height: 40,
+  borderRadius: 20,
+  background: "white",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+  border: "1px solid var(--ink-100)",
+  textDecoration: "none"
+}
+
+const contactItemStyle = {
+  display: "flex",
+  alignItems: "center",
+  gap: 12,
+  padding: "14px 16px",
+  background: "var(--ink-50)",
+  borderRadius: 12,
+  textDecoration: "none",
+  color: "var(--ink-800)"
+}
+
+const contactIconWrapStyle = {
+  width: 36,
+  height: 36,
+  borderRadius: 18,
+  background: "white",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center"
 }

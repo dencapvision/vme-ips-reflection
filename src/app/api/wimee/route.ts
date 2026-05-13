@@ -1,4 +1,4 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { getGeminiModel } from "@/lib/clients";
 
 const WIMEE_SYSTEM = `
 คุณคือ "น้องวีมี่" (Wimi) — ผู้ช่วย AI ของโครงการ VME · IPS ที่มีจิตวิญญาณของกัลยาณมิตร
@@ -13,8 +13,10 @@ const WIMEE_SYSTEM = `
 ━━━━━━━━━━━━━━━━━━━━━━━━━
 🙏 คุณสมบัติกัลยาณมิตรที่วีมี่ยึดถือ
 ━━━━━━━━━━━━━━━━━━━━━━━━━
-1. ปิโย (น่ารัก) — พูดจาไพเราะ อบอุ่น ทำให้รู้สึกว่าคุยด้วยแล้วสบายใจ ไม่เกร็ง
-2. ครุ (น่าเคารพ) — มีความรู้จริง ตอบด้วยเหตุผล ข้อมูลถูกต้อง ไม่เดา
+1. ปิโย (น่ารัก) — พูดจาไพเราะ อบอุ่น และ **ถูกต้องตามหลักไวยากรณ์ไทย**
+   - ใช้ "คะ" เฉพาะลงท้ายประโยคคำถาม (เช่น พี่สนใจไหมคะ?, มีอะไรให้วีมี่ช่วยไหมคะ?)
+   - ใช้ "ค่ะ" ลงท้ายประโยคบอกเล่า การตอบรับ และการทักทาย (เช่น สวัสดีค่ะพี่, วีมี่ยินดีค่ะ, ทราบเรื่องแล้วค่ะ)
+2. ครุ (น่าเคารพ) — มีความรู้จริง ตอบด้วยเหตุผล ข้อมูลถูกต้อง ไม่มโนชื่อภาษาอังกฤษเอง
 3. ภาวนีโย (น่าเทิดทูน) — แสดงความประพฤติดีงาม เป็นแบบอย่าง ไม่พูดส่งเสริมสิ่งไม่ดี
 4. วัตตา จ (อดทนรับฟัง) — รับฟังสถานการณ์และปัญหาของอาสาด้วยความอดทน ไม่ตัดสิน
 5. วจนักขโม (ฉลาดพร่ำสอน) — ให้คำแนะนำที่ลึกซึ้ง ตรงประเด็น ปฏิบัติได้จริง
@@ -24,7 +26,7 @@ const WIMEE_SYSTEM = `
 ━━━━━━━━━━━━━━━━━━━━━━━━━
 📚 ความรู้เกี่ยวกับโครงการ IPS
 ━━━━━━━━━━━━━━━━━━━━━━━━━
-ชื่อเต็ม: International Program for Sangha (IPS10)
+ชื่อเต็ม: International Program for Sangha (IPS10) — (โครงการบวชเรียนนานาชาติ)
 สังกัด: DCI — Dhamma Chakra International
 
 กลุ่มเป้าหมาย:
@@ -55,7 +57,7 @@ const WIMEE_SYSTEM = `
 ━━━━━━━━━━━━━━━━━━━━━━━━━
 💬 วิธีที่วีมี่สื่อสาร
 ━━━━━━━━━━━━━━━━━━━━━━━━━
-ภาษา: ไทยสุภาพ อบอุ่น เป็นมิตร ไม่เป็นทางการจนเกินไป
+ภาษา: ไทยสุภาพ อบอุ่น เป็นมิตร และ **เป๊ะเรื่อง คะ/ค่ะ**
 การเรียกขาน: เรียกผู้ใช้ว่า "พี่" หรือตามชื่อที่บอก — เรียกตัวเองว่า "วีมี่"
 โทน: เหมือนน้องสาวที่รักพี่ มีความรู้ดี เชื่อถือได้ แต่ไม่ทำตัวเย็นชา
 การตอบ:
@@ -63,7 +65,7 @@ const WIMEE_SYSTEM = `
   - ให้สคริปต์/ตัวอย่างคำพูดที่พี่นำไปใช้ได้จริง
   - อ้างอิงหลักธรรมเมื่อเหมาะสม โดยอธิบายให้เข้าใจง่าย
   - ตอบด้วยความเห็นใจ ไม่ตำหนิหรือดูถูก
-  - ถ้าไม่รู้จริง ยอมรับตรงๆ อย่าเดาหรือแต่งเรื่อง
+  - ถ้าไม่รู้จริง ยอมรับตรงๆ อย่ามโนข้อมูลเองเด็ดขาด
 
 สิ่งที่ห้ามทำเด็ดขาด:
   - ไม่โกหกหรือเกินจริงเกี่ยวกับโครงการ
@@ -85,48 +87,60 @@ const WIMEE_SYSTEM = `
 `;
 
 export async function POST(req: Request) {
-  if (!process.env.ANTHROPIC_API_KEY) {
+  try {
+    if (!process.env.GEMINI_API_KEY) {
+      return new Response(
+        JSON.stringify({ error: "กรุณาตั้งค่า GEMINI_API_KEY ใน Cloudflare Dashboard" }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    const { messages } = await req.json();
+
+    const geminiModel = getGeminiModel('gemini-1.5-flash', WIMEE_SYSTEM);
+
+    // Map history (excluding the last message)
+    const history = messages.slice(0, -1).map((m: any) => ({
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: m.content }]
+    }));
+    
+    const lastMessageText = messages[messages.length - 1].content;
+
+    const chat = geminiModel.startChat({
+      history: history,
+    });
+
+    const result = await chat.sendMessageStream(lastMessageText);
+
+    const readable = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of result.stream) {
+            const text = chunk.text();
+            controller.enqueue(new TextEncoder().encode(text));
+          }
+        } catch (streamErr: any) {
+          console.error("Gemini stream error:", streamErr);
+          controller.error(streamErr);
+        } finally {
+          controller.close();
+        }
+      },
+    });
+
+    return new Response(readable, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-cache",
+        "X-Accel-Buffering": "no",
+      },
+    });
+  } catch (err: any) {
+    console.error("Wimee Route Error:", err);
     return new Response(
-      JSON.stringify({ error: "กรุณาตั้งค่า ANTHROPIC_API_KEY ใน .env.local" }),
+      JSON.stringify({ error: `Internal Server Error: ${err.message}` }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
-
-  const { messages } = await req.json();
-
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-  const stream = await client.messages.create({
-    model: "claude-opus-4-6",
-    max_tokens: 4096,
-    thinking: { type: "adaptive" },
-    system: WIMEE_SYSTEM,
-    messages,
-    stream: true,
-  });
-
-  const readable = new ReadableStream({
-    async start(controller) {
-      try {
-        for await (const event of stream) {
-          // Only forward visible text — skip thinking blocks
-          if (
-            event.type === "content_block_delta" &&
-            event.delta.type === "text_delta"
-          ) {
-            controller.enqueue(new TextEncoder().encode(event.delta.text));
-          }
-        }
-      } finally {
-        controller.close();
-      }
-    },
-  });
-
-  return new Response(readable, {
-    headers: {
-      "Content-Type": "text/plain; charset=utf-8",
-      "Cache-Control": "no-cache",
-      "X-Accel-Buffering": "no",
-    },
-  });
 }

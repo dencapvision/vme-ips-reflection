@@ -35,8 +35,11 @@ create policy "Allow delete access to admin" on public.knowledge_base
   for delete using (auth.role() = 'authenticated');
 
 -- Create RPC for vector similarity search
--- Note: We drop it first to avoid "cannot change return type" error if it already exists
+-- Note: We must drop it first because we are changing the return type (adding columns)
+-- We try a few variations to ensure it matches the existing signature
 drop function if exists public.match_knowledge(vector, double precision, integer);
+drop function if exists public.match_knowledge(extensions.vector, float8, int4);
+drop function if exists public.match_knowledge(extensions.vector, double precision, integer);
 
 create or replace function public.match_knowledge (
   query_embedding vector(768),
@@ -48,6 +51,10 @@ returns table (
   source_file text,
   title text,
   content text,
+  page_start int,
+  page_end int,
+  category text,
+  metadata jsonb,
   similarity float
 )
 language sql stable
@@ -57,6 +64,10 @@ as $$
     source_file,
     title,
     content,
+    page_start,
+    page_end,
+    category,
+    metadata,
     1 - (embedding <=> query_embedding) as similarity
   from public.knowledge_base
   where 1 - (embedding <=> query_embedding) > match_threshold

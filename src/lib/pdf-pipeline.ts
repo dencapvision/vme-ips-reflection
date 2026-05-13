@@ -1,6 +1,20 @@
-// pdf-parse is a CommonJS module without a default export
-const pdfParse = require('pdf-parse');
-import { createEmbedding } from './embedding'
+// Polyfill DOMMatrix for Cloudflare Workers / Node.js (pdfjs-dist requires this browser API)
+if (typeof globalThis.DOMMatrix === 'undefined') {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ;(globalThis as any).DOMMatrix = class DOMMatrix {
+    m11=1;m12=0;m13=0;m14=0; m21=0;m22=1;m23=0;m24=0
+    m31=0;m32=0;m33=1;m34=0; m41=0;m42=0;m43=0;m44=1
+    is2D=true; isIdentity=true
+    constructor(_init?: string | number[]) {}
+    inverse()             { return new (this.constructor as any)() }
+    multiply()            { return new (this.constructor as any)() }
+    translate()           { return new (this.constructor as any)() }
+    scale()               { return new (this.constructor as any)() }
+    rotate()              { return new (this.constructor as any)() }
+    transformPoint(p: any){ return p }
+  }
+}
+
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
@@ -8,81 +22,151 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function extractTextFromPDF(buffer: Buffer) {
-  const data = await pdfParse(buffer)
-  return { text: data.text, pages: data.numpages }
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY!
+
+// ── Embedding (single) ──────────────────────────────────────────
+export async function createEmbedding(text: string): Promise<number[]> {
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1/models/text-embedding-004:embedContent?key=${GEMINI_API_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'models/text-embedding-004',
+        content: { parts: [{ text: text.slice(0, 8000) }] }
+      })
+    }
+  )
+  if (!res.ok) throw new Error(`Gemini embed error: ${await res.text()}`)
+  const data = await res.json()
+  return data.embedding.values as number[]
 }
 
-export function chunkText(text: string, chunkSize = 800, overlap = 150) {
-  const clean = text.replace(/\s+/g, ' ').trim()
-  const chunks: { content: string; start: number; end: number }[] = []
-  let pos = 0
-  while (pos < clean.length) {
-    let end = pos + chunkSize
-    if (end < clean.length) {
-      const lastDot = clean.lastIndexOf('.', end)
-      const lastNl  = clean.lastIndexOf('\n', end)
-      const cut = Math.max(lastDot, lastNl)
-      if (cut > pos + chunkSize * 0.5) end = cut + 1
+// ── Embedding (PARALLEL batch) ──────────────────────────────────
+export async function createEmbeddingsBatch(
+  texts: string[],
+  onProgress?: (done: number, total: number) => void
+): Promise<number[][]> {
+  const PARALLEL = 10
+  const PAUSE_MS = 300
+  const results: number[][] = new Array(texts.length)
+
+  for (let i = 0; i < texts.length; i += PARALLEL) {
+    const batch = texts.slice(i, i + PARALLEL)
+    const batchEmbeds = await Promise.all(batch.map(t => createEmbedding(t)))
+    batchEmbeds.forEach((e, j) => { results[i + j] = e })
+    onProgress?.(Math.min(i + PARALLEL, texts.length), texts.length)
+    if (i + PARALLEL < texts.length) {
+      await new Promise(r => setTimeout(r, PAUSE_MS))
     }
-    const content = clean.slice(pos, end).trim()
-    if (content.length > 50) chunks.push({ content, start: pos, end })
-    pos = end - overlap
+  }
+  return results
+}
+
+// ── Chunking (word-based, overlap-aware) ────────────────────────
+export function chunkText(
+  text: string,
+  chunkSize = 700,
+  overlap = 100
+): string[] {
+  const clean = text
+    .replace(/\s+/g, ' ')
+    .replace(/[\u0000-\u001F\u007F]/g, '')
+    .trim()
+
+  const words = clean.split(' ')
+  const chunks: string[] = []
+  let start = 0
+
+  while (start < words.length) {
+    const end = Math.min(start + chunkSize, words.length)
+    const chunk = words.slice(start, end).join(' ')
+    if (chunk.trim().length > 60) chunks.push(chunk.trim())
+    start += chunkSize - overlap
   }
   return chunks
 }
 
-export async function processPDF({
-  buffer, filename, category = 'general', sourceUrl, onProgress,
-}: {
-  buffer: Buffer
-  filename: string
-  category?: string
-  sourceUrl?: string
-  onProgress?: (msg: string, pct: number) => void
-}) {
-  const log = (msg: string, pct: number) => {
-    console.log(`[${filename}] ${msg} (${pct}%)`)
-    onProgress?.(msg, pct)
+// ── Main pipeline ────────────────────────────────────────────────
+export async function processPDFBuffer(
+  pdfBuffer: Buffer,
+  documentId: string,
+  filename: string,
+  onProgress?: (event: ProgressEvent) => void
+): Promise<{ success: boolean; chunkCount: number; error?: string }> {
+
+  const emit = (stage: ProgressEvent['stage'], pct: number, detail?: string) => {
+    onProgress?.({ stage, pct, detail })
   }
 
-  log('กำลัง extract text...', 10)
-  const { text, pages } = await extractTextFromPDF(buffer)
-  if (!text || text.length < 100) throw new Error('PDF ไม่มีข้อความ หรือเป็น PDF รูปภาพ')
+  try {
+    emit('parsing', 5, 'กำลัง parse PDF...')
 
-  log('กำลังแบ่ง chunks...', 25)
-  const chunks = chunkText(text)
-  log(`แบ่งได้ ${chunks.length} chunks จาก ${pages} หน้า`, 35)
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const pdfParse = require('pdf-parse')
+    const { text: rawText, numpages } = await pdfParse(pdfBuffer, { max: 0 })
 
-  await supabase.from('knowledge_base').delete().eq('source_file', filename)
+    if (!rawText || rawText.trim().length < 80) {
+      throw new Error('PDF ไม่มีข้อความ หรือเป็น scanned image — กรุณาใช้ OCR ก่อน')
+    }
 
-  const BATCH = 5
-  let done = 0
-  for (let i = 0; i < chunks.length; i += BATCH) {
-    const batch = chunks.slice(i, i + BATCH)
-    const embeddings = await Promise.all(batch.map(c => createEmbedding(c.content)))
-    const rows = batch.map((chunk, j) => ({
-      source_file: filename,
-      source_url:  sourceUrl ?? null,
-      chunk_index: i + j,
-      chunk_total: chunks.length,
-      page_start:  Math.max(1, Math.floor((chunk.start / text.length) * pages) + 1),
-      page_end:    Math.min(pages, Math.ceil((chunk.end / text.length) * pages)),
-      title:       `${filename.replace('.pdf', '')} — ส่วนที่ ${i + j + 1}`,
-      content:     chunk.content,
-      category,
-      embedding:   embeddings[j],
-      metadata:    { total_pages: pages, total_chunks: chunks.length },
-    }))
-    const { error } = await supabase.from('knowledge_base').insert(rows)
-    if (error) throw new Error(`Supabase insert error: ${error.message}`)
-    done += batch.length
-    const pct = 35 + Math.round((done / chunks.length) * 60)
-    log(`Embedded ${done}/${chunks.length} chunks`, pct)
-    if (i + BATCH < chunks.length) await new Promise(r => setTimeout(r, 600))
+    emit('chunking', 15, `${numpages} หน้า → กำลัง chunk...`)
+
+    const chunks = chunkText(rawText)
+    emit('embedding', 20, `${chunks.length} chunks → กำลัง embed...`)
+
+    const embeddings = await createEmbeddingsBatch(
+      chunks,
+      (done, total) => {
+        const pct = 20 + Math.round((done / total) * 65)
+        emit('embedding', pct, `embedding ${done}/${total} chunks`)
+      }
+    )
+
+    emit('saving', 87, `กำลังบันทึก ${chunks.length} chunks ลง Supabase...`)
+
+    const BULK_SIZE = 50
+    for (let i = 0; i < chunks.length; i += BULK_SIZE) {
+      const rows = chunks.slice(i, i + BULK_SIZE).map((text, j) => ({
+        document_id: documentId,
+        chunk_text:  text,
+        chunk_index: i + j,
+        embedding:   embeddings[i + j],
+        metadata: {
+          filename,
+          chunk_index:  i + j,
+          total_chunks: chunks.length
+        }
+      }))
+
+      const { error } = await supabase.from('knowledge_chunks').insert(rows)
+      if (error) throw error
+
+      const pct = 87 + Math.round(((i + BULK_SIZE) / chunks.length) * 10)
+      emit('saving', Math.min(pct, 97), `บันทึก ${Math.min(i + BULK_SIZE, chunks.length)}/${chunks.length}`)
+    }
+
+    await supabase
+      .from('knowledge_documents')
+      .update({ status: 'ready', chunk_count: chunks.length })
+      .eq('id', documentId)
+
+    emit('done', 100, `✅ พร้อมใช้งาน — ${chunks.length} chunks`)
+    return { success: true, chunkCount: chunks.length }
+
+  } catch (err: any) {
+    console.error('[pdf-pipeline]', err)
+    await supabase
+      .from('knowledge_documents')
+      .update({ status: 'error' })
+      .eq('id', documentId)
+    emit('error', 0, err.message)
+    return { success: false, chunkCount: 0, error: err.message }
   }
-
-  log('✅ เสร็จสมบูรณ์!', 100)
-  return { filename, pages, chunks: chunks.length, category }
 }
 
+export type ProgressEvent = {
+  stage: 'parsing' | 'chunking' | 'embedding' | 'saving' | 'done' | 'error'
+  pct: number
+  detail?: string
+}

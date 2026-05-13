@@ -1,46 +1,49 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
+import { SESSION_COOKIE } from '@/lib/session'
 
+/**
+ * Server action: clear the session cookie and redirect to /login.
+ * Called from any "logout" button.
+ */
+export async function logout() {
+  const cookieStore = await cookies()
+  cookieStore.set(SESSION_COOKIE, '', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 0,
+  })
+  redirect('/login')
+}
+
+/**
+ * Legacy email login — kept for backward compatibility with admin
+ * accounts that still exist in Supabase Auth.
+ * New admin accounts should use the `admins` table + /api/auth/admin-login.
+ */
 export async function loginWithEmail(formData: FormData) {
-  const email = formData.get('email') as string
+  const { createClient } = await import('@/lib/supabase/server')
+  const email    = formData.get('email')    as string
   const password = formData.get('password') as string
 
-  try {
-    const supabase = await createClient()
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-
-    if (error) {
-      return { error: error.message }
-    }
-
-    return { success: true }
-  } catch (err: any) {
-    console.error('Login error:', err)
-    return { error: err.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ' }
-  }
-}
-
-export async function loginWithName(formData: FormData) {
-  const first_name = (formData.get('first_name') as string).trim()
-  const last_name = (formData.get('last_name') as string).trim()
-  const phone = (formData.get('phone') as string).replace(/\D/g, '')
-
-  // We need to find the user's email first. 
-  // Since we don't have an admin client in server actions easily,
-  // we'll call the existing API route but with better error handling there,
-  // OR we can implement the lookup here if we have a secure way.
-  
-  // Actually, let's keep the API route for name login but fix it.
-}
-
-export async function logout() {
   const supabase = await createClient()
-  await supabase.auth.signOut()
-  redirect('/login')
+  const { error } = await supabase.auth.signInWithPassword({ email, password })
+  if (error) return { error: error.message }
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+    if (profile?.role?.toLowerCase().includes('admin')) {
+      return { success: true, redirect: '/admin/users' }
+    }
+  }
+  return { success: true, redirect: '/' }
 }

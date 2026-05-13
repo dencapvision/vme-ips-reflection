@@ -26,6 +26,7 @@ export const viewport: Viewport = {
   themeColor: "#FBF7F1",
 };
 
+import { TabBar } from "@/components/TabBar";
 import GuidedPrompts from "@/components/GuidedPrompts";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${sarabun.className} antialiased text-gray-900 bg-gray-50 selection:bg-blue-100`}>
         <div className="app-shell">
           {children}
+          <TabBar />
           <GuidedPrompts />
         </div>
       </body>
