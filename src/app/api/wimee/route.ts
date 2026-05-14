@@ -97,31 +97,56 @@ export async function POST(req: Request) {
 
     const { messages } = await req.json();
 
-    const geminiModel = getGeminiModel('gemini-2.0-flash', WIMEE_SYSTEM);
-
     // Map history (excluding the last message)
     const history = messages.slice(0, -1).map((m: any) => ({
       role: m.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: m.content }]
     }));
-    
     const lastMessageText = messages[messages.length - 1].content;
 
-    const chat = geminiModel.startChat({
-      history: history,
-    });
+    // Fallback model chain (quota-aware)
+    const MODEL_CHAIN = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash'];
+    let streamResult: any = null;
 
-    const result = await chat.sendMessageStream(lastMessageText);
+    for (const modelName of MODEL_CHAIN) {
+      try {
+        const model = getGeminiModel(modelName, WIMEE_SYSTEM);
+        const chat = model.startChat({ history });
+        streamResult = await chat.sendMessageStream(lastMessageText);
+        console.log(`[Wimee] Using model: ${modelName}`);
+        break;
+      } catch (err: any) {
+        const isQuota = err.message?.includes('429') || err.message?.includes('quota') || err.message?.includes('Too Many Requests');
+        if (isQuota && MODEL_CHAIN.indexOf(modelName) < MODEL_CHAIN.length - 1) {
+          console.warn(`[Wimee] ${modelName} quota exceeded, trying fallback...`);
+          continue;
+        }
+        const quotaMsg = isQuota
+          ? 'ขออภัยค่ะ ระบบ AI มีการใช้งานเกินโควต้าในขณะนี้ กรุณาลองใหม่ในอีกสักครู่ค่ะ'
+          : `Internal Server Error: ${err.message}`;
+        return new Response(
+          JSON.stringify({ error: quotaMsg }),
+          { status: isQuota ? 429 : 500, headers: { "Content-Type": "application/json" } }
+        );
+      }
+    }
+
+    if (!streamResult) {
+      return new Response(
+        JSON.stringify({ error: 'ขออภัยค่ะ ระบบ AI มีการใช้งานเกินโควต้าทุกรุ่นในขณะนี้ กรุณาลองใหม่ในอีกสักครู่ค่ะ' }),
+        { status: 429, headers: { "Content-Type": "application/json" } }
+      );
+    }
 
     const readable = new ReadableStream({
       async start(controller) {
         try {
-          for await (const chunk of result.stream) {
+          for await (const chunk of streamResult.stream) {
             const text = chunk.text();
             controller.enqueue(new TextEncoder().encode(text));
           }
         } catch (streamErr: any) {
-          console.error("Gemini stream error:", streamErr);
+          console.error("[Wimee] stream error:", streamErr);
           controller.error(streamErr);
         } finally {
           controller.close();

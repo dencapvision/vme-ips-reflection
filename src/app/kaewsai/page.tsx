@@ -78,7 +78,10 @@ export default function KaewSaiPage() {
       setStreamingText("");
     } catch (err: any) {
       console.error("KaewSai Page Error:", err);
-      setError(`น้องแก้วใสขออภัยค่ะ พอดีสัญญาณขัดข้อง (${err.message}) ลองใหม่อีกครั้งนะคะ 🙏`);
+      const isQuota = err.message?.includes('429') || err.message?.includes('quota') || err.message?.includes('โควต้า');
+      setError(isQuota
+        ? err.message
+        : `น้องแก้วใสขออภัยค่ะ พอดีสัญญาณขัดข้อง (${err.message}) ลองใหม่อีกครั้งนะคะ 🙏`);
     } finally {
       setStreaming(false);
     }

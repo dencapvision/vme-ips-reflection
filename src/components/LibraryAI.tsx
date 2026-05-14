@@ -92,9 +92,12 @@ export default function LibraryAI() {
       setStreamingText('')
     } catch (err: any) {
       console.error("LibraryAI Error:", err);
+      const isQuota = err.message?.includes('429') || err.message?.includes('quota') || err.message?.includes('QUOTA_ERROR');
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: `ขออภัยค่ะ น้องแก้วใสพบข้อผิดพลาด: ${err.message || 'สัญญาณขัดข้อง'} กรุณาลองใหม่อีกครั้งนะคะ 🙏`
+        content: isQuota
+          ? 'ขออภัยค่ะ ขณะนี้ระบบ AI มีผู้ใช้งานเกินโควต้ารายวันค่ะ กรุณาลองใหม่ในอีก 1-2 นาที หรือรอพรุ่งนี้เพื่อให้โควต้ารีเซ็ตนะคะ 🙏'
+          : `ขออภัยค่ะ น้องแก้วใสพบข้อผิดพลาด: ${err.message || 'สัญญาณขัดข้อง'} กรุณาลองใหม่อีกครั้งนะคะ 🙏`
       }])
     } finally {
       setLoading(false)

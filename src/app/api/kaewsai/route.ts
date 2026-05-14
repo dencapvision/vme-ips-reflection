@@ -124,51 +124,65 @@ export async function POST(req: Request) {
 
     console.log(`[AI] Cleaned history with ${history.length} messages.`);
 
-    // Initialize Gemini with System Instruction (incorporating RAG context)
-    const geminiModel = getGeminiModel('gemini-2.0-flash', KAEWSAI_SYSTEM(context));
-    
-    try {
-      const chat = geminiModel.startChat({ history });
-      const result = await chat.sendMessageStream(lastUserMessage);
+    // Initialize Gemini with fallback model chain (quota-aware)
+    const MODEL_CHAIN = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash'];
+    let streamResult: any = null;
 
-      console.log("[AI] Gemini Stream initiated");
+    for (const modelName of MODEL_CHAIN) {
+      try {
+        const model = getGeminiModel(modelName, KAEWSAI_SYSTEM(context));
+        const chat = model.startChat({ history });
+        streamResult = await chat.sendMessageStream(lastUserMessage);
+        console.log(`[AI] Using model: ${modelName}`);
+        break;
+      } catch (err: any) {
+        const isQuota = err.message?.includes('429') || err.message?.includes('quota') || err.message?.includes('Too Many Requests');
+        if (isQuota && MODEL_CHAIN.indexOf(modelName) < MODEL_CHAIN.length - 1) {
+          console.warn(`[AI] ${modelName} quota exceeded, trying fallback...`);
+          continue;
+        }
+        console.error("[AI] Gemini API Execution Error:", err);
+        const quotaMsg = isQuota
+          ? 'ขออภัยค่ะ ระบบ AI มีการใช้งานเกินโควต้าทุกรุ่นในขณะนี้ กรุณาลองใหม่ในอีกสักครู่ หรือติดต่อผู้ดูแลระบบค่ะ'
+          : `AI Execution Error: ${err.message || 'Unknown error'}`;
+        return new Response(
+          JSON.stringify({ error: quotaMsg, type: isQuota ? 'QUOTA_ERROR' : 'GEMINI_ERROR' }),
+          { status: isQuota ? 429 : 500, headers: { "Content-Type": "application/json" } }
+        );
+      }
+    }
 
-      const readable = new ReadableStream({
-        async start(controller) {
-          try {
-            for await (const chunk of result.stream) {
-              const text = chunk.text();
-              controller.enqueue(new TextEncoder().encode(text));
-            }
-            console.log("[AI] Stream finished successfully");
-          } catch (streamErr: any) {
-            console.error("[AI] Streaming Error:", streamErr);
-            // If we can't send a JSON error through a partially open stream, 
-            // the client will just see the stream end abruptly.
-            controller.error(streamErr);
-          } finally {
-            controller.close();
-          }
-        },
-      });
-
-      return new Response(readable, {
-        headers: { 
-          "Content-Type": "text/plain; charset=utf-8",
-          "Cache-Control": "no-cache",
-          "X-Content-Type-Options": "nosniff"
-        },
-      });
-    } catch (geminiErr: any) {
-      console.error("[AI] Gemini API Execution Error:", geminiErr);
+    if (!streamResult) {
       return new Response(
-        JSON.stringify({ 
-          error: `AI Execution Error: ${geminiErr.message || 'Unknown error'}`,
-          type: 'GEMINI_ERROR'
-        }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
+        JSON.stringify({ error: 'ขออภัยค่ะ ระบบ AI มีการใช้งานเกินโควต้าทุกรุ่นในขณะนี้ กรุณาลองใหม่ในอีกสักครู่ค่ะ', type: 'QUOTA_ERROR' }),
+        { status: 429, headers: { "Content-Type": "application/json" } }
       );
     }
+
+    const readable = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of streamResult.stream) {
+            const text = chunk.text();
+            controller.enqueue(new TextEncoder().encode(text));
+          }
+          console.log("[AI] Stream finished successfully");
+        } catch (streamErr: any) {
+          console.error("[AI] Streaming Error:", streamErr);
+          controller.error(streamErr);
+        } finally {
+          controller.close();
+        }
+      },
+    });
+
+    return new Response(readable, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-cache",
+        "X-Content-Type-Options": "nosniff"
+      },
+    });
   } catch (err: any) {
     console.error("[AI] Critical Route Error:", err);
     return new Response(
