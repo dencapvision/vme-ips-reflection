@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
 
-
-
 export async function GET() {
   const envStatus = {
     SUPABASE_URL: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -12,9 +10,32 @@ export async function GET() {
     PROVIDER: process.env.NEXT_RUNTIME === 'edge' ? 'Edge' : 'Node.js',
   };
 
+  // List available Gemini models for this API key
+  let embeddingModels: string[] = []
+  let listModelsError: string | null = null
+  const apiKey = process.env.GEMINI_API_KEY
+  if (apiKey) {
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}&pageSize=100`
+      )
+      if (res.ok) {
+        const data = await res.json()
+        embeddingModels = (data.models ?? [])
+          .filter((m: any) => m.supportedGenerationMethods?.includes('embedContent'))
+          .map((m: any) => m.name)
+      } else {
+        listModelsError = await res.text()
+      }
+    } catch (e: any) {
+      listModelsError = e.message
+    }
+  }
+
   return NextResponse.json({
     status: 'Ready to debug',
     env: envStatus,
-    message: 'This is a check to see if environment variables are visible to the Cloudflare Worker.'
+    embeddingModels,
+    listModelsError,
   });
 }
