@@ -125,7 +125,7 @@ export async function POST(req: Request) {
     console.log(`[AI] Cleaned history with ${history.length} messages.`);
 
     // Initialize Gemini with fallback model chain (quota-aware)
-    const MODEL_CHAIN = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash'];
+    const MODEL_CHAIN = ['gemini-2.5-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash'];
     let streamResult: any = null;
 
     for (const modelName of MODEL_CHAIN) {
@@ -136,17 +136,19 @@ export async function POST(req: Request) {
         console.log(`[AI] Using model: ${modelName}`);
         break;
       } catch (err: any) {
-        const isQuota = err.message?.includes('429') || err.message?.includes('quota') || err.message?.includes('Too Many Requests');
-        if (isQuota && MODEL_CHAIN.indexOf(modelName) < MODEL_CHAIN.length - 1) {
-          console.warn(`[AI] ${modelName} quota exceeded, trying fallback...`);
+        const isRetryable = err.message?.includes('429') || err.message?.includes('quota') || err.message?.includes('Too Many Requests')
+          || err.message?.includes('404') || err.message?.includes('not found') || err.message?.includes('no longer available');
+        if (isRetryable && MODEL_CHAIN.indexOf(modelName) < MODEL_CHAIN.length - 1) {
+          console.warn(`[AI] ${modelName} unavailable (${err.message?.slice(0,60)}), trying fallback...`);
           continue;
         }
         console.error("[AI] Gemini API Execution Error:", err);
-        const quotaMsg = isQuota
+        const isQuota = err.message?.includes('429') || err.message?.includes('quota');
+        const errMsg = isQuota
           ? 'ขออภัยค่ะ ระบบ AI มีการใช้งานเกินโควต้าทุกรุ่นในขณะนี้ กรุณาลองใหม่ในอีกสักครู่ หรือติดต่อผู้ดูแลระบบค่ะ'
           : `AI Execution Error: ${err.message || 'Unknown error'}`;
         return new Response(
-          JSON.stringify({ error: quotaMsg, type: isQuota ? 'QUOTA_ERROR' : 'GEMINI_ERROR' }),
+          JSON.stringify({ error: errMsg, type: isQuota ? 'QUOTA_ERROR' : 'GEMINI_ERROR' }),
           { status: isQuota ? 429 : 500, headers: { "Content-Type": "application/json" } }
         );
       }

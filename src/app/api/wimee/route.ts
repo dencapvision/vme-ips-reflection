@@ -105,7 +105,7 @@ export async function POST(req: Request) {
     const lastMessageText = messages[messages.length - 1].content;
 
     // Fallback model chain (quota-aware)
-    const MODEL_CHAIN = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash'];
+    const MODEL_CHAIN = ['gemini-2.5-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash'];
     let streamResult: any = null;
 
     for (const modelName of MODEL_CHAIN) {
@@ -116,11 +116,13 @@ export async function POST(req: Request) {
         console.log(`[Wimee] Using model: ${modelName}`);
         break;
       } catch (err: any) {
-        const isQuota = err.message?.includes('429') || err.message?.includes('quota') || err.message?.includes('Too Many Requests');
-        if (isQuota && MODEL_CHAIN.indexOf(modelName) < MODEL_CHAIN.length - 1) {
-          console.warn(`[Wimee] ${modelName} quota exceeded, trying fallback...`);
+        const isRetryable = err.message?.includes('429') || err.message?.includes('quota') || err.message?.includes('Too Many Requests')
+          || err.message?.includes('404') || err.message?.includes('not found') || err.message?.includes('no longer available');
+        if (isRetryable && MODEL_CHAIN.indexOf(modelName) < MODEL_CHAIN.length - 1) {
+          console.warn(`[Wimee] ${modelName} unavailable, trying fallback...`);
           continue;
         }
+        const isQuota = err.message?.includes('429') || err.message?.includes('quota');
         const quotaMsg = isQuota
           ? 'ขออภัยค่ะ ระบบ AI มีการใช้งานเกินโควต้าในขณะนี้ กรุณาลองใหม่ในอีกสักครู่ค่ะ'
           : `Internal Server Error: ${err.message}`;

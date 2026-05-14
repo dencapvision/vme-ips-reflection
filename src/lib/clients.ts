@@ -41,7 +41,7 @@ export function getGoogleAI() {
   }, { apiVersion: 'v1' });
 }
 
-export function getGeminiModel(modelName: string = 'gemini-2.0-flash', systemInstruction?: string) {
+export function getGeminiModel(modelName: string = 'gemini-2.5-flash', systemInstruction?: string) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error('Gemini Key Missing: Please set GEMINI_API_KEY in Cloudflare Dashboard.');
