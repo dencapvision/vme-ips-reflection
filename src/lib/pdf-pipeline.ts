@@ -8,21 +8,34 @@ const supabase = createClient(
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY!
 
 // ── Embedding (single) ──────────────────────────────────────────
+const EMBED_MODELS = ['text-embedding-005', 'gemini-embedding-exp-03-07', 'text-embedding-004']
+
 export async function createEmbedding(text: string): Promise<number[]> {
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=${GEMINI_API_KEY}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'models/text-embedding-004',
-        content: { parts: [{ text: text.slice(0, 8000) }] }
-      })
+  let lastError: Error | null = null
+  for (const model of EMBED_MODELS) {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:embedContent?key=${GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: `models/${model}`,
+          content: { parts: [{ text: text.slice(0, 8000) }] }
+        })
+      }
+    )
+    if (res.ok) {
+      const data = await res.json()
+      return data.embedding.values as number[]
     }
-  )
-  if (!res.ok) throw new Error(`Gemini embed error: ${await res.text()}`)
-  const data = await res.json()
-  return data.embedding.values as number[]
+    const errText = await res.text()
+    if (res.status === 404) {
+      lastError = new Error(`Gemini embed error: ${errText}`)
+      continue
+    }
+    throw new Error(`Gemini embed error: ${errText}`)
+  }
+  throw lastError ?? new Error('All embedding models unavailable')
 }
 
 // ── Embedding (PARALLEL batch) ──────────────────────────────────
