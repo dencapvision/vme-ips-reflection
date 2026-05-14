@@ -37,8 +37,9 @@ export async function POST(req: NextRequest) {
 
     LOG(`✅ File valid: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`)
 
-    // ── Read buffer ───────────────────────────────────────────────
-    const buffer      = Buffer.from(await file.arrayBuffer())
+    // ── Read arrayBuffer ──────────────────────────────────────────
+    const arrayBuffer = await file.arrayBuffer()
+    const uint8Array  = new Uint8Array(arrayBuffer)
     const filename    = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`
     const storagePath = `pdfs/${filename}`
 
@@ -96,16 +97,26 @@ export async function POST(req: NextRequest) {
         LOG(`Uploading to storage: ${storagePath}`)
         const { error: uploadError } = await supabase.storage
           .from('knowledge-pdfs')
-          .upload(storagePath, buffer, { contentType: 'application/pdf', upsert: false })
+          .upload(storagePath, uint8Array, { 
+            contentType: 'application/pdf', 
+            upsert: false,
+            // Force use of arrayBuffer to avoid unenv stream issues
+            duplex: 'half' 
+          } as any)
 
         if (uploadError) {
-          LOG('⚠️ Storage upload failed (continuing without storage):', uploadError.message)
+          LOG('⚠️ Storage upload failed:', uploadError.message)
+          if (uploadError.message.includes('not found') || uploadError.message.includes('bucket')) {
+            send({ stage: 'error', pct: 0, detail: `❌ ไม่พบ Bucket "knowledge-pdfs" ใน Supabase Storage กรุณาสร้างก่อน`, documentId: doc.id })
+            controller.close()
+            return
+          }
         } else {
           LOG('✅ File uploaded to storage')
         }
 
         try {
-          const result = await processPDFBuffer(buffer, doc.id, file.name, (event) => {
+          const result = await processPDFBuffer(uint8Array, doc.id, file.name, (event) => {
             LOG(`Pipeline: ${event.stage} ${event.pct}%`, event.detail)
             send({ ...event, documentId: doc.id })
           })

@@ -23,7 +23,7 @@ type KnowledgeDoc = {
   created_at:  string
 }
 
-const CATEGORIES = ['ทั่วไป', 'หลวงพ่อธัมมชโย', 'หลวงพ่อทัตตะชีโว', 'หลักสูตร IPS', 'นโยบายองค์กร', 'คู่มือการใช้งาน', 'วิดีโอ YouTube', 'Google Drive']
+const CATEGORIES = ['ทั่วไป', 'รวมหนังสือคำสอนหลวงพ่อคุณครูไม่ใหญ่', 'รวมหนังสือคำสอนหลวงพ่อคุณครูไม่เล็ก', 'หลักสูตร IPS', 'นโยบายองค์กร', 'คู่มือการใช้งาน', 'วิดีโอ YouTube', 'Google Drive']
 
 export default function AdminKnowledgePage() {
   const [tab,       setTab]       = useState<'upload' | 'list'>('upload')
