@@ -34,11 +34,10 @@ export function getGoogleAI() {
   if (!apiKey) {
     throw new Error('Gemini Key Missing: Please set GEMINI_API_KEY in Cloudflare Dashboard.');
   }
-  // Force v1 API to avoid 404 errors on v1beta
   const genAI = new GoogleGenerativeAI(apiKey);
   return genAI.getGenerativeModel({
     model: 'text-embedding-004',
-  }, { apiVersion: 'v1' });
+  }, { apiVersion: 'v1beta' });
 }
 
 export function getGeminiModel(modelName: string = 'gemini-2.5-flash', systemInstruction?: string) {
