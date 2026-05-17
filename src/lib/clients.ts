@@ -1,6 +1,4 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
-import { GoogleGenerativeAI } from '@google/generative-ai'
-
 let supabaseCache: SupabaseClient | null = null
 
 /**
@@ -26,29 +24,4 @@ export function getSupabase() {
   });
   
   return supabaseCache
-}
-
-
-export function getGoogleAI() {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new Error('Gemini Key Missing: Please set GEMINI_API_KEY in Cloudflare Dashboard.');
-  }
-  const genAI = new GoogleGenerativeAI(apiKey);
-  return genAI.getGenerativeModel({
-    model: 'gemini-embedding-001',
-  }, { apiVersion: 'v1beta' });
-}
-
-export function getGeminiModel(modelName: string = 'gemini-2.5-flash', systemInstruction?: string) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new Error('Gemini Key Missing: Please set GEMINI_API_KEY in Cloudflare Dashboard.');
-  }
-  // systemInstruction requires v1beta — do NOT use v1 here
-  const genAI = new GoogleGenerativeAI(apiKey);
-  return genAI.getGenerativeModel({
-    model: modelName,
-    systemInstruction: systemInstruction
-  }, { apiVersion: 'v1beta' });
 }

@@ -1,4 +1,3 @@
-import { getGeminiModel } from "@/lib/clients";
 import { searchKnowledge } from "@/lib/knowledge";
 
 const KAEWSAI_SYSTEM = (context: string) => `
