@@ -25,12 +25,14 @@ export async function getMemberByName(
   first_name: string,
   last_name: string
 ): Promise<MemberRow | null> {
+  const normFirstName = first_name.trim().replace(/\s+/g, ' ')
+  const normLastName = last_name.trim().replace(/\s+/g, ' ')
   const admin = createAdminClient()
   const { data, error } = await admin
     .from('members')
     .select('id, first_name, last_name')
-    .eq('first_name', first_name)
-    .eq('last_name', last_name)
+    .eq('first_name', normFirstName)
+    .eq('last_name', normLastName)
     .maybeSingle()
   if (error) throw error
   return data
@@ -98,12 +100,23 @@ export async function verifyPassword(password: string, stored: string): Promise<
       false,
       ['deriveBits']
     )
-    const derivedBits = await crypto.subtle.deriveBits(
-      { name: 'PBKDF2', salt: hexToBytes(saltHex), iterations: PBKDF2_ITERATIONS, hash: 'SHA-512' },
-      keyMaterial,
-      PBKDF2_KEYLEN * 8
-    )
-    return bytesToHex(new Uint8Array(derivedBits)) === expectedHashHex
+
+    const checkWithSalt = async (salt: Uint8Array): Promise<boolean> => {
+      const derivedBits = await crypto.subtle.deriveBits(
+        { name: 'PBKDF2', salt, iterations: PBKDF2_ITERATIONS, hash: 'SHA-512' },
+        keyMaterial,
+        PBKDF2_KEYLEN * 8
+      )
+      return bytesToHex(new Uint8Array(derivedBits)) === expectedHashHex
+    }
+
+    // Try binary salt first (newer/intended format)
+    const isBinaryMatch = await checkWithSalt(hexToBytes(saltHex))
+    if (isBinaryMatch) return true
+
+    // Fallback: Try string salt (legacy/backward compatibility format)
+    const isStringMatch = await checkWithSalt(new TextEncoder().encode(saltHex))
+    return isStringMatch
   } catch {
     return false
   }

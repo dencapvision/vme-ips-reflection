@@ -8,7 +8,9 @@ const supabase = createClient(
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY!
 
 // ── Embedding (single) ──────────────────────────────────────────
-const EMBED_MODELS = ['text-embedding-005', 'gemini-embedding-exp-03-07', 'text-embedding-004']
+// outputDimensionality: 768 — matches existing Supabase vector(768) schema
+const EMBED_MODELS = ['gemini-embedding-001', 'gemini-embedding-2', 'gemini-embedding-2-preview']
+const EMBED_DIMS = 768
 
 export async function createEmbedding(text: string): Promise<number[]> {
   let lastError: Error | null = null
@@ -20,7 +22,8 @@ export async function createEmbedding(text: string): Promise<number[]> {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: `models/${model}`,
-          content: { parts: [{ text: text.slice(0, 8000) }] }
+          content: { parts: [{ text: text.slice(0, 8000) }] },
+          outputDimensionality: EMBED_DIMS
         })
       }
     )

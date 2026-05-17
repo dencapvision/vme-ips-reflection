@@ -36,7 +36,7 @@ export function getGoogleAI() {
   }
   const genAI = new GoogleGenerativeAI(apiKey);
   return genAI.getGenerativeModel({
-    model: 'text-embedding-005',
+    model: 'gemini-embedding-001',
   }, { apiVersion: 'v1beta' });
 }
 

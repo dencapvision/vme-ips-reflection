@@ -6,8 +6,11 @@ import { signSession, sessionCookieOptions, SESSION_COOKIE } from '@/lib/session
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const first_name = (body.first_name as string | undefined)?.trim() ?? ''
-    const last_name  = (body.last_name  as string | undefined)?.trim() ?? ''
+    const rawFirstName = (body.first_name as string | undefined) ?? ''
+    const rawLastName  = (body.last_name  as string | undefined) ?? ''
+
+    const first_name = rawFirstName.trim().replace(/\s+/g, ' ')
+    const last_name  = rawLastName.trim().replace(/\s+/g, ' ')
 
     if (!first_name || !last_name) {
       return NextResponse.json({ error: 'กรุณากรอกชื่อและนามสกุล' }, { status: 400 })
