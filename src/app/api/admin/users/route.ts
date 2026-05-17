@@ -1,15 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { autoRefreshToken: false, persistSession: false } }
-)
+function getSupabaseAdmin() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    console.warn("Missing Supabase environment variables for admin client.");
+  }
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+    process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder',
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+}
 
 export async function GET(req: NextRequest) {
   try {
-    const { data: profiles, error } = await supabaseAdmin
+    const { data: profiles, error } = await getSupabaseAdmin()
       .from('profiles')
       .select('*')
       .order('created_at', { ascending: false })
@@ -31,7 +36,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Create user in auth
-    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+    const { data: authData, error: authError } = await getSupabaseAdmin().auth.admin.createUser({
       email,
       password,
       email_confirm: true,
@@ -45,7 +50,7 @@ export async function POST(req: NextRequest) {
       // Small delay to ensure trigger has run
       await new Promise(r => setTimeout(r, 500))
       
-      await supabaseAdmin.from('profiles').update({
+      await getSupabaseAdmin().from('profiles').update({
         first_name: firstName,
         last_name: lastName,
         phone,
@@ -65,7 +70,7 @@ export async function PATCH(req: NextRequest) {
     const { id, role } = body
     if (!id || !role) return NextResponse.json({ error: 'Missing id or role' }, { status: 400 })
 
-    const { error } = await supabaseAdmin
+    const { error } = await getSupabaseAdmin()
       .from('profiles')
       .update({ role })
       .eq('id', id)
