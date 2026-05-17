@@ -162,20 +162,41 @@ export async function POST(req: Request) {
 
     // Initialize Gemini with fallback model chain (quota-aware)
     const MODEL_CHAIN = ['gemini-2.5-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash'];
-    let streamResult: any = null;
+    let fetchResponse: Response | null = null;
+    let selectedModel = '';
+
+    const contents = [...history, { role: 'user', parts: [{ text: lastUserMessage }] }];
+    const systemInstruction = { parts: [{ text: KAEWSAI_SYSTEM(context) }] };
 
     for (const modelName of MODEL_CHAIN) {
       try {
-        const model = getGeminiModel(modelName, KAEWSAI_SYSTEM(context));
-        const chat = model.startChat({ history });
-        streamResult = await chat.sendMessageStream(lastUserMessage);
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:streamGenerateContent?key=${process.env.GEMINI_API_KEY}&alt=sse`;
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            systemInstruction,
+            contents
+          })
+        });
+
+        if (!res.ok) {
+          const errText = await res.text();
+          const isRetryable = res.status === 429 || res.status === 404 || errText.includes('quota') || errText.includes('not found');
+          if (isRetryable && MODEL_CHAIN.indexOf(modelName) < MODEL_CHAIN.length - 1) {
+            console.warn(`[AI] ${modelName} unavailable (${res.status}), trying fallback...`);
+            continue;
+          }
+          throw new Error(`API Error ${res.status}: ${errText}`);
+        }
+
+        fetchResponse = res;
+        selectedModel = modelName;
         console.log(`[AI] Using model: ${modelName}`);
         break;
       } catch (err: any) {
-        const isRetryable = err.message?.includes('429') || err.message?.includes('quota') || err.message?.includes('Too Many Requests')
-          || err.message?.includes('404') || err.message?.includes('not found') || err.message?.includes('no longer available');
-        if (isRetryable && MODEL_CHAIN.indexOf(modelName) < MODEL_CHAIN.length - 1) {
-          console.warn(`[AI] ${modelName} unavailable (${err.message?.slice(0,60)}), trying fallback...`);
+        if (MODEL_CHAIN.indexOf(modelName) < MODEL_CHAIN.length - 1) {
+          console.warn(`[AI] ${modelName} fetch error, trying fallback...`);
           continue;
         }
         console.error("[AI] Gemini API Execution Error:", err);
@@ -190,25 +211,53 @@ export async function POST(req: Request) {
       }
     }
 
-    if (!streamResult) {
+    if (!fetchResponse || !fetchResponse.body) {
       return new Response(
         JSON.stringify({ error: 'ขออภัยค่ะ ระบบ AI มีการใช้งานเกินโควต้าทุกรุ่นในขณะนี้ กรุณาลองใหม่ในอีกสักครู่ค่ะ', type: 'QUOTA_ERROR' }),
         { status: 429, headers: { "Content-Type": "application/json" } }
       );
     }
 
+    const streamBody = fetchResponse.body;
+
     const readable = new ReadableStream({
       async start(controller) {
+        const reader = streamBody.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let buffer = "";
+
         try {
-          for await (const chunk of streamResult.stream) {
-            const text = chunk.text();
-            controller.enqueue(new TextEncoder().encode(text));
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || "";
+            
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const dataStr = line.slice(6).trim();
+                if (dataStr === '[DONE]') continue;
+                if (!dataStr) continue;
+                try {
+                  const data = JSON.parse(dataStr);
+                  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                  if (text) {
+                    controller.enqueue(new TextEncoder().encode(text));
+                  }
+                } catch (e) {
+                  // Ignore JSON parse errors for partial chunks
+                }
+              }
+            }
           }
           console.log("[AI] Stream finished successfully");
         } catch (streamErr: any) {
           console.error("[AI] Streaming Error:", streamErr);
           controller.error(streamErr);
         } finally {
+          reader.releaseLock();
           controller.close();
         }
       },
@@ -224,7 +273,7 @@ export async function POST(req: Request) {
   } catch (err: any) {
     console.error("[AI] Critical Route Error:", err);
     return new Response(
-      JSON.stringify({ error: `Critical Error: ${err.message}` }),
+      JSON.stringify({ error: `Critical Error: ${err.stack || err.message}` }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }

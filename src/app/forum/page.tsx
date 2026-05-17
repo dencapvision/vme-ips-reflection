@@ -33,19 +33,22 @@ export default function ForumPage() {
           <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12 }}>หัวข้อที่น่าสนใจ</h3>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {[
-              "เทคนิคการชวนบวชอย่างไรให้สำเร็จ",
-              "แชร์ประสบการณ์การทำงานในพื้นที่",
-              "ถาม-ตอบ ปัญหาการใช้งานแอป VME",
-              "รวมภาพบรรยากาศโครงการ IPS#11"
+              { id: 1, title: "เทคนิคการชวนบวชอย่างไรให้สำเร็จ" },
+              { id: 2, title: "แชร์ประสบการณ์การทำงานในพื้นที่" },
+              { id: 3, title: "ถาม-ตอบ ปัญหาการใช้งานแอป VME" },
+              { id: 4, title: "รวมภาพบรรยากาศโครงการ IPS#11" }
             ].map((topic, i) => (
-              <div key={i} style={{ 
-                padding: "12px 16px", borderRadius: 12, background: "#F5F5F5",
-                display: "flex", alignItems: "center", gap: 12
-              }}>
-                <div style={{ width: 8, height: 8, borderRadius: 4, background: "#90CAF9" }}></div>
-                <span style={{ fontSize: 14, color: "#37474F", flex: 1 }}>{topic}</span>
-                <Icons.arrow size={14} stroke="#B0BEC5"/>
-              </div>
+              <Link href={`/forum/${topic.id}`} key={i} style={{ textDecoration: 'none' }}>
+                <div style={{ 
+                  padding: "12px 16px", borderRadius: 12, background: "#F5F5F5",
+                  display: "flex", alignItems: "center", gap: 12,
+                  transition: "background 0.2s"
+                }}>
+                  <div style={{ width: 8, height: 8, borderRadius: 4, background: "#90CAF9" }}></div>
+                  <span style={{ fontSize: 14, color: "#37474F", flex: 1, fontWeight: 500 }}>{topic.title}</span>
+                  <Icons.arrow size={14} stroke="#B0BEC5"/>
+                </div>
+              </Link>
             ))}
           </div>
         </div>

@@ -4,6 +4,7 @@ import { processPDFBuffer } from '@/lib/pdf-pipeline'
 
 export const maxDuration = 300
 export const dynamic = 'force-dynamic'
+export const runtime = 'edge'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
