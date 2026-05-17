@@ -1,17 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { getSupabase } from '@/lib/clients'
 
 export const runtime = 'edge'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
     const category = searchParams.get('category') || null
+    const supabase = getSupabase()
 
     let query = supabase
       .from('knowledge_documents')
@@ -53,6 +49,7 @@ export async function DELETE(req: NextRequest) {
   try {
     const { id } = await req.json()
     if (!id) return NextResponse.json({ error: 'ต้องระบุ id' }, { status: 400 })
+    const supabase = getSupabase()
 
     // Get storage path before deleting
     const { data: doc } = await supabase

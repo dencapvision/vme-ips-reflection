@@ -1,9 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { getSupabase } from './clients'
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY!
 
@@ -174,6 +169,7 @@ export async function processPDFBuffer(
         }
       }))
 
+      const supabase = getSupabase()
       const { error } = await supabase.from('knowledge_chunks').insert(rows)
       if (error) throw error
 
@@ -181,7 +177,7 @@ export async function processPDFBuffer(
       emit('saving', Math.min(pct, 97), `บันทึก ${Math.min(i + BULK_SIZE, chunks.length)}/${chunks.length}`)
     }
 
-    await supabase
+    await getSupabase()
       .from('knowledge_documents')
       .update({ status: 'ready', chunk_count: chunks.length })
       .eq('id', documentId)
@@ -191,7 +187,7 @@ export async function processPDFBuffer(
 
   } catch (err: any) {
     console.error('[pdf-pipeline]', err)
-    await supabase
+    await getSupabase()
       .from('knowledge_documents')
       .update({ status: 'error' })
       .eq('id', documentId)

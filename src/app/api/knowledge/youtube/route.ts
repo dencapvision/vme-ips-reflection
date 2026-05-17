@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+
 import { createEmbeddingsBatch } from '@/lib/pdf-pipeline'
 
 export const maxDuration = 300
 export const runtime = 'edge'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { getSupabase } from '@/lib/clients'
 
 function extractVideoId(url: string): string | null {
   const patterns = [
@@ -25,6 +22,7 @@ function extractVideoId(url: string): string | null {
 
 export async function POST(req: NextRequest) {
   try {
+    const supabase = getSupabase()
     const { youtubeUrl, title, category } = await req.json()
 
     const videoId = extractVideoId(youtubeUrl)

@@ -1,14 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { getSupabase } from '@/lib/clients'
 import { processPDFBuffer } from '@/lib/pdf-pipeline'
 
 export const maxDuration = 300
 export const runtime = 'edge'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
 
 function extractDriveFileId(url: string): string | null {
   const patterns = [
@@ -25,6 +20,7 @@ function extractDriveFileId(url: string): string | null {
 
 export async function POST(req: NextRequest) {
   try {
+    const supabase = getSupabase()
     const { driveUrl, title, category } = await req.json()
 
     const fileId = extractDriveFileId(driveUrl)
