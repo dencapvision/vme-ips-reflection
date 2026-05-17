@@ -36,7 +36,7 @@ export default function ForumPage() {
               "เทคนิคการชวนบวชอย่างไรให้สำเร็จ",
               "แชร์ประสบการณ์การทำงานในพื้นที่",
               "ถาม-ตอบ ปัญหาการใช้งานแอป VME",
-              "รวมภาพบรรยากาศโครงการ IPS10"
+              "รวมภาพบรรยากาศโครงการ IPS#11"
             ].map((topic, i) => (
               <div key={i} style={{ 
                 padding: "12px 16px", borderRadius: 12, background: "#F5F5F5",

@@ -3,98 +3,222 @@ import { Icons } from "@/components/Icons";
 import { TabBar } from "@/components/TabBar";
 
 export default function StrategicPage() {
+  const regions = [
+    { name: "ภาคเหนือ", nameEn: "NORTHERN", current: 12, target: 15, color: "#1976D2", bg: "#E3F2FD" },
+    { name: "ภาคตะวันออกเฉียงเหนือ", nameEn: "NORTHEASTERN", current: 25, target: 30, color: "#E64A19", bg: "#FBE9E7" },
+    { name: "ภาคกลาง", nameEn: "CENTRAL", current: 18, target: 20, color: "#F57C00", bg: "#FFF3E0" },
+    { name: "ภาคใต้", nameEn: "SOUTHERN", current: 8, target: 10, color: "#388E3C", bg: "#E8F5E9" },
+    { name: "ภาคตะวันออก", nameEn: "EASTERN", current: 9, target: 10, color: "#7B1FA2", bg: "#F3E5F5" },
+    { name: "ภาคตะวันตก", nameEn: "WESTERN", current: 6, target: 5, color: "#00796B", bg: "#E0F2F1" },
+  ];
+
+  const totalCurrent = regions.reduce((acc, r) => acc + r.current, 0);
+  const totalTarget = 90;
+  const totalPercentage = Math.round((totalCurrent / totalTarget) * 100);
+
   return (
     <>
       <div style={{ paddingTop: 30 }}>
-        <AppHeader large title="แผนกลยุทธ์ปี 2569" subtitle="STRATEGIC PLAN"
+        <AppHeader large title="แผนกลยุทธ์ปี 2570" subtitle="STRATEGIC PLAN"
           trailing={<button style={{ width: 38, height: 38, borderRadius: 19, background: "var(--white)", border: "1px solid var(--ink-200)", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <Icons.share size={17} stroke="var(--ink-700)"/>
           </button>}/>
       </div>
 
-      <div style={{ padding: "4px 22px 30px" }}>
+      <div style={{ padding: "4px 22px 100px" }}>
+        {/* Banner Target */}
         <div style={{
-          background: "linear-gradient(140deg, var(--saffron-500) 0%, var(--saffron-600) 100%)",
-          borderRadius: "var(--r-xl)", padding: 18, color: "#fff", marginBottom: 18,
+          background: "linear-gradient(135deg, var(--saffron-500) 0%, #D84315 100%)",
+          borderRadius: "var(--r-xl)", padding: 20, color: "#fff", marginBottom: 20,
           position: "relative", overflow: "hidden",
+          boxShadow: "0 10px 25px -5px rgba(230, 74, 25, 0.3)"
         }}>
-          <svg width="180" height="180" viewBox="0 0 180 180" style={{ position: "absolute", right: -40, top: -40, opacity: 0.15 }}>
+          <svg width="180" height="180" viewBox="0 0 180 180" style={{ position: "absolute", right: -40, top: -40, opacity: 0.2 }}>
             <circle cx="90" cy="90" r="80" fill="none" stroke="#fff" strokeWidth="1"/>
             <circle cx="90" cy="90" r="55" fill="none" stroke="#fff" strokeWidth="1"/>
             <circle cx="90" cy="90" r="30" fill="none" stroke="#fff" strokeWidth="1"/>
           </svg>
           <div style={{ position: "relative" }}>
-            <div style={{ fontFamily: "var(--font-en)", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", opacity: 0.85 }}>TARGET 2569</div>
-            <div style={{ fontSize: 30, fontWeight: 600, marginTop: 4, fontFamily: "var(--font-en)" }}>5 รูป</div>
-            <div style={{ fontSize: 13, opacity: 0.92, marginTop: 2, lineHeight: 1.5 }}>
-              ชวนบวชเรียน IPS10 จากนักเรียน ม.6 ในจังหวัดอุบลราชธานี
+            <div style={{ fontFamily: "var(--font-en)", fontSize: 11, fontWeight: 700, letterSpacing: "0.15em", opacity: 0.9 }}>TARGET IPS#11 (2570)</div>
+            <div style={{ fontSize: 36, fontWeight: 700, marginTop: 4, fontFamily: "var(--font-en)", display: "flex", alignItems: "baseline", gap: 6 }}>
+              {totalTarget} <span style={{ fontSize: 16, fontWeight: 400, opacity: 0.9 }}>รูป</span>
+            </div>
+            <div style={{ fontSize: 13, opacity: 0.95, marginTop: 4, lineHeight: 1.6 }}>
+              ชวนบวชเรียน IPS#11 จากผู้สมัครและเครือข่ายโรงเรียน 400+ ทั่วประเทศ
             </div>
           </div>
         </div>
 
-        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: "var(--ink-500)", fontFamily: "var(--font-en)", marginBottom: 10 }}>
-          4 PILLARS · 4 มิติของแผน
+        {/* Regional Stats Card */}
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: "var(--ink-500)", fontFamily: "var(--font-en)", marginBottom: 12 }}>
+            APPLICANT TRACKER · ยอดผู้สมัครสะสมจำแนกตามภูมิภาค
+          </div>
+          
+          <div className="card" style={{ padding: 20, background: "var(--white)", border: "1px solid var(--ink-200)" }}>
+            {/* National Summary */}
+            <div style={{ marginBottom: 18 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
+                <span style={{ fontSize: 15, fontWeight: 700, color: "var(--ink-900)" }}>ความคืบหน้าทั่วประเทศ</span>
+                <span style={{ fontSize: 16, fontWeight: 700, color: "var(--saffron-600)", fontFamily: "var(--font-en)" }}>
+                  {totalCurrent}/{totalTarget} รูป ({totalPercentage}%)
+                </span>
+              </div>
+              <div style={{ width: "100%", height: 10, borderRadius: 5, background: "var(--ink-100)", overflow: "hidden" }}>
+                <div style={{ 
+                  width: `${totalPercentage}%`, 
+                  height: "100%", 
+                  borderRadius: 5, 
+                  background: "linear-gradient(90deg, var(--saffron-500) 0%, #E64A19 100%)",
+                  transition: "width 0.5s ease"
+                }}/>
+              </div>
+            </div>
+
+            {/* Regional List */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              {regions.map((reg, index) => {
+                const percent = Math.min(100, Math.round((reg.current / reg.target) * 100));
+                return (
+                  <div key={index} style={{ borderBottom: index < regions.length - 1 ? "1px solid var(--ink-100)" : "none", paddingBottom: index < regions.length - 1 ? 12 : 0 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                      <div>
+                        <span style={{ fontSize: 13, fontWeight: 600, color: "var(--ink-800)" }}>{reg.name}</span>
+                        <span style={{ fontFamily: "var(--font-en)", fontSize: 10, fontWeight: 600, color: "var(--ink-500)", marginLeft: 6 }}>{reg.nameEn}</span>
+                      </div>
+                      <span style={{ fontSize: 12.5, fontWeight: 700, color: "var(--ink-900)", fontFamily: "var(--font-en)" }}>
+                        {reg.current} / {reg.target} ใบสมัคร <span style={{ color: reg.color, fontSize: 11, fontWeight: 600 }}>({percent}%)</span>
+                      </span>
+                    </div>
+                    <div style={{ width: "100%", height: 6, borderRadius: 3, background: "var(--ink-100)", overflow: "hidden" }}>
+                      <div style={{ 
+                        width: `${percent}%`, 
+                        height: "100%", 
+                        borderRadius: 3, 
+                        background: reg.color,
+                        transition: "width 0.5s ease"
+                      }}/>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* 4 Pillars Section */}
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: "var(--ink-500)", fontFamily: "var(--font-en)", marginBottom: 12 }}>
+          4 PILLARS · 4 มิติของแผนการทำงาน IPS#11
         </div>
 
         <Pillar n="01" color="saffron" title="กลุ่มเป้าหมาย & พื้นที่" en="WHO & WHERE"
-          items={["นักเรียน ม.6 ชาย · อายุ 18 ปี · 5 รูป", "12 โรงเรียนในเขต อ.เมือง / วารินฯ / เดชอุดม", "8 ครอบครัวกัลยาณมิตรเดิม"]}/>
+          items={[
+            "นักเรียน ม.ปลาย ชาย & สามเณร โรงเรียนเตรียมพุทธศาสตร์ เขาแก้วเสด็จ",
+            "กลุ่มเยาวชนจบ ม.6 / ปวส.3 ที่มุ่งมั่นพัฒนาทักษะระดับสากล",
+            "เครือข่ายโรงเรียนและศูนย์อบรมธรรมะ 400+ ทั่วประเทศ"
+          ]}/>
         <Pillar n="02" color="sage" title="บริบท & ข้อมูลสำคัญ" en="CONTEXT"
-          items={["ผู้ปกครอง 65% ทำบุญที่วัดประจำเดือน", "นักเรียนกลุ่มเป้าหมาย 70% สนใจธรรมะอยู่บ้าง", "งบประมาณกิจกรรม 25,000 บาท / ปี"]}/>
+          items={[
+            "การเชิญครู/ผอ. อบรม AI เพื่อแสดงความพร้อมทางเทคโนโลยีการศึกษา",
+            "ความสนใจทักษะนวัตกรรมดิจิทัลระดับ ม.ต้น - ม.ปลาย (เตรียมพุทธศาสตร์)",
+            "การส่งเสริมอุดมการณ์ศาสนทายาทคู่กับทักษะวิชาการสมัยใหม่"
+          ]}/>
         <Pillar n="03" color="gold" title="กิจกรรม & ช่องทาง" en="ACTIVITIES"
-          items={["4 กิจกรรมเปิดบ้าน DCI · ก.ค. – ต.ค.", "12 ครั้งเยี่ยมครอบครัวรายตัว", "1 ค่ายภาษาอังกฤษ + ธรรมะ · ส.ค."]}/>
+          items={[
+            "ค่ายเตรียมความพร้อมสามเณรนวัตกร 3 วัน ณ เขาแก้วเสด็จ",
+            "หลักสูตรเตรียมตัว 1 วัน + ฝึกทักษะเข้มข้นทาง AI & การเขียนโปรแกรม 2 วัน",
+            "จัดสัมมนาการใช้ AI เพื่อการศึกษาแก่คณะครูและผู้บริหารสถานศึกษา"
+          ]}/>
         <Pillar n="04" color="plum" title="การเก็บข้อมูล & สัมพันธ์" en="RELATIONSHIP"
-          items={["แชทไลน์กลุ่มผู้ปกครอง (อาทิตย์ละครั้ง)", "AI track ความสนใจรายบุคคล", "นัดเจอตัวต่อตัวก่อนตัดสินใจ"]}/>
+          items={[
+            "ประสานงานและดูแลอย่างอบอุ่นกับผู้ปกครองและเจ้าอาวาสเครือข่าย",
+            "ใช้ระบบ AI ของ VME ในการวิเคราะห์และติดตามศักยภาพรายคน",
+            "การคัดกรองและนัดหมายสัมภาษณ์อย่างเป็นระบบในเดือนเมษายน 2570"
+          ]}/>
 
-        {/* New Section: Operational Roadmap Example */}
+        {/* Operational Roadmap */}
         <div style={{ marginTop: 32, marginBottom: 16 }}>
           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: "var(--ink-500)", fontFamily: "var(--font-en)", marginBottom: 12 }}>
-            OPERATIONAL ROADMAP · ตัวอย่างแผนการดำเนินงาน
+            OPERATIONAL ROADMAP · แผนการดำเนินงานถึง เมษายน 2570
           </div>
           
-          <div className="card" style={{ padding: 20, background: "var(--white)", border: "1.5px dashed var(--saffron-200)" }}>
+          <div className="card" style={{ padding: 20, background: "var(--white)", border: "1px solid var(--ink-200)" }}>
             <div style={{ display: "flex", gap: 16, flexDirection: "column" }}>
               <RoadmapItem 
-                month="พฤษภาคม - มิถุนายน" 
-                title="เตรียมความพร้อม & เข้าหาพื้นที่" 
-                tasks={["รวบรวมรายชื่อ 12 โรงเรียนเป้าหมาย", "ลงพื้นที่ประสานงานครูแนะแนว", "คัดกรองรายชื่อนักเรียนกลุ่มเป้าหมาย"]} 
+                month="พฤษภาคม - ตุลาคม 2569" 
+                title="เตรียมความพร้อม & ติดตั้งระบบตั้งรับ" 
+                tasks={[
+                  "ประสานงานโรงเรียนเป้าหมาย 400+ แห่งทั่วประเทศ",
+                  "ติดตั้งระบบ AI เพื่อการเรียนการสอนและเก็บรวบรวมข้อมูลความสนใจ",
+                  "คัดกรองรายชื่อผู้สมัครและผู้สนใจเข้าร่วมเบื้องต้น"
+                ]} 
+                status="done"
+              />
+              <RoadmapItem 
+                month="พฤศจิกายน 2569 - มกราคม 2570" 
+                title="ยกระดับความพร้อมคณะครูและผู้บริหาร" 
+                tasks={[
+                  "เปิดโครงการสัมมนาหลักสูตร AI สำหรับครูแนะแนวและผู้บริหารโรงเรียน",
+                  "แสดงศักยภาพความพร้อมด้านเทคโนโลยีและการเรียนการสอนของโครงการ",
+                  "เปิดรับสมัครผู้เข้าร่วมโครงการ IPS#11 ประจำภูมิภาคอย่างเป็นทางการ"
+                ]} 
                 status="doing"
               />
               <RoadmapItem 
-                month="กรกฎาคม - กันยายน" 
-                title="สร้างความสัมพันธ์ & กิจกรรมหลัก" 
-                tasks={["จัดกิจกรรม Open House ที่ DCI (เดือนละครั้ง)", "ลงเยี่ยมบ้านนักเรียน 12 ครอบครัว", "เชิญชวนเข้าค่ายภาษาอังกฤษ + ธรรมะ"]} 
+                month="กุมภาพันธ์ - มีนาคม 2570" 
+                title="ค่ายสามเณรนวัตกร 3 วัน ณ เขาแก้วเสด็จ" 
+                tasks={[
+                  "จัดค่ายเตรียมความพร้อมระยะเวลา 3 วันสำหรับสามเณรและนักเรียนเตรียมพุทธศาสตร์",
+                  "วันแรก: กิจกรรมเตรียมความพร้อม ปรับทัศนคติและพื้นฐานการเรียนรู้",
+                  "วันที่สองและสาม: จัดอบรมพัฒนาทักษะด้านนวัตกรรมและการใช้งาน AI อย่างเข้มข้น"
+                ]} 
                 status="pending"
               />
               <RoadmapItem 
-                month="ตุลาคม - พฤศจิกายน" 
-                title="คัดเลือก & ติดตามผล" 
-                tasks={["นัดสนทนาธรรมแบบตัวต่อตัว", "AI Track ความสนใจและข้อกังวลรายบุคคล", "จัดทำสรุปยอดผู้สนใจบวชเรียน"]} 
-                status="pending"
-              />
-              <RoadmapItem 
-                month="ธันวาคม" 
-                title="สรุปผล & บรรลุเป้าหมาย" 
-                tasks={["พาผู้ปกครองเยี่ยมชมสถานที่จริง", "สรุปยอด 5 รูป ตามเป้าหมาย", "จัดพิธีมอบทุนการศึกษาเบื้องต้น"]} 
+                month="เมษายน 2570" 
+                title="คัดกรองรอบสุดท้าย & นัดสัมภาษณ์ผู้สมัคร" 
+                tasks={[
+                  "ประมวลผลความสนใจและข้อมูลสะสมของผู้เข้าร่วมค่ายทั้งหมด",
+                  "ดำเนินการนัดหมายสัมภาษณ์รายบุคคลเพื่อเข้าคัดเลือกในโครงการ IPS#11",
+                  "ประกาศผลการคัดเลือกและมอบทุนศาสนทายาทนานาชาติ"
+                ]} 
                 status="pending"
               />
             </div>
           </div>
         </div>
 
-        {/* Guideline for Team */}
+        {/* DCI AI Support Highlight */}
         <div style={{ 
-          background: "var(--ink-900)", borderRadius: "var(--r-lg)", 
-          padding: 16, color: "var(--white)", marginTop: 24,
-          display: "flex", gap: 12, alignItems: "flex-start"
+          background: "linear-gradient(135deg, #1A237E 0%, #0D47A1 100%)", 
+          borderRadius: "var(--r-xl)", 
+          padding: 20, color: "var(--white)", marginTop: 24,
+          boxShadow: "0 10px 20px rgba(13, 71, 161, 0.2)"
         }}>
-          <div style={{ background: "var(--saffron-500)", borderRadius: 8, padding: 8 }}>
-            <Icons.spark size={20} stroke="#fff" />
-          </div>
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: "var(--saffron-400)", marginBottom: 4 }}>คำแนะนำสำหรับทีม VME</div>
-            <div style={{ fontSize: 12, lineHeight: 1.6, opacity: 0.8 }}>
-              เน้นการเก็บข้อมูลแบบ "ละเอียดรายคน" และใช้ AI ช่วยในการติดตามความสนใจ เพื่อให้เราสามารถตอบโจทย์ความต้องการของนักเรียนและผู้ปกครองได้อย่างตรงจุด
+          <div style={{ display: "flex", gap: 14, alignItems: "flex-start", marginBottom: 12 }}>
+            <div style={{ background: "var(--saffron-500)", borderRadius: 10, padding: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Icons.spark size={22} stroke="#fff" />
             </div>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: "var(--saffron-400)", fontFamily: "var(--font-en)" }}>DCI AI SUPPORT PROJECT</div>
+              <h4 style={{ fontSize: 16, fontWeight: 700, color: "var(--white)", marginTop: 2 }}>โครงการ AI ตั้งรับ & สนับสนุน</h4>
+            </div>
+          </div>
+          
+          <div style={{ fontSize: 13, lineHeight: 1.6, opacity: 0.9, display: "flex", flexDirection: "column", gap: 10 }}>
+            <p>
+              โครงการเชิงรุกของ DCI ในการเชิญชวนคณะครูและผู้อำนวยการทั่วประเทศเข้าร่วมการอบรมใช้งาน AI เพื่อยกระดับความรู้ ความเข้าใจ และเห็นความพร้อมในการจัดการเรียนการสอนยุคใหม่
+            </p>
+            <div style={{ background: "rgba(255,255,255,0.08)", borderRadius: 12, padding: 12, border: "1px solid rgba(255,255,255,0.12)" }}>
+              <span style={{ fontWeight: 700, color: "var(--saffron-400)", display: "block", marginBottom: 4, fontSize: 12.5 }}>💡 ไฮไลท์การเรียนรู้ 3 วัน ณ เขาแก้วเสด็จ:</span>
+              <ul style={{ paddingLeft: 16, margin: 0, display: "flex", flexDirection: "column", gap: 4 }}>
+                <li><strong>วันแรก:</strong> ปรับพื้นฐาน เตรียมความพร้อมของนักเรียนและสามเณร</li>
+                <li><strong>วันที่สอง & สาม:</strong> ลงลึกฝึกฝนทักษะการใช้งาน AI และเขียนโปรแกรม</li>
+              </ul>
+            </div>
+            <p style={{ fontSize: 12, opacity: 0.8, fontStyle: "italic", marginTop: 4 }}>
+              * ครอบคลุมนักเรียนระดับ ม.ต้น - ม.ปลาย โรงเรียนเตรียมพุทธศาสตร์ เขาแก้วเสด็จ จ.ปราจีนบุรี
+            </p>
           </div>
         </div>
       </div>
@@ -109,11 +233,12 @@ function RoadmapItem({ month, title, tasks, status }: { month: string; title: st
     <div style={{ display: "flex", gap: 14 }}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 24 }}>
         <div style={{ 
-          width: 20, height: 20, borderRadius: 10, 
-          background: status === "doing" ? "var(--saffron-500)" : status === "done" ? "var(--green)" : "var(--ink-200)",
-          display: "flex", alignItems: "center", justifyContent: "center"
+          width: 22, height: 22, borderRadius: 11, 
+          background: status === "doing" ? "var(--saffron-500)" : status === "done" ? "#4CAF50" : "var(--ink-200)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: status === "doing" ? "0 0 10px rgba(245, 124, 0, 0.4)" : "none"
         }}>
-          {status === "done" && <Icons.check size={12} stroke="#fff" sw={3}/>}
+          {status === "done" && <Icons.check size={13} stroke="#fff" sw={3}/>}
           {status === "doing" && <div style={{ width: 6, height: 6, borderRadius: 3, background: "#fff" }}/>}
         </div>
         <div style={{ flex: 1, width: 2, background: "var(--ink-100)", marginTop: 4, marginBottom: 4 }}/>
@@ -123,8 +248,8 @@ function RoadmapItem({ month, title, tasks, status }: { month: string; title: st
         <div style={{ fontSize: 14, fontWeight: 600, color: "var(--ink-900)", marginBottom: 8 }}>{title}</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           {tasks.map((t, i) => (
-            <div key={i} style={{ fontSize: 12, color: "var(--ink-600)", display: "flex", gap: 6 }}>
-              <span>•</span>
+            <div key={i} style={{ fontSize: 12.5, color: "var(--ink-600)", display: "flex", gap: 6, lineHeight: 1.5 }}>
+              <span style={{ color: "var(--saffron-500)" }}>•</span>
               <span>{t}</span>
             </div>
           ))}
@@ -158,11 +283,12 @@ function Pillar({ n, color, title, en, items }: {
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         {items.map((it, i) => (
           <div key={i} style={{
-            background: "rgba(255,255,255,0.65)", borderRadius: 8, padding: "8px 10px",
+            background: "rgba(255,255,255,0.75)", borderRadius: 8, padding: "8px 10px",
             fontSize: 12.5, color: "var(--ink-800)", display: "flex", gap: 8,
+            border: "1px solid rgba(255,255,255,0.5)"
           }}>
             <div style={{ width: 4, height: 4, borderRadius: 2, background: map.fg, marginTop: 8, flex: "0 0 auto" }}/>
-            <span style={{ flex: 1 }}>{it}</span>
+            <span style={{ flex: 1, lineHeight: 1.4 }}>{it}</span>
           </div>
         ))}
       </div>

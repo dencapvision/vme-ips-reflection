@@ -176,7 +176,7 @@ export default function LibraryContent() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
               <div>
                 <div style={{ fontFamily: "var(--font-en)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "#1976D2" }}>DOWNLOAD</div>
-                <div style={{ fontSize: 18, fontWeight: 600, marginTop: 4, lineHeight: 1.3 }}>สื่อประชาสัมพันธ์โครงการ IPS10</div>
+                <div style={{ fontSize: 18, fontWeight: 600, marginTop: 4, lineHeight: 1.3 }}>สื่อประชาสัมพันธ์โครงการ IPS#11</div>
                 <div style={{ fontSize: 12, color: "var(--ink-600)", marginTop: 6 }}>โปสเตอร์, วิดีโอแนะนำ, และคอนเทนต์โซเชียล</div>
               </div>
               <div style={{ width: 48, height: 48, borderRadius: 14, background: "var(--white)", border: "1px solid #BBDEFB", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -219,7 +219,7 @@ export default function LibraryContent() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
             <div>
               <div style={{ fontFamily: "var(--font-en)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "var(--saffron-600)" }}>FEATURED</div>
-              <div style={{ fontSize: 18, fontWeight: 600, marginTop: 4, lineHeight: 1.3 }}>โครงการ IPS10 — คู่มือผู้ชวนบวช</div>
+              <div style={{ fontSize: 18, fontWeight: 600, marginTop: 4, lineHeight: 1.3 }}>โครงการ IPS#11 — คู่มือผู้ชวนบวช</div>
               <div style={{ fontSize: 12, color: "var(--ink-600)", marginTop: 6 }}>26 หน้า · 4 วิดีโอ · อัปเดต พ.ค. 2569</div>
             </div>
             <div style={{ width: 48, height: 48, borderRadius: 14, background: "var(--white)", border: "1px solid var(--saffron-100)", display: "flex", alignItems: "center", justifyContent: "center" }}>
