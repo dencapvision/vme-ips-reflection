@@ -8,7 +8,7 @@ const PUBLIC_PATHS = ['/login', '/register', '/welcome', '/api/auth/member-login
 const ADMIN_PATHS = ['/admin', '/api/admin', '/api/knowledge']
 
 // Routes that require any valid session
-const PROTECTED_PATHS = ['/profile', '/journal', '/community', '/kaewsai', '/library', '/card', '/topics', '/ai', '/reflect', '/smart', '/strategic', '/swot', '/case', '/wimee', '/export', '/admin']
+const PROTECTED_PATHS = ['/profile', '/journal', '/community', '/kaewsai', '/library', '/card', '/topics', '/ai', '/reflect', '/smart', '/strategic', '/swot', '/case', '/export', '/admin']
 
 function matchesAny(pathname: string, prefixes: string[]) {
   return prefixes.some((p) => pathname === p || pathname.startsWith(`${p}/`) || pathname.startsWith(`${p}?`))
