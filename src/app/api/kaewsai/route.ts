@@ -1,6 +1,5 @@
 import { searchKnowledge } from "@/lib/knowledge";
 
-export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
 const KAEWSAI_SYSTEM = (context: string) => `
