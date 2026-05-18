@@ -36,7 +36,14 @@ export async function searchKnowledge(query: string, limit = 5) {
     return []
   }
 
-  const data = await res.json()
+  const resText = await res.text()
+  let data;
+  try {
+    data = JSON.parse(resText)
+  } catch (e) {
+    console.error('[RAG] Failed to parse JSON:', e)
+    return []
+  }
 
   console.log(`[RAG] Found ${data?.length || 0} matching chunks`);
 

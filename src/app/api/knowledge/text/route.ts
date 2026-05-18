@@ -32,7 +32,8 @@ async function extractTextFromDocx(base64: string): Promise<string> {
   )
 
   if (res.ok) {
-    const data = await res.json()
+    const resText = await res.text()
+    const data = JSON.parse(resText)
     const text: string = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
     if (text && text.trim().length >= 10) {
       return text
@@ -48,7 +49,8 @@ export async function POST(req: NextRequest) {
 
   try {
     const supabase = getSupabaseAdmin()
-    const body = await req.json()
+    const reqText = await req.text()
+    const body = JSON.parse(reqText)
     
     const { 
       text: inputWeight, 

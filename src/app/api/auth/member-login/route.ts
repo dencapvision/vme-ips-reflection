@@ -3,9 +3,12 @@ import { getMemberByName } from '@/lib/auth'
 import { getSupabaseAdmin } from '@/lib/clients'
 import { signSession, sessionCookieOptions, SESSION_COOKIE } from '@/lib/session'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    const bodyText = await request.text()
+    const body = JSON.parse(bodyText)
     const rawFirstName = (body.first_name as string | undefined) ?? ''
     const rawLastName  = (body.last_name  as string | undefined) ?? ''
 

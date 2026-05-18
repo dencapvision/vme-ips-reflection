@@ -7,7 +7,6 @@
  */
 
 import { getSupabaseAdmin } from '@/lib/clients'
-import crypto from 'crypto'
 
 // ─── Member helpers ───────────────────────────────────────────────────────────
 
@@ -81,7 +80,10 @@ function bytesToHex(bytes: Uint8Array): string {
 
 export function hashPassword(password: string): string {
   // Node.js-only helper for seeding scripts (not called in CF Workers runtime)
-  const nodeCrypto = require('crypto')
+  // Hidden from bundlers using eval to avoid webpack errors
+  const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
+  if (!isNode) return '';
+  const nodeCrypto = eval("require")('crypto')
   const salt = nodeCrypto.randomBytes(16).toString('hex')
   const hash = nodeCrypto
     .pbkdf2Sync(password, salt, PBKDF2_ITERATIONS, PBKDF2_KEYLEN, 'sha512')
@@ -93,7 +95,10 @@ export async function verifyPassword(password: string, stored: string): Promise<
   const [saltHex, expectedHashHex] = stored.split(':')
   if (!saltHex || !expectedHashHex) return false
   try {
-    const keyMaterial = await crypto.subtle.importKey(
+    // Use globalThis.crypto to ensure we use the native Web Crypto API in edge
+    const webCrypto = typeof crypto !== 'undefined' ? crypto : (globalThis as any).crypto;
+    
+    const keyMaterial = await webCrypto.subtle.importKey(
       'raw',
       new TextEncoder().encode(password),
       { name: 'PBKDF2' },
@@ -102,7 +107,7 @@ export async function verifyPassword(password: string, stored: string): Promise<
     )
 
     const checkWithSalt = async (salt: Uint8Array): Promise<boolean> => {
-      const derivedBits = await crypto.subtle.deriveBits(
+      const derivedBits = await webCrypto.subtle.deriveBits(
         { name: 'PBKDF2', salt, iterations: PBKDF2_ITERATIONS, hash: 'SHA-512' },
         keyMaterial,
         PBKDF2_KEYLEN * 8

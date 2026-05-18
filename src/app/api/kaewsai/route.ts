@@ -1,6 +1,7 @@
 import { searchKnowledge } from "@/lib/knowledge";
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 const KAEWSAI_SYSTEM = (context: string) => `
 คุณคือ "น้องแก้วใส" (Nong Kaew Sai) — ยอดกัลยาณมิตร AI ผู้ช่วยประจำโครงการ IPS
@@ -89,7 +90,19 @@ export async function POST(req: Request) {
       );
     }
 
-    const { messages } = await req.json();
+    // Use text() and JSON.parse() to avoid implicit asyncIterator in some Edge environments
+    const bodyText = await req.text();
+    let body;
+    try {
+      body = JSON.parse(bodyText);
+    } catch (e) {
+      return new Response(
+        JSON.stringify({ error: "Invalid JSON body" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    const { messages } = body;
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return new Response(
         JSON.stringify({ error: "Invalid request: No messages provided" }),
@@ -123,48 +136,30 @@ export async function POST(req: Request) {
     }
 
     // ── Prepare History for Gemini ──────────────────────────────
-    // CRITICAL: Gemini history must:
-    // 1. Start with 'user' role.
-    // 2. Alternate between 'user' and 'model'.
-    // 3. End with 'model' (since sendMessage adds the final 'user' message).
     const rawHistory = messages.slice(0, -1);
-    
     let history: { role: string; parts: { text: string }[] }[] = [];
     let lastRole = "";
 
     for (const m of rawHistory) {
       const role = m.role === 'assistant' ? 'model' : 'user';
-      
-      // Skip if this is the first message and it's not a user
       if (history.length === 0 && role !== 'user') continue;
-      
-      // Skip if it's the same role as the previous message (merge or skip)
       if (role === lastRole) {
-        // Option: Append text to previous message parts
         if (history.length > 0) {
           history[history.length - 1].parts[0].text += "\n" + m.content;
         }
         continue;
       }
-
-      history.push({
-        role: role,
-        parts: [{ text: m.content }]
-      });
+      history.push({ role, parts: [{ text: m.content }] });
       lastRole = role;
     }
 
-    // Ensure history ends with 'model' so the next sendMessage (which is 'user') is valid
     if (history.length > 0 && history[history.length - 1].role === 'user') {
       history.pop();
     }
 
-    console.log(`[AI] Cleaned history with ${history.length} messages.`);
-
     // Initialize Gemini with fallback model chain (quota-aware)
     const MODEL_CHAIN = ['gemini-2.5-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash'];
     let fetchResponse: Response | null = null;
-    let selectedModel = '';
 
     const contents = [...history, { role: 'user', parts: [{ text: lastUserMessage }] }];
     const systemInstruction = { parts: [{ text: KAEWSAI_SYSTEM(context) }] };
@@ -175,10 +170,7 @@ export async function POST(req: Request) {
         const res = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            systemInstruction,
-            contents
-          })
+          body: JSON.stringify({ systemInstruction, contents })
         });
 
         if (!res.ok) {
@@ -192,31 +184,16 @@ export async function POST(req: Request) {
         }
 
         fetchResponse = res;
-        selectedModel = modelName;
         console.log(`[AI] Using model: ${modelName}`);
         break;
       } catch (err: any) {
-        if (MODEL_CHAIN.indexOf(modelName) < MODEL_CHAIN.length - 1) {
-          console.warn(`[AI] ${modelName} fetch error, trying fallback...`);
-          continue;
-        }
-        console.error("[AI] Gemini API Execution Error:", err);
-        const isQuota = err.message?.includes('429') || err.message?.includes('quota');
-        const errMsg = isQuota
-          ? 'ขออภัยค่ะ ระบบ AI มีการใช้งานเกินโควต้าทุกรุ่นในขณะนี้ กรุณาลองใหม่ในอีกสักครู่ หรือติดต่อผู้ดูแลระบบค่ะ'
-          : `AI Execution Error: ${err.message || 'Unknown error'}`;
-        return new Response(
-          JSON.stringify({ error: errMsg, type: isQuota ? 'QUOTA_ERROR' : 'GEMINI_ERROR' }),
-          { status: isQuota ? 429 : 500, headers: { "Content-Type": "application/json" } }
-        );
+        if (MODEL_CHAIN.indexOf(modelName) < MODEL_CHAIN.length - 1) continue;
+        throw err;
       }
     }
 
     if (!fetchResponse || !fetchResponse.body) {
-      return new Response(
-        JSON.stringify({ error: 'ขออภัยค่ะ ระบบ AI มีการใช้งานเกินโควต้าทุกรุ่นในขณะนี้ กรุณาลองใหม่ในอีกสักครู่ค่ะ', type: 'QUOTA_ERROR' }),
-        { status: 429, headers: { "Content-Type": "application/json" } }
-      );
+      throw new Error('AI Response empty');
     }
 
     const streamBody = fetchResponse.body;
@@ -247,13 +224,10 @@ export async function POST(req: Request) {
                   if (text) {
                     controller.enqueue(new TextEncoder().encode(text));
                   }
-                } catch (e) {
-                  // Ignore JSON parse errors for partial chunks
-                }
+                } catch (e) {}
               }
             }
           }
-          console.log("[AI] Stream finished successfully");
         } catch (streamErr: any) {
           console.error("[AI] Streaming Error:", streamErr);
           controller.error(streamErr);
@@ -273,9 +247,18 @@ export async function POST(req: Request) {
     });
   } catch (err: any) {
     console.error("[AI] Critical Route Error:", err);
+    const isQuota = err.message?.includes('429') || err.message?.includes('quota');
     return new Response(
-      JSON.stringify({ error: `Critical Error: ${err.stack || err.message}` }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+      JSON.stringify({ 
+        error: isQuota 
+          ? 'ขออภัยค่ะ ระบบ AI มีการใช้งานเกินโควต้าในขณะนี้ กรุณาลองใหม่ในอีกสักครู่ค่ะ'
+          : `Critical Error: ${err.message || 'Unknown error'}`,
+        type: isQuota ? 'QUOTA_ERROR' : 'GEMINI_ERROR'
+      }),
+      { 
+        status: isQuota ? 429 : 500, 
+        headers: { "Content-Type": "application/json" } 
+      }
     );
   }
 }

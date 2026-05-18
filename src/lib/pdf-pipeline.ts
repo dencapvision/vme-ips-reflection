@@ -24,7 +24,8 @@ export async function createEmbedding(text: string): Promise<number[]> {
       }
     )
     if (res.ok) {
-      const data = await res.json()
+      const resText = await res.text()
+      const data = JSON.parse(resText)
       return data.embedding.values as number[]
     }
     const errText = await res.text()
@@ -96,7 +97,11 @@ async function extractTextFromPDF(pdfBuffer: Uint8Array): Promise<string> {
     throw new Error('ไฟล์ใหญ่เกิน 15MB สำหรับการ extract — กรุณาบีบอัดหรือแบ่งไฟล์')
   }
 
-  const base64 = Buffer.from(pdfBuffer).toString('base64')
+  // Use btoa for Edge compatibility if Buffer is not preferred
+  const base64 = typeof Buffer !== 'undefined' 
+    ? Buffer.from(pdfBuffer).toString('base64')
+    : btoa(String.fromCharCode(...new Uint8Array(pdfBuffer)));
+
   let lastError = ''
 
   // ── PRIMARY: Claude 3.5 Haiku (Anthropic Native PDF API) ─────────
@@ -135,7 +140,8 @@ async function extractTextFromPDF(pdfBuffer: Uint8Array): Promise<string> {
       })
 
       if (claudeRes.ok) {
-        const claudeData = await claudeRes.json()
+        const resText = await claudeRes.text()
+        const claudeData = JSON.parse(resText)
         const text: string = claudeData.content?.[0]?.text ?? ''
         if (text && text.trim().length >= 50) {
           console.log('[pdf-pipeline] ✅ PDF extracted via Claude 3.5 Haiku')
@@ -178,7 +184,8 @@ async function extractTextFromPDF(pdfBuffer: Uint8Array): Promise<string> {
       )
 
       if (res.ok) {
-        const data = await res.json()
+        const resText = await res.text()
+        const data = JSON.parse(resText)
         const text: string = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
         if (text && text.trim().length >= 50) {
           console.log(`[pdf-pipeline] ✅ PDF extracted via Gemini fallback: ${model}`)
