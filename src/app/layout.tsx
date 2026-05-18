@@ -16,7 +16,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "IPS Reflect — สมุดสรุปบทเรียน VME",
+  title: "โครงการทุนเรียนภาษานานาชาติ IPS | พัฒนาภาษา พัฒนาจิตใจ ในสังคมอุดมปัญญา",
   description: "เครื่องมือสรุปบทเรียน · ทบทวนความรู้ · วางแผนนำไปใช้งาน",
 };
 
