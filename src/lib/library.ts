@@ -36,6 +36,10 @@ async function supabaseRest<T>(
   return data as T
 }
 
+function normalizeUrl(value: string) {
+  return value.trim().replace(/^https\/\//i, 'https://').replace(/^http\/\//i, 'http://')
+}
+
 // --- External Links (Drive) ---
 export async function listLibraryLinks() {
   const supabase = getSupabase()
@@ -58,9 +62,10 @@ export async function addLibraryLink(payload: {
   meta_info?: string
   sort_order?: number
 }) {
+  const row = { section: 'resource', ...payload, url: normalizeUrl(payload.url) }
   const rows = await supabaseRest<any[]>('library_links?select=*', {
     method: 'POST',
-    body: JSON.stringify([{ section: 'resource', ...payload }]),
+    body: JSON.stringify([row]),
   })
   return rows?.[0]
 }
@@ -87,7 +92,7 @@ export async function addLibraryVideo(payload: { title: string, url: string, pla
   // Simple thumbnail extraction for YouTube
   let thumbnail_url = ''
   try {
-    const url = new URL(payload.url)
+    const url = new URL(normalizeUrl(payload.url))
     let videoId = ''
     if (url.hostname.includes('youtube.com')) {
       videoId = url.searchParams.get('v') || ''
@@ -101,7 +106,7 @@ export async function addLibraryVideo(payload: { title: string, url: string, pla
 
   const rows = await supabaseRest<any[]>('library_videos?select=*', {
     method: 'POST',
-    body: JSON.stringify([{ ...payload, thumbnail_url }]),
+    body: JSON.stringify([{ ...payload, url: normalizeUrl(payload.url), thumbnail_url }]),
   })
   return rows?.[0]
 }

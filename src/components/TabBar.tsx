@@ -18,6 +18,12 @@ const items: Array<{ k: TabKey; label: string; href: string; Icon: (p?: any) => 
 
 export function TabBar() {
   const path = usePathname() ?? "/";
+  
+  // Hide TabBar on public card pages to avoid confusing external visitors
+  if (path.startsWith("/card/")) {
+    return null;
+  }
+
   const activeKey: TabKey =
     path === "/"                          ? "home" :
     path.startsWith("/library")           ? "library" :

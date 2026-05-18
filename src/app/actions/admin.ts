@@ -42,17 +42,20 @@ export async function createUser(formData: FormData) {
     redirect(`/admin/users?error=${encodeURIComponent(authError.message)}`)
   }
 
-  // Update profile with additional fields (trigger may have already created the row)
+  // Small delay to ensure database trigger has run and created the profile row
+  await new Promise((r) => setTimeout(r, 500))
+
+  // Update profile with additional fields (using update instead of upsert to avoid Race Condition)
   const { error: profileError } = await supabaseAdmin
     .from('profiles')
-    .upsert({
-      id: newUser.user.id,
+    .update({
       first_name,
       last_name,
       phone,
       role,
       group_name,
     })
+    .eq('id', newUser.user.id)
 
   if (profileError) {
     await supabaseAdmin.auth.admin.deleteUser(newUser.user.id)

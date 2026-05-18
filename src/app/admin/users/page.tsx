@@ -14,11 +14,19 @@ export default async function UsersAdminPage({
 }: {
   searchParams: Promise<{ error?: string; success?: string }>
 }) {
-  // Verify admin access
+  // Verify admin access safely without throwing heavy server-side redirects (which cause OpenNext/Edge revalidation crashes)
   const profile = await getProfile()
-  if (!profile) redirect('/login')
-
-  if (!profile.role?.toLowerCase().includes('admin')) redirect('/')
+  if (!profile || !profile.role?.toLowerCase().includes('admin')) {
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F9F1FF", padding: 20 }}>
+        <div style={{ textAlign: "center", color: "#4A345E", fontFamily: "system-ui, -apple-system, sans-serif" }}>
+          <h1 style={{ fontSize: 20, fontWeight: 700 }}>กำลังนำทางคุณกลับอย่างปลอดภัย...</h1>
+          <p style={{ fontSize: 14, color: "#8E6DA1", marginTop: 8 }}>ระบบกำลังเปลี่ยนหน้า กรุณารอสักครู่</p>
+          <script dangerouslySetInnerHTML={{ __html: "window.location.href = '/login';" }} />
+        </div>
+      </div>
+    )
+  }
 
   // List all users
   const supabaseAdmin = getSupabaseAdmin()
