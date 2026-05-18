@@ -4,7 +4,7 @@ import { processTextContent } from '@/lib/knowledge-pipeline'
 
 export const maxDuration = 300
 export const dynamic = 'force-dynamic'
-export const runtime = 'edge'
+
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY!
 
