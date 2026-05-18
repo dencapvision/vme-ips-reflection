@@ -4,6 +4,8 @@ import { createUser, deleteUser } from '@/app/actions/admin'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
+
 const ROLES = ['member', 'leader', 'facilitator', 'admin']
 const GROUPS = ['กลุ่ม 1', 'กลุ่ม 2', 'กลุ่ม 3', 'กลุ่ม 4', 'กลุ่ม 5', 'กลุ่ม 6', 'วิทยากร', 'ทีมงาน']
 

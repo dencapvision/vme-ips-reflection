@@ -1,16 +1,21 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { createBrowserClient, createServerClient, type CookieOptions } from '@supabase/ssr'
 
-// --- Lazy loaded singletons ---
+// --- Lazy loaded singletons (Browser only) ---
 let supabaseBrowserCache: SupabaseClient | null = null;
-let supabaseEdgeCache: SupabaseClient | null = null;
-let supabaseAdminCache: SupabaseClient | null = null;
 
 /**
  * 1. getSupabaseBrowserClient (For Client Components)
  * Uses @supabase/ssr to interact with cookies in the browser.
  */
 export function getSupabaseBrowserClient() {
+  if (typeof window === 'undefined') {
+    // If somehow called on the server, don't use the cache
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
+    return createBrowserClient(url, key);
+  }
+
   if (supabaseBrowserCache) return supabaseBrowserCache;
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
@@ -44,10 +49,9 @@ export function getSupabaseServerClient(
 /**
  * 3. getSupabaseAdmin (For internal server logic requiring full bypass of RLS)
  * Uses standard @supabase/supabase-js client without session persistence.
+ * Note: We DO NOT cache this globally, to ensure `process.env` is correctly read per-request in Edge environments.
  */
 export function getSupabaseAdmin() {
-  if (supabaseAdminCache) return supabaseAdminCache;
-
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder';
 
@@ -55,23 +59,20 @@ export function getSupabaseAdmin() {
     console.warn("Missing Supabase environment variables for admin client. Falling back to placeholder.");
   }
 
-  supabaseAdminCache = createClient(url, key, {
+  return createClient(url, key, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
     }
   });
-  
-  return supabaseAdminCache;
 }
 
 /**
  * 4. getSupabase (Standard Edge/Server-safe Client without Cookie Management)
  * For general usage where session cookies are not required.
+ * Note: We DO NOT cache this globally, to ensure `process.env` is correctly read per-request in Edge environments.
  */
 export function getSupabase() {
-  if (supabaseEdgeCache) return supabaseEdgeCache;
-
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
 
@@ -79,14 +80,12 @@ export function getSupabase() {
     console.warn("Missing Supabase environment variables for general client. Falling back to placeholder.");
   }
 
-  supabaseEdgeCache = createClient(url, key, {
+  return createClient(url, key, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,
     }
   });
-  
-  return supabaseEdgeCache;
 }
 
 /**
