@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 type UploadJob = {
   id:     string
   name:   string
-  type:   'pdf' | 'drive' | 'youtube'
+  type:   'pdf' | 'docx' | 'text' | 'drive' | 'youtube'
   pct:    number
   stage:  string
   detail: string
@@ -27,7 +27,7 @@ const CATEGORIES = ['ทั่วไป', 'รวมหนังสือคำ�
 
 export default function AdminKnowledgePage() {
   const [tab,       setTab]       = useState<'upload' | 'list'>('upload')
-  const [uploadTab, setUploadTab] = useState<'pdf' | 'drive' | 'youtube'>('pdf')
+  const [uploadTab, setUploadTab] = useState<'file' | 'text' | 'drive' | 'youtube'>('file')
   const [jobs,      setJobs]      = useState<UploadJob[]>([])
   const [docs,      setDocs]      = useState<KnowledgeDoc[]>([])
   const [loading,   setLoading]   = useState(false)
@@ -38,6 +38,7 @@ export default function AdminKnowledgePage() {
   const [category,   setCategory]   = useState('ทั่วไป')
   const [driveUrl,   setDriveUrl]   = useState('')
   const [youtubeUrl, setYoutubeUrl] = useState('')
+  const [pastedText, setPastedText] = useState('')
   const [files,      setFiles]      = useState<File[]>([])
 
   useEffect(() => { fetchDocs() }, [])
@@ -59,14 +60,20 @@ export default function AdminKnowledgePage() {
     }
   }
 
-  async function uploadPDFs() {
+  async function uploadFiles() {
     if (!files.length) return
     setLoading(true)
 
     for (const file of files) {
       const jobId = crypto.randomUUID()
+      const isPdf = file.type === 'application/pdf'
+      const isDocx = file.name.endsWith('.docx')
+      const isTxt = file.type === 'text/plain' || file.name.endsWith('.txt')
+
+      const jobType: UploadJob['type'] = isPdf ? 'pdf' : (isDocx ? 'docx' : 'text')
+
       setJobs(prev => [...prev, {
-        id: jobId, name: file.name, type: 'pdf',
+        id: jobId, name: file.name, type: jobType,
         pct: 0, stage: 'uploading', detail: 'กำลังส่งไฟล์...',
         status: 'uploading'
       }])
@@ -82,15 +89,31 @@ export default function AdminKnowledgePage() {
           reader.readAsDataURL(file)
         })
 
-        const res = await fetch('/api/knowledge/upload', { 
+        let apiUrl = '/api/knowledge/upload'
+        let payload: any = {
+          file: base64,
+          filename: file.name,
+          title: title || file.name.replace(/\.(pdf|docx|txt)$/i, ''),
+          category
+        }
+
+        if (isDocx || isTxt) {
+          apiUrl = '/api/knowledge/text'
+          payload.type = isDocx ? 'docx' : 'text'
+          
+          if (isTxt) {
+            // For TXT, we can just send the content directly if we want, 
+            // but base64 + server-side decoding is safer for various encodings
+            const text = await file.text()
+            payload.text = text
+            payload.file = undefined 
+          }
+        }
+
+        const res = await fetch(apiUrl, { 
           method: 'POST', 
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            file: base64,
-            filename: file.name,
-            title: title || file.name.replace(/\.pdf$/i, ''),
-            category
-          })
+          body: JSON.stringify(payload)
         })
 
         if (!res.ok) {
@@ -106,6 +129,41 @@ export default function AdminKnowledgePage() {
     }
 
     setFiles([])
+    setTitle('')
+    setLoading(false)
+  }
+
+  async function uploadPastedText() {
+    if (!pastedText || pastedText.trim().length < 10) return
+    setLoading(true)
+    const jobId = crypto.randomUUID()
+
+    setJobs(prev => [...prev, {
+      id: jobId, name: title || 'ข้อความที่คัดลอกมา', type: 'text',
+      pct: 0, stage: 'uploading', detail: 'กำลังส่งข้อความ...',
+      status: 'uploading'
+    }])
+
+    const res = await fetch('/api/knowledge/text', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text: pastedText,
+        title: title || 'ข้อความที่คัดลอกมา',
+        category,
+        type: 'text'
+      })
+    })
+
+    if (!res.ok) {
+      const err = await res.json()
+      updateJob(jobId, { status: 'error', detail: err.message })
+      setLoading(false)
+      return
+    }
+
+    await streamProgress(res, jobId)
+    setPastedText('')
     setTitle('')
     setLoading(false)
   }
@@ -220,7 +278,13 @@ export default function AdminKnowledgePage() {
   function handleDrop(e: React.DragEvent) {
     e.preventDefault()
     setDragOver(false)
-    const dropped = Array.from(e.dataTransfer.files).filter(f => f.type === 'application/pdf')
+    const allowedExtensions = ['.pdf', '.docx', '.txt']
+    const dropped = Array.from(e.dataTransfer.files).filter(f => 
+      f.type === 'application/pdf' || 
+      f.name.endsWith('.docx') || 
+      f.type === 'text/plain' || 
+      f.name.endsWith('.txt')
+    )
     if (dropped.length) setFiles(prev => [...prev, ...dropped])
   }
 
@@ -252,11 +316,12 @@ export default function AdminKnowledgePage() {
             {/* Source type tabs */}
             <div className="flex gap-1 bg-slate-800/50 p-1 rounded-xl w-fit border border-slate-700">
               {[
-                { key: 'pdf',     label: '📄 อัปโหลด PDF' },
+                { key: 'file',    label: '📄 ไฟล์ (PDF/Word/Text)' },
+                { key: 'text',    label: '📝 วางข้อความ' },
                 { key: 'drive',   label: '🔗 ลิงก์ Drive' },
                 { key: 'youtube', label: '▶️ วิดีโอ YouTube' }
               ].map(({ key, label }) => (
-                <button key={key} onClick={() => setUploadTab(key as 'pdf' | 'drive' | 'youtube')}
+                <button key={key} onClick={() => setUploadTab(key as any)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${uploadTab === key ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>
                   {label}
                 </button>
@@ -280,8 +345,8 @@ export default function AdminKnowledgePage() {
               </div>
             </div>
 
-            {/* PDF Upload */}
-            {uploadTab === 'pdf' && (
+            {/* File Upload */}
+            {uploadTab === 'file' && (
               <div>
                 <div
                   onDragOver={e => { e.preventDefault(); setDragOver(true) }}
@@ -290,9 +355,9 @@ export default function AdminKnowledgePage() {
                   onClick={() => fileInputRef.current?.click()}
                   className={`border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-all ${dragOver ? 'border-blue-400 bg-blue-500/10' : 'border-slate-600 hover:border-slate-400'}`}>
                   <div className="text-4xl mb-3">📄</div>
-                  <p className="text-white font-medium">คลิกเพื่อเลือก หรือลาก PDF มาวางที่นี่</p>
-                  <p className="text-slate-400 text-sm mt-1">เลือกได้หลายไฟล์พร้อมกัน (สูงสุด 30MB/ไฟล์)</p>
-                  <input ref={fileInputRef} type="file" accept=".pdf" multiple className="hidden"
+                  <p className="text-white font-medium">คลิกเพื่อเลือก หรือลากไฟล์มาวางที่นี่</p>
+                  <p className="text-slate-400 text-sm mt-1">รองรับ PDF, Word (.docx), Text (.txt)</p>
+                  <input ref={fileInputRef} type="file" accept=".pdf,.docx,.txt" multiple className="hidden"
                     onChange={e => { if (e.target.files) setFiles(Array.from(e.target.files)) }} />
                 </div>
 
@@ -300,16 +365,35 @@ export default function AdminKnowledgePage() {
                   <div className="mt-3 space-y-2">
                     {files.map((f, i) => (
                       <div key={i} className="flex items-center justify-between bg-slate-800 rounded-xl px-4 py-2">
-                        <span className="text-sm text-white">📄 {f.name}</span>
-                        <span className="text-xs text-slate-400">{(f.size / 1024 / 1024).toFixed(1)} MB</span>
+                        <span className="text-sm text-white truncate mr-2">
+                          {f.name.endsWith('.pdf') ? '📄' : f.name.endsWith('.docx') ? '📘' : '📝'} {f.name}
+                        </span>
+                        <span className="text-xs text-slate-400 flex-shrink-0">{(f.size / 1024 / 1024).toFixed(1)} MB</span>
                       </div>
                     ))}
-                    <button onClick={uploadPDFs} disabled={loading}
+                    <button onClick={uploadFiles} disabled={loading}
                       className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold py-3 rounded-xl transition-all mt-2">
                       {loading ? 'กำลังประมวลผล...' : `⚡ เริ่มประมวลผล ${files.length} ไฟล์`}
                     </button>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Paste Text */}
+            {uploadTab === 'text' && (
+              <div className="space-y-3">
+                <div>
+                  <label className="text-slate-400 text-xs mb-1 block">คัดลอกเนื้อหามาวางที่นี่</label>
+                  <textarea value={pastedText} onChange={e => setPastedText(e.target.value)}
+                    placeholder="พิมพ์หรือวางเนื้อหาที่ต้องการเพิ่มในคลังความรู้..."
+                    rows={10}
+                    className="w-full bg-slate-800 border border-slate-600 rounded-xl px-3 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" />
+                </div>
+                <button onClick={uploadPastedText} disabled={loading || pastedText.trim().length < 10}
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-semibold py-3 rounded-xl transition-all">
+                  {loading ? 'กำลังประมวลผล...' : '💾 บันทึกเนื้อหาเข้าคลังความรู้'}
+                </button>
               </div>
             )}
 
@@ -357,7 +441,9 @@ export default function AdminKnowledgePage() {
                   <div key={job.id} className="bg-slate-800 rounded-2xl p-4 border border-slate-700">
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <p className="text-sm font-medium text-white truncate max-w-xs">{job.name}</p>
+                        <p className="text-sm font-medium text-white truncate max-w-xs">
+                          {job.type === 'pdf' ? '📄' : job.type === 'docx' ? '📘' : job.type === 'text' ? '📝' : job.type === 'youtube' ? '▶️' : '🔗'} {job.name}
+                        </p>
                         <p className="text-xs text-slate-400 mt-0.5">{job.detail}</p>
                       </div>
                       <span className="text-sm font-bold" style={{ color: statusColor(job.status) }}>
@@ -395,7 +481,10 @@ export default function AdminKnowledgePage() {
                   <div key={doc.id} className="bg-slate-800 rounded-2xl p-4 border border-slate-700 flex items-center justify-between">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <div className="text-2xl flex-shrink-0">
-                        {doc.source_type === 'youtube' ? '▶️' : doc.source_type === 'google_drive' ? '🔗' : '📄'}
+                        {doc.source_type === 'youtube' ? '▶️' : 
+                         doc.source_type === 'google_drive' ? '🔗' : 
+                         doc.source_type === 'docx' ? '📘' :
+                         doc.source_type === 'text' ? '📝' : '📄'}
                       </div>
                       <div className="min-w-0">
                         <p className="font-medium text-white truncate">{doc.title}</p>
