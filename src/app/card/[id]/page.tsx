@@ -1,5 +1,4 @@
 import { Icons } from "@/components/Icons";
-import { AppHeader } from "@/components/AppHeader";
 import { getPublicProfile } from "@/app/actions/profile";
 import { notFound } from "next/navigation";
 
@@ -17,175 +16,173 @@ export default async function DigitalCardPage({ params }: { params: Promise<{ id
   const initials = `${profile.first_name?.[0] || ''}${profile.last_name?.[0] || ''}`.toUpperCase() || '👤';
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--ink-50)", paddingBottom: 40 }}>
-      <div style={{ paddingTop: 30, paddingBottom: 20 }}>
-        <AppHeader title="นามบัตรดิจิทัล" subtitle="DIGITAL BUSINESS CARD" />
-      </div>
+    <div className="min-h-screen bg-[#FDF1E6] pb-12 overflow-x-hidden font-th">
+      {/* ─── Hero Section ────────────────────────────────────────── */}
+      <section className="relative pt-12 pb-24 overflow-hidden">
+        {/* Abstract Background Shapes */}
+        <div className="absolute top-0 left-0 w-full h-full z-0 opacity-10 pointer-events-none">
+          <div className="absolute top-[-10%] right-[-10%] w-[300px] h-[300px] rounded-full bg-[#D45F1C] blur-3xl animate-pulse-slow"></div>
+          <div className="absolute bottom-[-5%] left-[-5%] w-[250px] h-[250px] rounded-full bg-[#C8A04A] blur-3xl opacity-50"></div>
+        </div>
 
-      <div style={{ padding: "0 22px", maxWidth: 480, margin: "0 auto" }}>
-        <div style={{
-          background: "white", borderRadius: "var(--r-xl)", padding: 32,
-          boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
-          border: "1px solid var(--ink-100)", position: "relative", overflow: "hidden"
-        }}>
-          {/* Header Graphic */}
-          <div style={{
-            position: "absolute", top: 0, left: 0, right: 0, height: 100,
-            background: "linear-gradient(135deg, var(--saffron-400) 0%, var(--saffron-600) 100%)",
-          }}></div>
-
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", position: "relative", zIndex: 1, marginTop: 30 }}>
-            <div style={{
-              width: 100, height: 100, borderRadius: 50, background: "white",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 32, fontWeight: 600, color: "var(--saffron-700)",
-              border: "4px solid white", boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-              marginBottom: 20, overflow: "hidden"
-            }}>
-              {profile.avatar_url ? (
-                <img src={profile.avatar_url} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              ) : initials}
-            </div>
-
-            <h1 style={{ fontSize: 24, fontWeight: 700, color: "var(--ink-900)", textAlign: "center", marginBottom: 4 }}>
-              คุณ{profile.first_name} {profile.last_name}
-            </h1>
-            
-            <div style={{ fontSize: 14, color: "var(--ink-600)", fontWeight: 500, textAlign: "center", marginBottom: 4 }}>
-              {profile.role} {profile.group_name && `· ${profile.group_name}`}
-            </div>
-
-            {profile.organization && (
-              <div style={{ fontSize: 13, color: "var(--saffron-700)", fontWeight: 600, textAlign: "center", marginBottom: 12 }}>
-                {profile.organization}
+        <div className="max-w-[480px] mx-auto px-6 relative z-10 flex flex-col items-center">
+          {/* Avatar with Ring */}
+          <div className="relative mb-8 animate-fade-in-up">
+            <div className="w-[140px] h-[140px] rounded-full p-1 bg-gradient-to-tr from-[#8E3B0F] via-[#F2A876] to-[#C8A04A] shadow-xl">
+              <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden border-4 border-white">
+                {profile.avatar_url ? (
+                  <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-4xl font-bold text-[#8E3B0F] font-en">{initials}</span>
+                )}
               </div>
-            )}
-
-            {profile.address && (
-              <div style={{ fontSize: 12, color: "var(--ink-500)", textAlign: "center", marginBottom: 20, maxWidth: '80%' }}>
-                {profile.address}
-              </div>
-            )}
-
-            <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
-              {profile.facebook_url && <a href={profile.facebook_url} target="_blank" style={socialIconStyle}><Icons.facebook size={18} stroke="var(--ink-600)"/></a>}
-              {profile.instagram_url && <a href={profile.instagram_url} target="_blank" style={socialIconStyle}><Icons.instagram size={18} stroke="var(--ink-600)"/></a>}
-              {profile.tiktok_url && <a href={profile.tiktok_url} target="_blank" style={socialIconStyle}><Icons.tiktok size={18} stroke="var(--ink-600)"/></a>}
-              {profile.youtube_url && <a href={profile.youtube_url} target="_blank" style={socialIconStyle}><Icons.youtube size={18} stroke="var(--ink-600)"/></a>}
             </div>
-
-            {(profile.motto || profile.virtue) && (
-              <div style={{ 
-                background: "var(--saffron-50)", padding: 16, borderRadius: 12, 
-                width: "100%", textAlign: "center", marginBottom: 24,
-                border: "1px dashed var(--saffron-200)"
-              }}>
-                {profile.motto && <div style={{ fontSize: 14, color: "var(--ink-800)", fontStyle: "italic", lineHeight: 1.5 }}>"{profile.motto}"</div>}
-                {profile.virtue && <div style={{ fontSize: 13, color: "var(--saffron-700)", fontWeight: 600, marginTop: 8 }}>⭐ {profile.virtue}</div>}
-              </div>
-            )}
-
-            <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 12 }}>
-              <a href="https://www.facebook.com/share/p/1EuucsvLsR/" target="_blank" style={{...contactItemStyle, background: 'var(--saffron-50)', border: '1px solid var(--saffron-200)', textDecoration: 'none'}}>
-                <div style={{ ...contactIconWrapStyle, background: 'white' }}>
-                  <Icons.facebook size={16} stroke="var(--saffron-600)"/>
-                </div>
-                <div style={{ flex: 1, fontWeight: 600, color: 'var(--saffron-800)', fontSize: 13 }}>
-                  โครงการสร้างศาสนทายาท IPS
-                </div>
-                <Icons.arrowRight size={14} stroke="var(--saffron-400)"/>
-              </a>
-
-              {profile.phone && (
-                <a href={`tel:${profile.phone}`} style={contactItemStyle}>
-                  <div style={contactIconWrapStyle}>
-                    <Icons.phone size={16} stroke="var(--saffron-600)"/>
-                  </div>
-                  <div style={{ flex: 1, fontWeight: 500 }}>{profile.phone}</div>
-                </a>
-              )}
-              
-              {(profile.line_id || profile.line_url) && (
-                <a href={profile.line_url || `https://line.me/ti/p/~${profile.line_id}`} target="_blank" style={{...contactItemStyle, textDecoration: 'none'}}>
-                  <div style={{ ...contactIconWrapStyle, color: "#00B900" }}>
-                    <Icons.users size={16} stroke="currentColor"/>
-                  </div>
-                  <div style={{ flex: 1, fontWeight: 500 }}>LINE: {profile.line_id || 'ติดต่อผ่านลิงก์'}</div>
-                </a>
-              )}
-
-              {profile.line_qr_url && (
-                <div style={{ padding: 12, background: 'var(--ink-50)', borderRadius: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-                   <img src={profile.line_qr_url} alt="Line QR" style={{ width: 120, height: 120, borderRadius: 8 }} />
-                   <div style={{ fontSize: 11, color: 'var(--ink-400)' }}>สแกนเพื่อเพิ่มเพื่อนใน LINE</div>
-                </div>
-              )}
-
-              {profile.province && (
-                <div style={contactItemStyle}>
-                  <div style={contactIconWrapStyle}>
-                    <Icons.pin size={16} stroke="var(--saffron-600)"/>
-                  </div>
-                  <div style={{ flex: 1, fontWeight: 500 }}>{profile.province}</div>
-                </div>
-              )}
-            </div>
-
-            {profile.activity_photos && profile.activity_photos.length > 0 && (
-              <div style={{ width: '100%', marginTop: 32 }}>
-                <h2 style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink-900)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Icons.spark size={16} stroke="var(--saffron-600)"/> กิจกรรมทบทวนความดี
-                </h2>
-                <div style={{ display: 'grid', gridTemplateColumns: profile.activity_photos.length === 1 ? '1fr' : 'repeat(2, 1fr)', gap: 8 }}>
-                  {profile.activity_photos.map((url: string, i: number) => (
-                    <div key={i} style={{ aspectRatio: '1/1', borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
-                      <img src={url} alt={`Activity ${i+1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div style={{ marginTop: 32, fontSize: 12, color: "var(--ink-400)", textAlign: "center" }}>
-              Powered by VME · IPS REFLECTION
+            <div className="absolute bottom-1 right-1 bg-[#4F7A4D] text-white p-2 rounded-full border-2 border-white shadow-lg">
+              <Icons.check size={16} />
             </div>
           </div>
+
+          <h1 className="text-3xl font-extrabold text-[#1C1A17] text-center mb-2 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+            คุณ{profile.first_name} {profile.last_name}
+          </h1>
+
+          <div className="flex flex-wrap justify-center gap-2 mb-6 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            <span className="bg-[#FDF1E6] text-[#8E3B0F] border border-[#FCE3CE] text-sm py-1.5 px-4 rounded-full font-semibold">{profile.role}</span>
+            {profile.group_name && <span className="bg-[#F2EEE8] text-[#4A443D] border border-[#E8E3DC] text-sm py-1.5 px-4 rounded-full font-medium">{profile.group_name}</span>}
+            {profile.province && (
+              <span className="bg-[#EEF3ED] text-[#3D5C3B] border border-[#D6E1D4] text-sm py-1.5 px-4 rounded-full font-medium flex items-center gap-1.5">
+                <Icons.pin size={14} /> {profile.province}
+              </span>
+            )}
+          </div>
+
+          {profile.motto && (
+            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-sm border border-[#FCE3CE] text-center max-w-sm animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+              <Icons.spark size={24} className="mx-auto mb-3 text-[#D45F1C] opacity-60" />
+              <p className="text-lg italic font-medium text-[#2E2A25] leading-relaxed">
+                "{profile.motto}"
+              </p>
+              {profile.virtue && (
+                <div className="mt-4 pt-4 border-t border-[#FDF1E6] flex items-center justify-center gap-2 text-[#8E3B0F] font-bold text-sm tracking-wide uppercase">
+                  ⭐ Core Virtue: {profile.virtue}
+                </div>
+              )}
+            </div>
+          )}
         </div>
-      </div>
+      </section>
+
+      {/* ─── Contact & Socials ────────────────────────────────────── */}
+      <section className="max-w-[480px] mx-auto px-6 -mt-12 relative z-20">
+        <div className="bg-white rounded-[32px] shadow-lg border border-[#F2EEE8] p-8">
+          <h2 className="text-xs font-bold text-[#B0AAA2] tracking-[0.2em] uppercase mb-6 text-center font-en">Get in Touch</h2>
+          
+          <div className="grid grid-cols-2 gap-4 mb-8">
+            {profile.phone && (
+              <a href={`tel:${profile.phone}`} className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-[#FDF1E6] border border-[#FCE3CE] hover:bg-[#FCE3CE] transition-colors group">
+                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[#B14A14] shadow-sm group-hover:scale-110 transition-transform">
+                  <Icons.phone size={20} />
+                </div>
+                <span className="text-sm font-semibold text-[#8E3B0F] font-en">{profile.phone}</span>
+              </a>
+            )}
+            {(profile.line_id || profile.line_url) && (
+              <a href={profile.line_url || `https://line.me/ti/p/~${profile.line_id}`} target="_blank" className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-[#EFFFF0] border border-[#D1F7D4] hover:bg-[#DFFDE2] transition-colors group">
+                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[#00B900] shadow-sm group-hover:scale-110 transition-transform">
+                  <Icons.users size={20} />
+                </div>
+                <span className="text-sm font-semibold text-[#007F00] font-en">LINE ID</span>
+              </a>
+            )}
+          </div>
+
+          <div className="flex justify-center gap-4 mb-8">
+            {profile.facebook_url && (
+              <a href={profile.facebook_url} target="_blank" className="w-[52px] h-[52px] rounded-[18px] bg-[#F9F6F1] flex items-center justify-center border border-[#ECE3D2] hover:bg-white hover:border-[#E8843E] hover:-translate-y-1 transition-all shadow-sm">
+                <Icons.facebook size={20} className="text-[#67615A]" />
+              </a>
+            )}
+            {profile.instagram_url && (
+              <a href={profile.instagram_url} target="_blank" className="w-[52px] h-[52px] rounded-[18px] bg-[#F9F6F1] flex items-center justify-center border border-[#ECE3D2] hover:bg-white hover:border-[#E8843E] hover:-translate-y-1 transition-all shadow-sm">
+                <Icons.instagram size={20} className="text-[#67615A]" />
+              </a>
+            )}
+            {profile.tiktok_url && (
+              <a href={profile.tiktok_url} target="_blank" className="w-[52px] h-[52px] rounded-[18px] bg-[#F9F6F1] flex items-center justify-center border border-[#ECE3D2] hover:bg-white hover:border-[#E8843E] hover:-translate-y-1 transition-all shadow-sm">
+                <Icons.tiktok size={20} className="text-[#67615A]" />
+              </a>
+            )}
+            {profile.youtube_url && (
+              <a href={profile.youtube_url} target="_blank" className="w-[52px] h-[52px] rounded-[18px] bg-[#F9F6F1] flex items-center justify-center border border-[#ECE3D2] hover:bg-white hover:border-[#E8843E] hover:-translate-y-1 transition-all shadow-sm">
+                <Icons.youtube size={20} className="text-[#67615A]" />
+              </a>
+            )}
+          </div>
+
+          {profile.organization && (
+            <div className="pt-6 border-t border-[#F9F6F1]">
+              <div className="flex items-start gap-4 p-4 rounded-2xl bg-[#F9F6F1]">
+                <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-[#B0AAA2]">
+                  <Icons.pin size={18} />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-[#B0AAA2] uppercase tracking-wider mb-1 font-en">Organization</div>
+                  <div className="text-sm font-semibold text-[#2E2A25]">{profile.organization}</div>
+                  {profile.address && <div className="text-xs text-[#8B857D] mt-1">{profile.address}</div>}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ─── Projects & Activities ────────────────────────────────── */}
+      <section className="max-w-[480px] mx-auto px-6 mt-12">
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-[#1C1A17] flex items-center gap-2">
+            <span className="w-1 h-6 bg-[#D45F1C] rounded-full"></span>
+            กิจกรรมความดี
+          </h2>
+          <span className="text-xs font-medium text-[#B0AAA2] font-en">IPS Reflection</span>
+        </div>
+
+        {profile.activity_photos && profile.activity_photos.length > 0 ? (
+          <div className="grid grid-cols-2 gap-3">
+            {profile.activity_photos.map((url: string, i: number) => (
+              <div key={i} className="group relative aspect-square rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                <img src={url} alt={`Activity ${i+1}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-white/50 border-2 border-dashed border-[#D4CFC8] rounded-3xl p-12 text-center text-[#B0AAA2]">
+             <Icons.spark size={32} className="mx-auto mb-3 opacity-20" />
+             <p className="text-sm font-medium">ยังไม่มีกิจกรรมที่แสดงในขณะนี้</p>
+          </div>
+        )}
+
+        <a href="https://www.facebook.com/share/p/1EuucsvLsR/" target="_blank" className="mt-8 block p-6 rounded-[28px] bg-gradient-to-br from-[#D45F1C] to-[#8E3B0F] text-white shadow-xl shadow-orange-500/20 relative overflow-hidden group">
+          <div className="absolute top-[-20px] right-[-20px] w-24 h-24 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform"></div>
+          <div className="relative z-10 flex items-center justify-between">
+            <div>
+              <div className="text-[10px] font-bold tracking-[0.2em] uppercase opacity-80 mb-1 font-en">Joined Program</div>
+              <div className="text-lg font-bold">โครงการสร้างศาสนทายาท IPS</div>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+              <Icons.arrowRight size={20} />
+            </div>
+          </div>
+        </a>
+      </section>
+
+      {/* ─── Footer ──────────────────────────────────────────────── */}
+      <footer className="mt-20 text-center px-6">
+        <div className="w-12 h-1 bg-[#E8E3DC] mx-auto mb-6 rounded-full"></div>
+        <div className="text-[10px] font-bold text-[#B0AAA2] tracking-[0.3em] uppercase mb-2 font-en">Developed for</div>
+        <div className="text-sm font-bold text-[#67615A]">VME · IPS REFLECTION</div>
+        <div className="text-[10px] text-[#B0AAA2] mt-4 opacity-50 font-en">© 2026 โครงการทุนเรียนภาษานานาชาติ IPS</div>
+      </footer>
     </div>
   );
-}
-
-const socialIconStyle = {
-  width: 40,
-  height: 40,
-  borderRadius: 20,
-  background: "white",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-  border: "1px solid var(--ink-100)",
-  textDecoration: "none"
-}
-
-const contactItemStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: 12,
-  padding: "14px 16px",
-  background: "var(--ink-50)",
-  borderRadius: 12,
-  textDecoration: "none",
-  color: "var(--ink-800)"
-}
-
-const contactIconWrapStyle = {
-  width: 36,
-  height: 36,
-  borderRadius: 18,
-  background: "white",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center"
 }

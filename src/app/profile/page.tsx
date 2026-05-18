@@ -1,6 +1,7 @@
 import { Icons } from "@/components/Icons";
 import { AppHeader } from "@/components/AppHeader";
 import { TabBar } from "@/components/TabBar";
+import { CopyCardLink } from "@/components/CopyCardLink";
 import { logout } from "@/app/actions/auth";
 import { getProfile as fetchProfile } from "@/app/actions/profile";
 import Link from "next/link";
@@ -81,17 +82,24 @@ export default async function ProfilePage() {
         </div>
 
         {profile.is_public && (
-          <Link href={`/card/${profile.id}`} className="card" style={{ 
-            padding: 16, marginBottom: 18, display: "flex", alignItems: "center", gap: 12,
-            background: "linear-gradient(135deg, var(--saffron-600) 0%, var(--saffron-700) 100%)",
-            color: "white", textDecoration: "none" 
-          }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>นามบัตรดิจิทัลของคุณ</div>
-              <div style={{ fontSize: 12, opacity: 0.9 }}>คลิกเพื่อดูและแชร์นามบัตรของคุณ</div>
-            </div>
-            <Icons.arrow size={20} stroke="white"/>
-          </Link>
+          <div className="card" style={{ padding: 16, marginBottom: 18 }}>
+            <Link href={`/card/${profile.id}`} style={{ 
+              display: "flex", alignItems: "center", gap: 12,
+              color: "var(--ink-900)", textDecoration: "none" 
+            }}>
+              <div style={{
+                width: 40, height: 40, borderRadius: 10, background: "var(--saffron-50)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}><Icons.user size={20} stroke="var(--saffron-600)"/></div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 2 }}>นามบัตรดิจิทัล (Salepage)</div>
+                <div style={{ fontSize: 12, color: "var(--ink-500)" }}>เผยแพร่ข้อมูลความดีของคุณให้โลกรู้</div>
+              </div>
+              <Icons.arrow size={20} stroke="var(--ink-400)"/>
+            </Link>
+            
+            <CopyCardLink cardId={profile.id} />
+          </div>
         )}
 
         <div className="card" style={{ padding: 16, marginBottom: 18 }}>
@@ -188,7 +196,8 @@ export default async function ProfilePage() {
 
             <Link href="/admin/knowledge" style={{
               display: "flex", alignItems: "center", gap: 12, textDecoration: "none", color: "inherit",
-              padding: "12px", background: "white", borderRadius: "12px", border: "1px solid #E5D5F2"
+              padding: "12px", background: "white", borderRadius: "12px", border: "1px solid #E5D5F2",
+              marginBottom: 8
             }}>
               <div style={{
                 width: 36, height: 36, borderRadius: 10, background: "#F3E8FF",
@@ -197,6 +206,21 @@ export default async function ProfilePage() {
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, color: "#4A345E" }}>จัดการคลังความรู้</div>
                 <div style={{ fontSize: 11, color: "#8E6DA1" }}>อัปโหลดและจัดการ PDF สำหรับ AI</div>
+              </div>
+              <Icons.arrow size={16} stroke="#8E6DA1"/>
+            </Link>
+
+            <Link href="/admin/library" style={{
+              display: "flex", alignItems: "center", gap: 12, textDecoration: "none", color: "inherit",
+              padding: "12px", background: "white", borderRadius: "12px", border: "1px solid #E5D5F2"
+            }}>
+              <div style={{
+                width: 36, height: 36, borderRadius: 10, background: "#F3E8FF",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}><Icons.download size={18} stroke="#8E6DA1"/></div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: "#4A345E" }}>จัดการคลังดาวน์โหลด</div>
+                <div style={{ fontSize: 11, color: "#8E6DA1" }}>สื่อ PR, หนังสือเชิญ, เอกสารเด่น, วิดีโอ</div>
               </div>
               <Icons.arrow size={16} stroke="#8E6DA1"/>
             </Link>
