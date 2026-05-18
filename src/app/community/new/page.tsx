@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { TopHeaderBack } from "@/components/AppHeader";
-import { supabase, categoryColor, type ForumCategory } from "@/lib/supabase";
+import { supabase } from "@/lib/clients";
+import { categoryColor, type ForumCategory } from "@/lib/forum";
 import { Icons } from "@/components/Icons";
 
 export default function NewPostPage() {

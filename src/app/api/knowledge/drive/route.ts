@@ -3,7 +3,6 @@ import { getSupabase } from '@/lib/clients'
 import { processPDFBuffer } from '@/lib/pdf-pipeline'
 
 export const maxDuration = 300
-export const runtime = 'edge'
 
 function extractDriveFileId(url: string): string | null {
   const patterns = [

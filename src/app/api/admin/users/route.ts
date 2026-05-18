@@ -1,16 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { getSupabaseAdmin } from '@/lib/clients'
 
-function getSupabaseAdmin() {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    console.warn("Missing Supabase environment variables for admin client.");
-  }
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-    process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder',
-    { auth: { autoRefreshToken: false, persistSession: false } }
-  )
-}
+export const runtime = 'edge';
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   try {

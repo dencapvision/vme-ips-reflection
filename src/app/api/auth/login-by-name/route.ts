@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
-
-import { createAdminClient } from '@/lib/supabase/admin'
-
+import { getSupabaseServerClient, getSupabaseAdmin } from '@/lib/clients'
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,7 +29,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'กรุณากรอกชื่อและนามสกุล' }, { status: 400 })
     }
 
-    const supabaseAdmin = createAdminClient()
+    const supabaseAdmin = getSupabaseAdmin()
 
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
@@ -57,20 +54,10 @@ export async function POST(request: NextRequest) {
 
     const cookiesToSet: Array<{ name: string; value: string; options: any }> = []
 
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll()
-          },
-          setAll(cookies) {
-            cookiesToSet.push(...cookies)
-          },
-        },
-      }
-    )
+    const supabase = getSupabaseServerClient({
+      getAll() { return request.cookies.getAll() },
+      setAll(cookies) { cookiesToSet.push(...cookies) }
+    })
 
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email: authUser.email,

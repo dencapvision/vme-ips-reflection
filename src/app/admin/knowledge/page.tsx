@@ -72,12 +72,26 @@ export default function AdminKnowledgePage() {
       }])
 
       try {
-        const form = new FormData()
-        form.append('file',     file)
-        form.append('title',    title || file.name.replace(/\.pdf$/i, ''))
-        form.append('category', category)
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onload = () => {
+            const result = reader.result as string
+            resolve(result.split(',')[1]) // Extract base64 part
+          }
+          reader.onerror = reject
+          reader.readAsDataURL(file)
+        })
 
-        const res = await fetch('/api/knowledge/upload', { method: 'POST', body: form })
+        const res = await fetch('/api/knowledge/upload', { 
+          method: 'POST', 
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            file: base64,
+            filename: file.name,
+            title: title || file.name.replace(/\.pdf$/i, ''),
+            category
+          })
+        })
 
         if (!res.ok) {
           const err = await res.json()
@@ -345,11 +359,6 @@ export default function AdminKnowledgePage() {
                       <div>
                         <p className="text-sm font-medium text-white truncate max-w-xs">{job.name}</p>
                         <p className="text-xs text-slate-400 mt-0.5">{job.detail}</p>
-                        {job.status === 'error' && (
-                          <p className="text-xs text-red-400 mt-1">
-                            วิธีแก้: ตรวจสอบว่า run SQL migration แล้ว และ Supabase Storage bucket &quot;knowledge-pdfs&quot; มีอยู่
-                          </p>
-                        )}
                       </div>
                       <span className="text-sm font-bold" style={{ color: statusColor(job.status) }}>
                         {job.status === 'done' ? '✅' : job.status === 'error' ? '❌' : `${job.pct}%`}

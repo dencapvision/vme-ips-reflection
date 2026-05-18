@@ -1,14 +1,17 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
-import { createAdminClient } from '@/lib/supabase/admin'
+import { getSupabaseServerClient, getSupabaseAdmin } from '@/lib/clients'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { verifySession, SESSION_COOKIE } from '@/lib/session'
 
 export async function getProfile() {
   // ── Path 1: Supabase Auth session (legacy / admin via Supabase Auth) ──────
-  const supabase = await createClient()
+  const cookieStore = await cookies()
+  const supabase = getSupabaseServerClient({
+    getAll() { return cookieStore.getAll() },
+    setAll(cookiesToSet) { cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options)) }
+  })
   const { data: { user } } = await supabase.auth.getUser()
 
   if (user) {
@@ -34,14 +37,13 @@ export async function getProfile() {
   }
 
   // ── Path 2: Custom JWT session (member or new-system admin) ───────────────
-  const cookieStore = await cookies()
   const token = cookieStore.get(SESSION_COOKIE)?.value
   if (!token) return null
 
   const session = await verifySession(token)
   if (!session) return null
 
-  const adminClient = createAdminClient()
+  const adminClient = getSupabaseAdmin()
 
   // If we stored a profile_id during login, use it directly
   if (session.profile_id) {
@@ -79,7 +81,11 @@ export async function getProfile() {
 }
 
 export async function getPublicProfile(id: string) {
-  const supabase = await createClient()
+  const cookieStore = await cookies()
+  const supabase = getSupabaseServerClient({
+    getAll() { return cookieStore.getAll() },
+    setAll(cookiesToSet) { cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options)) }
+  })
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
@@ -90,14 +96,17 @@ export async function getPublicProfile(id: string) {
 }
 
 export async function updateProfile(formData: FormData) {
-  const supabase = await createClient()
+  const cookieStore = await cookies()
+  const supabase = getSupabaseServerClient({
+    getAll() { return cookieStore.getAll() },
+    setAll(cookiesToSet) { cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options)) }
+  })
   const { data: { user } } = await supabase.auth.getUser()
 
   // Resolve user id — try Supabase Auth first, then JWT session
   let userId: string | null = user?.id ?? null
 
   if (!userId) {
-    const cookieStore = await cookies()
     const token = cookieStore.get(SESSION_COOKIE)?.value
     if (token) {
       const session = await verifySession(token)
@@ -108,7 +117,7 @@ export async function updateProfile(formData: FormData) {
   if (!userId) return { error: 'กรุณาเข้าสู่ระบบก่อนดำเนินการ' }
 
   try {
-    const adminClient = createAdminClient()
+    const adminClient = getSupabaseAdmin()
     const data: Record<string, unknown> = {
       first_name:    formData.get('first_name')    || null,
       last_name:     formData.get('last_name')     || null,

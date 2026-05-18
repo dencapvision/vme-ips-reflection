@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { getProfile } from '@/app/actions/profile'
-import { createAdminClient } from '@/lib/supabase/admin'
+import { getSupabaseAdmin } from '@/lib/clients'
 
 async function requireAdmin() {
   const profile = await getProfile()
@@ -27,7 +27,7 @@ export async function createUser(formData: FormData) {
     redirect('/admin/users?error=กรุณากรอกข้อมูลให้ครบถ้วน')
   }
 
-  const supabaseAdmin = createAdminClient()
+  const supabaseAdmin = getSupabaseAdmin()
   const email = `${phone}@vme-ips.local`
 
   // Create Supabase auth user
@@ -65,7 +65,7 @@ export async function createUser(formData: FormData) {
 
 export async function deleteUser(id: string) {
   await requireAdmin()
-  const supabaseAdmin = createAdminClient()
+  const supabaseAdmin = getSupabaseAdmin()
 
   const { error } = await supabaseAdmin.auth.admin.deleteUser(id)
   if (error) {

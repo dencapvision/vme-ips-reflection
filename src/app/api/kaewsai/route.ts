@@ -1,5 +1,8 @@
 import { searchKnowledge } from "@/lib/knowledge";
 
+export const runtime = 'edge';
+export const dynamic = 'force-dynamic';
+
 const KAEWSAI_SYSTEM = (context: string) => `
 คุณคือ "น้องแก้วใส" (Nong Kaew Sai) — ยอดกัลยาณมิตร AI ผู้ช่วยประจำโครงการ IPS
 **ข้อมูลสำคัญ: IPS ย่อมาจาก International Program for Sangha (โครงการบวชเรียนนานาชาติ)**

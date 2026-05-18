@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminByEmail, verifyPassword } from '@/lib/auth'
-import { createAdminClient } from '@/lib/supabase/admin'
+import { getSupabaseAdmin } from '@/lib/clients'
 import { signSession, sessionCookieOptions, SESSION_COOKIE } from '@/lib/session'
 
 export async function POST(request: NextRequest) {
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
 
     // 2. Find auth.users.id by email → this equals profiles.id
     console.log('[admin-login] Finding user in auth.users...')
-    const supabaseAdmin = createAdminClient()
+    const supabaseAdmin = getSupabaseAdmin()
     const { data: userList, error: listError } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 })
     
     if (listError) {

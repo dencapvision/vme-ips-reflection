@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
+import { getSupabaseServerClient } from '@/lib/clients'
 
 export async function POST(request: NextRequest) {
   try {
@@ -7,26 +7,12 @@ export async function POST(request: NextRequest) {
     const email = formData.get('email') as string
     const password = formData.get('password') as string
 
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      throw new Error('Supabase configuration is missing')
-    }
-
     const cookiesToSet: Array<{ name: string; value: string; options: any }> = []
 
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll()
-          },
-          setAll(cookies) {
-            cookiesToSet.push(...cookies)
-          },
-        },
-      }
-    )
+    const supabase = getSupabaseServerClient({
+      getAll() { return request.cookies.getAll() },
+      setAll(cookies) { cookiesToSet.push(...cookies) }
+    })
 
     const { error } = await supabase.auth.signInWithPassword({ email, password })
 

@@ -26,11 +26,15 @@ export async function logout() {
  * New admin accounts should use the `admins` table + /api/auth/admin-login.
  */
 export async function loginWithEmail(formData: FormData) {
-  const { createClient } = await import('@/lib/supabase/server')
+  const { getSupabaseServerClient } = await import('@/lib/clients')
   const email    = formData.get('email')    as string
   const password = formData.get('password') as string
 
-  const supabase = await createClient()
+  const cookieStore = await cookies()
+  const supabase = getSupabaseServerClient({
+    getAll() { return cookieStore.getAll() },
+    setAll(cookiesToSet) { cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options)) }
+  })
   const { error } = await supabase.auth.signInWithPassword({ email, password })
   if (error) return { error: error.message }
 

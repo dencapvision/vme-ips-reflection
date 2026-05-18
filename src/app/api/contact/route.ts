@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { getSupabaseServerClient } from '@/lib/clients';
 import { sendEmail } from '@/lib/email';
 
 export async function POST(request: Request) {
@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     const { name, email, message } = body;
 
     // 1. Insert into Supabase
-    const supabase = await createClient();
+    const supabase = getSupabaseServerClient();
     const { data: contact, error: dbError } = await supabase
       .from('contacts')
       .insert([{ name, email, message }])

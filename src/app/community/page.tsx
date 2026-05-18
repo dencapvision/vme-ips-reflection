@@ -5,7 +5,8 @@ import Link from "next/link";
 import { Icons } from "@/components/Icons";
 import { AppHeader } from "@/components/AppHeader";
 import { TabBar } from "@/components/TabBar";
-import { supabase, timeAgo, categoryColor, type ForumPost, type ForumCategory } from "@/lib/supabase";
+import { supabase } from "@/lib/clients";
+import { timeAgo, categoryColor, type ForumPost, type ForumCategory } from "@/lib/forum";
 
 export default function CommunityPage() {
   const [posts, setPosts] = useState<ForumPost[]>([]);

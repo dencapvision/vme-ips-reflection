@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createEmbeddingsBatch } from '@/lib/pdf-pipeline'
 
 export const maxDuration = 300
-export const runtime = 'edge'
 
 import { getSupabase } from '@/lib/clients'
 

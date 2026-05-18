@@ -1,5 +1,5 @@
 import { getProfile } from '@/app/actions/profile'
-import { createAdminClient } from '@/lib/supabase/admin'
+import { getSupabaseAdmin } from '@/lib/clients'
 import { createUser, deleteUser } from '@/app/actions/admin'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
@@ -19,7 +19,7 @@ export default async function UsersAdminPage({
   if (!profile.role?.toLowerCase().includes('admin')) redirect('/')
 
   // List all users
-  const supabaseAdmin = createAdminClient()
+  const supabaseAdmin = getSupabaseAdmin()
   const { data: users } = await supabaseAdmin
     .from('profiles')
     .select('id, first_name, last_name, phone, role, group_name, created_at')

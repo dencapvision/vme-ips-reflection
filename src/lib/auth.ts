@@ -6,7 +6,7 @@
  * Then swap the hash/verify functions as shown in the comments below.
  */
 
-import { createAdminClient } from '@/lib/supabase/admin'
+import { getSupabaseAdmin } from '@/lib/clients'
 import crypto from 'crypto'
 
 // ─── Member helpers ───────────────────────────────────────────────────────────
@@ -27,7 +27,7 @@ export async function getMemberByName(
 ): Promise<MemberRow | null> {
   const normFirstName = first_name.trim().replace(/\s+/g, ' ')
   const normLastName = last_name.trim().replace(/\s+/g, ' ')
-  const admin = createAdminClient()
+  const admin = getSupabaseAdmin()
   const { data, error } = await admin
     .from('members')
     .select('id, first_name, last_name')
@@ -50,7 +50,7 @@ export type AdminRow = {
  * Look up an admin account by email.
  */
 export async function getAdminByEmail(email: string): Promise<AdminRow | null> {
-  const admin = createAdminClient()
+  const admin = getSupabaseAdmin()
   const { data, error } = await admin
     .from('admins')
     .select('id, email, password_hash')

@@ -4,7 +4,6 @@ import { processPDFBuffer } from '@/lib/pdf-pipeline'
 
 export const maxDuration = 300
 export const dynamic = 'force-dynamic'
-export const runtime = 'edge'
 
 export async function POST(req: NextRequest) {
   const LOG = (msg: string, data?: unknown) => console.log(`[upload] ${msg}`, data ?? '')
@@ -13,32 +12,31 @@ export async function POST(req: NextRequest) {
     const supabase = getSupabase()
     LOG('Request received')
 
-    const formData = await req.formData()
-    const file     = formData.get('file') as File
-    const title    = (formData.get('title') as string) || ''
-    const category = (formData.get('category') as string) || 'ทั่วไป'
+    const body = await req.json()
+    const base64 = body.file
+    const filename = body.filename as string
+    const title = (body.title as string) || ''
+    const category = (body.category as string) || 'ทั่วไป'
 
     // ── Validate ──────────────────────────────────────────────────
-    if (!file) {
+    if (!base64) {
       LOG('❌ No file in form data')
       return NextResponse.json({ message: 'ไม่พบไฟล์ในคำขอ' }, { status: 400 })
     }
-    if (file.type !== 'application/pdf') {
-      LOG(`❌ Wrong file type: ${file.type}`)
-      return NextResponse.json({ message: `ต้องเป็น PDF เท่านั้น (ได้รับ: ${file.type})` }, { status: 400 })
-    }
-    if (file.size > 30 * 1024 * 1024) {
-      LOG(`❌ File too large: ${file.size} bytes`)
+
+    // ── Read arrayBuffer ──────────────────────────────────────────
+    // Using Buffer.from is faster than atob and works with unenv in Cloudflare Edge
+    const uint8Array = Buffer.from(base64, 'base64')
+
+    if (uint8Array.length > 30 * 1024 * 1024) {
+      LOG(`❌ File too large: ${uint8Array.length} bytes`)
       return NextResponse.json({ message: 'ไฟล์ใหญ่เกิน 30MB' }, { status: 400 })
     }
 
-    LOG(`✅ File valid: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`)
+    LOG(`✅ File valid: ${filename} (${(uint8Array.length / 1024 / 1024).toFixed(2)}MB)`)
 
-    // ── Read arrayBuffer ──────────────────────────────────────────
-    const arrayBuffer = await file.arrayBuffer()
-    const uint8Array  = new Uint8Array(arrayBuffer)
-    const filename    = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`
-    const storagePath = `pdfs/${filename}`
+    const uniqueFilename = `${Date.now()}-${filename.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`
+    const storagePath = `pdfs/${uniqueFilename}`
 
     // ── Insert document record FIRST (before any slow I/O) ───────
     // NOTE: Storage upload moved INSIDE the SSE stream below so that
@@ -49,8 +47,8 @@ export async function POST(req: NextRequest) {
     const { data: doc, error: docError } = await supabase
       .from('knowledge_documents')
       .insert({
-        title:        title || file.name.replace(/\.pdf$/i, ''),
-        filename:     file.name,
+        title:        title || filename.replace(/\.pdf$/i, ''),
+        filename:     filename,
         storage_path: storagePath,
         category,
         source_type:  'pdf',
@@ -113,7 +111,7 @@ export async function POST(req: NextRequest) {
         }
 
         try {
-          const result = await processPDFBuffer(uint8Array, doc.id, file.name, (event) => {
+          const result = await processPDFBuffer(uint8Array, doc.id, filename, (event) => {
             LOG(`Pipeline: ${event.stage} ${event.pct}%`, event.detail)
             send({ ...event, documentId: doc.id })
           })

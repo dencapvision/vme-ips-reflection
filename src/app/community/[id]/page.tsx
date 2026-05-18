@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { TopHeaderBack } from "@/components/AppHeader";
 import { Icons } from "@/components/Icons";
-import { supabase, timeAgo, categoryColor, type ForumPost, type ForumComment } from "@/lib/supabase";
+import { supabase } from "@/lib/clients";
+import { timeAgo, categoryColor, type ForumPost, type ForumComment } from "@/lib/forum";
 
 export default function PostPage() {
   const { id } = useParams<{ id: string }>();

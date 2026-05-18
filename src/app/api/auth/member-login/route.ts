@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getMemberByName } from '@/lib/auth'
-import { createAdminClient } from '@/lib/supabase/admin'
+import { getSupabaseAdmin } from '@/lib/clients'
 import { signSession, sessionCookieOptions, SESSION_COOKIE } from '@/lib/session'
 
 export async function POST(request: NextRequest) {
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 2. Look up the matching profiles.id so profile pages can load
-    const adminClient = createAdminClient()
+    const adminClient = getSupabaseAdmin()
     const { data: profileRow } = await adminClient
       .from('profiles')
       .select('id')

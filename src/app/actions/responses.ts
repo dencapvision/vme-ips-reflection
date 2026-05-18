@@ -1,6 +1,6 @@
 'use server'
 
-import { createAdminClient } from '@/lib/supabase/admin'
+import { getSupabaseAdmin } from '@/lib/clients'
 import { getProfile } from './profile'
 import { revalidatePath } from 'next/cache'
 
@@ -8,7 +8,7 @@ export async function saveUserResponse(category: string, data: any) {
   const profile = await getProfile()
   if (!profile) return { error: 'กรุณาเข้าสู่ระบบก่อนดำเนินการ' }
 
-  const adminClient = createAdminClient()
+  const adminClient = getSupabaseAdmin()
   
   const { error } = await adminClient
     .from('user_responses')
@@ -33,7 +33,7 @@ export async function getUserResponse(category: string) {
   const profile = await getProfile()
   if (!profile) return null
 
-  const adminClient = createAdminClient()
+  const adminClient = getSupabaseAdmin()
   
   const { data, error } = await adminClient
     .from('user_responses')
@@ -54,7 +54,7 @@ export async function getUserProgress() {
   const profile = await getProfile()
   if (!profile) return { percentage: 0, completed: 0, total: 3 }
 
-  const adminClient = createAdminClient()
+  const adminClient = getSupabaseAdmin()
   
   const { data, error } = await adminClient
     .from('user_responses')
@@ -88,7 +88,7 @@ export async function getUserProgress() {
 }
 
 export async function getUsersSummary() {
-  const adminClient = createAdminClient()
+  const adminClient = getSupabaseAdmin()
   
   const { data: members, error: mError } = await adminClient
     .from('profiles')
