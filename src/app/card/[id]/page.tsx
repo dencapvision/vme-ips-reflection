@@ -3,6 +3,9 @@ import { AppHeader } from "@/components/AppHeader";
 import { getPublicProfile } from "@/app/actions/profile";
 import { notFound } from "next/navigation";
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function DigitalCardPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const profile = await getPublicProfile(id);
