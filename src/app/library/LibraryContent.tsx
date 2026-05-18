@@ -27,22 +27,26 @@ interface LibraryVideo {
 export default function LibraryContent() {
   const [links, setLinks] = useState<LibraryLink[]>([]);
   const [videos, setVideos] = useState<LibraryVideo[]>([]);
+  const [docs, setDocs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [curriculumTab, setCurriculumTab] = useState<"nese" | "benefits" | "schedule">("nese");
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [linksRes, videosRes] = await Promise.all([
+        const [linksRes, videosRes, docsRes] = await Promise.all([
           fetch('/api/library/links'),
-          fetch('/api/library/videos')
+          fetch('/api/library/videos'),
+          fetch('/api/knowledge/list')
         ]);
         
         const linksData = await linksRes.json();
         const videosData = await videosRes.json();
+        const docsData = await docsRes.json();
         
         setLinks(linksData.links || []);
         setVideos(videosData.videos || []);
+        setDocs(docsData.documents || docsData.data || []);
       } catch (error) {
         console.error("Failed to fetch library data:", error);
       } finally {
@@ -85,7 +89,7 @@ export default function LibraryContent() {
   return (
     <div className="space-y-8">
       {/* โครงสร้างหลักสูตรและกำหนดการ IPS#11 (DCI) */}
-      <section className="bg-white/95 backdrop-blur-md rounded-2xl border border-[#E5D5F2] shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
+      <section id="curriculum-section" className="bg-white/95 backdrop-blur-md rounded-2xl border border-[#E5D5F2] shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
         {/* Title Bar */}
         <div className="bg-gradient-to-r from-[#B68FD6] via-[#9B7BB6] to-[#8E6DA1] p-4 text-white">
           <div className="flex items-center gap-3">
@@ -572,6 +576,149 @@ export default function LibraryContent() {
           </div>
         </section>
       )}
+
+      {/* DYNAMIC KNOWLEDGE CATEGORIES */}
+      {(() => {
+        const countMaeYai = docs.filter((d: any) => d.category === 'รวมหนังสือคำสอนหลวงพ่อคุณครูไม่ใหญ่').length;
+        const countMaeLek = docs.filter((d: any) => d.category === 'รวมหนังสือคำสอนหลวงพ่อคุณครูไม่เล็ก').length;
+        const countVme = docs.filter((d: any) => d.category === 'นโยบายองค์กร' || d.category === 'คู่มือการใช้งาน').length;
+        const countIps = docs.filter((d: any) => d.category === 'IPS').length;
+        const countPr = prMediaLinks.length + videos.length;
+
+        const categories = [
+          {
+            id: "maeyai",
+            label: "คุณครูไม่ใหญ่",
+            sub: `หนังสือคำสอน ${countMaeYai} เล่ม`,
+            icon: Icons.lotus,
+            color: "saffron" as const,
+            count: countMaeYai,
+            prompt: "น้องแก้วใสคะ ช่วยสรุปใจความสำคัญของ 'ใจหยุดคือตัวสำเร็จ' ให้เข้าใจง่ายและได้กำลังใจหน่อยค่ะ ✨",
+            action: "ai-prompt"
+          },
+          {
+            id: "maelek",
+            label: "คุณครูไม่เล็ก",
+            sub: `หนังสือคำสอน ${countMaeLek} เล่ม`,
+            icon: Icons.lotus,
+            color: "sage" as const,
+            count: countMaeLek,
+            prompt: "น้องแก้วใสครับ ช่วยแนะนำหัวข้อการฝึกวินัย ความสะอาด และการฝึกตัวตามคำสอนหลวงพ่อคุณครูไม่เล็กหน่อยครับ 🙏",
+            action: "ai-prompt"
+          },
+          {
+            id: "ips",
+            label: "IPS",
+            sub: `ความรู้ IPS ${countIps} เรื่อง`,
+            icon: Icons.book,
+            color: "gold" as const,
+            count: countIps,
+            prompt: "ช่วยแนะนำข้อมูลและเป้าหมายของโครงการทุนบวชเรียนภาษา IPS หน่อยค่ะ 🌟",
+            action: "ai-prompt"
+          },
+          {
+            id: "curriculum",
+            label: "หลักสูตร",
+            sub: "ผังการศึกษา & กำหนดการ",
+            icon: Icons.layers,
+            color: "plum" as const,
+            count: 1, // แสดงเสมอ
+            prompt: "",
+            action: "scroll-to-curriculum"
+          },
+          {
+            id: "vme",
+            label: "คู่มือ VME",
+            sub: `คู่มืออบรม ${countVme} ไฟล์`,
+            icon: Icons.user,
+            color: "sage" as const,
+            count: countVme,
+            prompt: "ช่วยสรุปเนื้อหาสำคัญจากคู่มือ 'การตั้งรับ และโครงการ AI สำหรับอบรม VME' ให้เข้าใจง่ายหน่อยค่ะ 📋",
+            action: "ai-prompt"
+          },
+          {
+            id: "pr",
+            label: "สื่อ PR",
+            sub: `สื่อประชาสัมพันธ์ ${countPr} ไฟล์`,
+            icon: Icons.video,
+            color: "gold" as const,
+            count: countPr,
+            prompt: "แนะนำสื่อประชาสัมพันธ์หรือวิดีโอที่น่าสนใจในคลังสื่อหน่อยครับ 🎥",
+            action: "ai-prompt"
+          }
+        ].filter(cat => cat.count > 0);
+
+        if (categories.length === 0) return null;
+
+        return (
+          <section className="pt-6 border-t border-[#F0E4F8]">
+            <SectionHeader title="หมวดหมู่ความรู้" en="CATEGORIES" />
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 18, marginBottom: 10 }}>
+              {categories.map((cat) => {
+                const Icon = cat.icon;
+                const colorMap = {
+                  saffron: { bg: "var(--saffron-50)",  fg: "var(--saffron-700)", br: "var(--saffron-100)" },
+                  sage:    { bg: "#EEF3ED",            fg: "#3D5C3B",            br: "#D6E1D4" },
+                  gold:    { bg: "#F8F1DD",            fg: "#6E5418",            br: "#E8DBB1" },
+                  plum:    { bg: "#F0E9F1",            fg: "#4A2D4D",            br: "#DDD0DE" },
+                }[cat.color];
+
+                const handleClick = () => {
+                  if (cat.action === "scroll-to-curriculum") {
+                    const el = document.getElementById("curriculum-section");
+                    if (el) {
+                      el.scrollIntoView({ behavior: "smooth" });
+                      el.style.transition = "outline 0.3s ease";
+                      el.style.outline = "2px dashed var(--plum-300)";
+                      setTimeout(() => {
+                        el.style.outline = "none";
+                      }, 1500);
+                    }
+                  } else if (cat.action === "ai-prompt") {
+                    const el = document.getElementById("ai-chat-section");
+                    if (el) {
+                      el.scrollIntoView({ behavior: "smooth" });
+                    }
+                    const event = new CustomEvent("set-ai-prompt", {
+                      detail: { prompt: cat.prompt, autoSubmit: true }
+                    });
+                    window.dispatchEvent(event);
+                  }
+                };
+
+                return (
+                  <div
+                    key={cat.id}
+                    onClick={handleClick}
+                    className="cursor-pointer transition-all duration-300 transform hover:scale-[1.02] hover:shadow-md hover:brightness-[0.98] active:scale-95"
+                    style={{
+                      background: colorMap.bg,
+                      border: `1px solid ${colorMap.br}`,
+                      borderRadius: "var(--r-lg)",
+                      padding: "16px 14px",
+                      minHeight: 110,
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between"
+                    }}
+                  >
+                    <div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <Icon size={26} stroke={colorMap.fg}/>
+                        <span style={{ fontSize: 9, background: "rgba(255,255,255,0.7)", color: colorMap.fg, padding: "2px 6px", borderRadius: 8, fontWeight: 700, border: `1px solid ${colorMap.br}` }}>
+                          {cat.action === "ai-prompt" ? "🙏 ถาม AI" : "⬇️ ดูหลักสูตร"}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 16, fontWeight: 600, color: colorMap.fg, marginTop: 10 }}>{cat.label}</div>
+                    </div>
+                    <div style={{ fontSize: 11, color: "var(--ink-600)", marginTop: 4 }}>{cat.sub}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        );
+      })()}
     </div>
   );
 }

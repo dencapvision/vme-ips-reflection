@@ -17,7 +17,7 @@ export default function LibraryPage() {
       </div>
 
       <div style={{ padding: "4px 22px 30px" }}>
-        <div style={{ marginBottom: 24 }}>
+        <div id="ai-chat-section" style={{ marginBottom: 24 }}>
             <div style={{ marginBottom: 16 }}>
                 <SectionHeader title="ถามน้องแก้วใส AI" en="SMART KNOWLEDGE SEARCH" />
             </div>
@@ -29,39 +29,9 @@ export default function LibraryPage() {
         <React.Suspense fallback={<div className="animate-pulse h-96 bg-gray-50 rounded-3xl" />}>
           <LibraryContent />
         </React.Suspense>
-
-        <div style={{ marginTop: 32 }}>
-          <SectionHeader title="หมวดหมู่ความรู้" en="CATEGORIES" />
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 16, marginBottom: 18 }}>
-            <Cat Icon={Icons.lotus}  label="คุณครูไม่ใหญ่" sub="รวมหนังสือคำสอน" color="saffron"/>
-            <Cat Icon={Icons.lotus}  label="คุณครูไม่เล็ก" sub="รวมหนังสือคำสอน" color="sage"/>
-            <Cat Icon={Icons.book}   label="IPS"   sub="8 บทความ"  color="gold"/>
-            <Cat Icon={Icons.layers} label="หลักสูตร" sub="6 บทความ"  color="plum"/>
-            <Cat Icon={Icons.user}   label="คู่มือ VME" sub="5 บทความ" color="sage"/>
-            <Cat Icon={Icons.video}  label="สื่อ PR"   sub="10 ไฟล์"   color="gold"/>
-          </div>
-        </div>
       </div>
 
       <TabBar/>
     </>
-  );
-}
-
-function Cat({ Icon, label, sub, color }: {
-  Icon: (p?: any) => React.ReactElement; label: string; sub: string; color: "saffron" | "sage" | "gold" | "plum";
-}) {
-  const map = {
-    saffron: { bg: "var(--saffron-50)",  fg: "var(--saffron-700)", br: "var(--saffron-100)" },
-    sage:    { bg: "#EEF3ED",            fg: "#3D5C3B",            br: "#D6E1D4" },
-    gold:    { bg: "#F8F1DD",            fg: "#6E5418",            br: "#E8DBB1" },
-    plum:    { bg: "#F0E9F1",            fg: "#4A2D4D",            br: "#DDD0DE" },
-  }[color];
-  return (
-    <div style={{ background: map.bg, border: `1px solid ${map.br}`, borderRadius: "var(--r-lg)", padding: 14, minHeight: 100 }}>
-      <Icon size={26} stroke={map.fg}/>
-      <div style={{ fontSize: 16, fontWeight: 600, color: map.fg, marginTop: 10 }}>{label}</div>
-      <div style={{ fontSize: 11, color: "var(--ink-600)", marginTop: 2 }}>{sub}</div>
-    </div>
   );
 }

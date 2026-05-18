@@ -24,6 +24,7 @@ export default function LibraryAI() {
   const [loading, setLoading] = useState(false)
   const [streamingText, setStreamingText] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -39,6 +40,27 @@ export default function LibraryAI() {
       sendMessage(initialQuery)
     }
   }, [initialQuery])
+
+  useEffect(() => {
+    const handleSetPrompt = (e: Event) => {
+      const customEvent = e as CustomEvent<{ prompt: string; autoSubmit?: boolean }>
+      if (customEvent.detail?.prompt) {
+        const textPrompt = customEvent.detail.prompt
+        setInput(textPrompt)
+        
+        // Focus the input field
+        setTimeout(() => {
+          inputRef.current?.focus()
+        }, 100)
+
+        if (customEvent.detail.autoSubmit) {
+          sendMessage(textPrompt)
+        }
+      }
+    }
+    window.addEventListener('set-ai-prompt', handleSetPrompt)
+    return () => window.removeEventListener('set-ai-prompt', handleSetPrompt)
+  }, [messages, loading])
 
   const sendMessage = async (text: string = input) => {
     if (!text.trim() || loading) return
@@ -158,6 +180,7 @@ export default function LibraryAI() {
           className="flex gap-2"
         >
           <input
+            ref={inputRef}
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}

@@ -4,9 +4,10 @@ import { useRouter } from 'next/navigation'
 
 const PROMPTS = [
   '🙏 กำลังใจจากหลวงพ่อ',
-  '✨ ขอคำพูดพลังบวก',
-  '📣 คำเชิญชวน',
-  '📖 บทเรียน VME ที่น่าสนใจ'
+  '✨ คำพูดเพิ่มพลังบวก',
+  '🌟 ความดีสากล',
+  '🤝 หน้าที่กัลยาณมิตร',
+  '🧘 ฝึกสติ และสมาธิ'
 ]
 
 export default function GuidedPrompts() {
