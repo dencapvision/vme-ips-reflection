@@ -4,6 +4,7 @@ import { getSupabaseAdmin } from '@/lib/clients'
 import { signSession, sessionCookieOptions, SESSION_COOKIE } from '@/lib/session'
 
 export const dynamic = 'force-dynamic'
+export const runtime = 'edge'
 
 export async function POST(request: NextRequest) {
   try {
