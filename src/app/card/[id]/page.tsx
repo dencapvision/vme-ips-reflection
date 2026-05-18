@@ -1,5 +1,6 @@
 import { Icons } from "@/components/Icons";
 import { getPublicProfile } from "@/app/actions/profile";
+import { CopyCardLink } from "@/components/CopyCardLink";
 import { notFound } from "next/navigation";
 
 export const dynamic = 'force-dynamic';
@@ -120,7 +121,7 @@ export default async function DigitalCardPage({ params }: { params: Promise<{ id
           </div>
 
           {profile.organization && (
-            <div className="pt-6 border-t border-[#F9F6F1]">
+            <div className="pt-6 border-t border-[#F9F6F1] mb-6">
               <div className="flex items-start gap-4 p-4 rounded-2xl bg-[#F9F6F1]">
                 <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-[#B0AAA2]">
                   <Icons.pin size={18} />
@@ -133,6 +134,11 @@ export default async function DigitalCardPage({ params }: { params: Promise<{ id
               </div>
             </div>
           )}
+
+          <div className="pt-6 border-t border-[#F9F6F1]">
+            <div className="text-center text-[10px] font-bold text-[#B0AAA2] tracking-widest uppercase mb-3 font-en">Share this Card</div>
+            <CopyCardLink cardId={profile.id} />
+          </div>
         </div>
       </section>
 

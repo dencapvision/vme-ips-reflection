@@ -4,12 +4,10 @@ import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { SESSION_COOKIE } from '@/lib/session'
 
-/**
- * Server action: clear the session cookie and redirect to /login.
- * Called from any "logout" button.
- */
 export async function logout() {
   const cookieStore = await cookies()
+  
+  // 1. Clear custom JWT session cookie
   cookieStore.set(SESSION_COOKIE, '', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
@@ -17,6 +15,27 @@ export async function logout() {
     path: '/',
     maxAge: 0,
   })
+
+  // 2. Clear Supabase Auth cookies and session
+  try {
+    const { getSupabaseServerClient } = await import('@/lib/clients')
+    const supabase = getSupabaseServerClient({
+      getAll() { return cookieStore.getAll() },
+      setAll(cookiesToSet) { cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options)) }
+    })
+    await supabase.auth.signOut()
+  } catch (e) {
+    console.error('Error signing out of Supabase:', e)
+  }
+
+  // 3. Force expire any residual sb-* or auth cookies
+  const allCookies = cookieStore.getAll()
+  for (const c of allCookies) {
+    if (c.name.startsWith('sb-') || c.name.includes('auth')) {
+      cookieStore.set(c.name, '', { path: '/', maxAge: 0 })
+    }
+  }
+
   redirect('/login')
 }
 

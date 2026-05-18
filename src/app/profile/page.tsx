@@ -2,7 +2,7 @@ import { Icons } from "@/components/Icons";
 import { AppHeader } from "@/components/AppHeader";
 import { TabBar } from "@/components/TabBar";
 import { CopyCardLink } from "@/components/CopyCardLink";
-import { logout } from "@/app/actions/auth";
+import { LogoutButton } from "@/components/LogoutButton";
 import { getProfile as fetchProfile } from "@/app/actions/profile";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -241,19 +241,7 @@ export default async function ProfilePage() {
             <Icons.arrow size={14} stroke="var(--ink-400)"/>
           </div>
 
-          <form action={logout}>
-            <button type="submit" style={{
-              width: "100%", padding: "14px 16px", display: "flex", alignItems: "center", gap: 12,
-              background: "none", border: "none", cursor: "pointer", textAlign: "left",
-              color: "#b91c1c"
-            }}>
-              <div style={{
-                width: 32, height: 32, borderRadius: 8, background: "#fee2e2",
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}><Icons.logout size={16} stroke="#b91c1c"/></div>
-              <div style={{ flex: 1, fontSize: 14, fontWeight: 500 }}>ออกจากระบบ</div>
-            </button>
-          </form>
+          <LogoutButton />
         </div>
       </div>
 
