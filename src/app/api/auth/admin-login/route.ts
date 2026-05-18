@@ -54,18 +54,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' }, { status: 401 })
     }
 
-    // 2. Find auth.users.id by email → this equals profiles.id
-    console.log('[admin-login] Finding user in auth.users...')
-    const supabaseAdmin = getSupabaseAdmin()
-    const { data: userList, error: listError } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 })
-    
-    if (listError) {
-      console.error('[admin-login] Error listing users:', listError)
-      throw listError
+    // 2. Best-effort: find auth.users.id by email → this equals profiles.id.
+    // The admin session still works without profile_id because getProfile()
+    // has a virtual admin fallback for custom admin sessions.
+    let profile_id: string | undefined
+    try {
+      console.log('[admin-login] Finding user in auth.users...')
+      const supabaseAdmin = getSupabaseAdmin()
+      const { data: userList, error: listError } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 })
+      if (listError) {
+        console.warn('[admin-login] Unable to list auth users:', listError.message)
+      } else {
+        const matchedUser = userList?.users?.find(u => u.email === email)
+        profile_id = matchedUser?.id ?? undefined
+      }
+    } catch (profileLookupErr: any) {
+      console.warn('[admin-login] Skipping profile_id lookup:', profileLookupErr?.message || profileLookupErr)
     }
-
-    const matchedUser = userList?.users?.find(u => u.email === email)
-    const profile_id = matchedUser?.id ?? undefined
     
     console.log('[admin-login] Login successful, profile_id:', profile_id)
 

@@ -58,6 +58,10 @@ export default function AdminLibraryPage() {
 
   useEffect(() => { fetchAll() }, [])
 
+  function normalizeUrl(value: string) {
+    return value.trim().replace(/^https\/\//i, 'https://').replace(/^http\/\//i, 'http://')
+  }
+
   async function fetchAll() {
     setLoading(true)
     try {
@@ -81,14 +85,18 @@ export default function AdminLibraryPage() {
     if (!title || !url) return
     setSaving(true)
     try {
-      await fetch('/api/library/links', {
+      const res = await fetch('/api/library/links', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, url, category, description, section, badge_text: badgeText, meta_info: metaInfo, sort_order: sortOrder }),
+        body: JSON.stringify({ title, url: normalizeUrl(url), category, description, section, badge_text: badgeText, meta_info: metaInfo, sort_order: sortOrder }),
       })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'บันทึกเอกสารไม่สำเร็จ')
       setTitle(''); setUrl(''); setCategory('ทั่วไป'); setDescription('')
       setSection('resource'); setBadgeText(''); setMetaInfo(''); setSortOrder(0)
       await fetchAll()
+    } catch (err: any) {
+      alert(err.message || 'บันทึกเอกสารไม่สำเร็จ')
     } finally {
       setSaving(false)
     }
@@ -109,13 +117,17 @@ export default function AdminLibraryPage() {
     if (!vTitle || !vUrl) return
     setSaving(true)
     try {
-      await fetch('/api/library/videos', {
+      const res = await fetch('/api/library/videos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: vTitle, url: vUrl, playlist_name: vPlaylist, description: vDesc }),
+        body: JSON.stringify({ title: vTitle, url: normalizeUrl(vUrl), playlist_name: vPlaylist, description: vDesc }),
       })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'บันทึกวิดีโอไม่สำเร็จ')
       setVTitle(''); setVUrl(''); setVPlaylist('บรรยากาศชวนบวชเรียน'); setVDesc('')
       await fetchAll()
+    } catch (err: any) {
+      alert(err.message || 'บันทึกวิดีโอไม่สำเร็จ')
     } finally {
       setSaving(false)
     }

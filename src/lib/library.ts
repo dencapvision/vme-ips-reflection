@@ -1,5 +1,41 @@
 import { getSupabase } from './clients'
 
+function getSupabaseRestConfig() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!url || !key || url === 'https://placeholder.supabase.co' || key === 'placeholder') {
+    throw new Error('Supabase server credentials are not configured')
+  }
+
+  return { url: url.replace(/\/$/, ''), key }
+}
+
+async function supabaseRest<T>(
+  path: string,
+  init: RequestInit,
+): Promise<T> {
+  const { url, key } = getSupabaseRestConfig()
+  const res = await fetch(`${url}/rest/v1/${path}`, {
+    ...init,
+    headers: {
+      apikey: key,
+      Authorization: `Bearer ${key}`,
+      'Content-Type': 'application/json',
+      Prefer: 'return=representation',
+      ...(init.headers ?? {}),
+    },
+  })
+
+  const text = await res.text()
+  const data = text ? JSON.parse(text) : null
+  if (!res.ok) {
+    const message = data?.message || data?.hint || text || `Supabase REST error ${res.status}`
+    throw new Error(message)
+  }
+  return data as T
+}
+
 // --- External Links (Drive) ---
 export async function listLibraryLinks() {
   const supabase = getSupabase()
@@ -22,22 +58,17 @@ export async function addLibraryLink(payload: {
   meta_info?: string
   sort_order?: number
 }) {
-  const supabase = getSupabase()
-  const { data, error } = await supabase
-    .from('library_links')
-    .insert([{ section: 'resource', ...payload }])
-    .select()
-  if (error) throw error
-  return data?.[0]
+  const rows = await supabaseRest<any[]>('library_links?select=*', {
+    method: 'POST',
+    body: JSON.stringify([{ section: 'resource', ...payload }]),
+  })
+  return rows?.[0]
 }
 
 export async function deleteLibraryLink(id: string) {
-  const supabase = getSupabase()
-  const { error } = await supabase
-    .from('library_links')
-    .delete()
-    .eq('id', id)
-  if (error) throw error
+  await supabaseRest<unknown>(`library_links?id=eq.${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+  })
   return { deleted: id }
 }
 
@@ -53,7 +84,6 @@ export async function listLibraryVideos() {
 }
 
 export async function addLibraryVideo(payload: { title: string, url: string, playlist_name: string, description?: string }) {
-  const supabase = getSupabase()
   // Simple thumbnail extraction for YouTube
   let thumbnail_url = ''
   try {
@@ -69,20 +99,16 @@ export async function addLibraryVideo(payload: { title: string, url: string, pla
     }
   } catch (e) {}
 
-  const { data, error } = await supabase
-    .from('library_videos')
-    .insert([{ ...payload, thumbnail_url }])
-    .select()
-  if (error) throw error
-  return data?.[0]
+  const rows = await supabaseRest<any[]>('library_videos?select=*', {
+    method: 'POST',
+    body: JSON.stringify([{ ...payload, thumbnail_url }]),
+  })
+  return rows?.[0]
 }
 
 export async function deleteLibraryVideo(id: string) {
-  const supabase = getSupabase()
-  const { error } = await supabase
-    .from('library_videos')
-    .delete()
-    .eq('id', id)
-  if (error) throw error
+  await supabaseRest<unknown>(`library_videos?id=eq.${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+  })
   return { deleted: id }
 }

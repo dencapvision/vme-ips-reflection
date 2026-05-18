@@ -2,25 +2,44 @@ import { getSupabaseAdmin } from './clients'
 import { createEmbedding } from './embedding'
 
 export async function searchKnowledge(query: string, limit = 5) {
-  const supabase = getSupabaseAdmin()
   const embedding = await createEmbedding(query)
-  
-  console.log(`[RAG] Searching knowledge for: "${query.slice(0, 50)}..."`);
-  
-  // match_knowledge is the RPC for vector search
-  const { data, error } = await supabase.rpc('match_knowledge', {
-    query_embedding: embedding,
-    match_threshold: 0.4,
-    match_count: limit,
-  })
 
-  if (error) {
-    console.error('[RAG] searchKnowledge RPC Error:', error.message);
+  console.log(`[RAG] Searching knowledge for: "${query.slice(0, 50)}..."`);
+
+  // Use direct fetch to Supabase REST API to avoid @supabase/supabase-js
+  // using Node.js Readable.asyncIterator which is not supported in Cloudflare Workers
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    console.error('[RAG] Missing Supabase env vars')
     return []
   }
-  
+
+  const res = await fetch(`${supabaseUrl}/rest/v1/rpc/match_knowledge`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${serviceRoleKey}`,
+      'apikey': serviceRoleKey,
+    },
+    body: JSON.stringify({
+      query_embedding: embedding,
+      match_threshold: 0.4,
+      match_count: limit,
+    }),
+  })
+
+  if (!res.ok) {
+    const errText = await res.text()
+    console.error('[RAG] searchKnowledge RPC Error:', res.status, errText.slice(0, 200))
+    return []
+  }
+
+  const data = await res.json()
+
   console.log(`[RAG] Found ${data?.length || 0} matching chunks`);
-  
+
   return data ?? []
 }
 

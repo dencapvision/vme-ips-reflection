@@ -2,13 +2,13 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { verifySession, SESSION_COOKIE } from '@/lib/session'
 
 // Routes that anyone can access without a session
-const PUBLIC_PATHS = ['/login', '/register', '/welcome', '/api/auth/member-login', '/api/auth/admin-login']
+const PUBLIC_PATHS = ['/login', '/register', '/welcome', '/card', '/api/auth/member-login', '/api/auth/admin-login']
 
 // Routes that require the admin role
 const ADMIN_PATHS = ['/admin', '/api/admin', '/api/knowledge']
 
 // Routes that require any valid session
-const PROTECTED_PATHS = ['/profile', '/journal', '/community', '/kaewsai', '/library', '/card', '/topics', '/ai', '/reflect', '/smart', '/strategic', '/swot', '/case', '/export', '/admin']
+const PROTECTED_PATHS = ['/profile', '/journal', '/community', '/kaewsai', '/library', '/topics', '/ai', '/reflect', '/smart', '/strategic', '/swot', '/case', '/export', '/admin']
 
 function matchesAny(pathname: string, prefixes: string[]) {
   return prefixes.some((p) => pathname === p || pathname.startsWith(`${p}/`) || pathname.startsWith(`${p}?`))
