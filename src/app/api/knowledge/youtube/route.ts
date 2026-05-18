@@ -4,7 +4,7 @@ import { createEmbeddingsBatch } from '@/lib/pdf-pipeline'
 
 export const maxDuration = 300
 
-import { getSupabase } from '@/lib/clients'
+import { getSupabaseAdmin } from '@/lib/clients'
 
 function extractVideoId(url: string): string | null {
   const patterns = [
@@ -21,7 +21,7 @@ function extractVideoId(url: string): string | null {
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = getSupabase()
+    const supabase = getSupabaseAdmin()
     const { youtubeUrl, title, category } = await req.json()
 
     const videoId = extractVideoId(youtubeUrl)

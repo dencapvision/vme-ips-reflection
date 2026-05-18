@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabase } from '@/lib/clients'
+import { getSupabaseAdmin } from '@/lib/clients'
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
     const category = searchParams.get('category') || null
-    const supabase = getSupabase()
+    const supabase = getSupabaseAdmin()
 
     let query = supabase
       .from('knowledge_documents')
@@ -47,7 +50,7 @@ export async function DELETE(req: NextRequest) {
   try {
     const { id } = await req.json()
     if (!id) return NextResponse.json({ error: 'ต้องระบุ id' }, { status: 400 })
-    const supabase = getSupabase()
+    const supabase = getSupabaseAdmin()
 
     // Get storage path before deleting
     const { data: doc } = await supabase

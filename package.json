@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "build:cf": "opennextjs-cloudflare build",
     "preview:cf": "opennextjs-cloudflare preview",
-    "deploy:cf": "opennextjs-cloudflare deploy"
+    "deploy:cf": "opennextjs-cloudflare deploy",
+    "deploy:pages": "opennextjs-cloudflare build && npx wrangler pages deploy .open-next"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1045.0",

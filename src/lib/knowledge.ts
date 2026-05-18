@@ -1,8 +1,8 @@
-import { getSupabase } from './clients'
+import { getSupabaseAdmin } from './clients'
 import { createEmbedding } from './embedding'
 
 export async function searchKnowledge(query: string, limit = 5) {
-  const supabase = getSupabase()
+  const supabase = getSupabaseAdmin()
   const embedding = await createEmbedding(query)
   
   console.log(`[RAG] Searching knowledge for: "${query.slice(0, 50)}..."`);
@@ -25,7 +25,7 @@ export async function searchKnowledge(query: string, limit = 5) {
 }
 
 export async function listKnowledgeFiles() {
-  const supabase = getSupabase()
+  const supabase = getSupabaseAdmin()
   
   // Try querying from knowledge_documents first (New efficient way)
   const { data: docs, error: docError } = await supabase
@@ -71,7 +71,7 @@ export async function listKnowledgeFiles() {
 }
 
 export async function deleteKnowledgeFile(filename: string) {
-  const supabase = getSupabase()
+  const supabase = getSupabaseAdmin()
   
   // Delete from both potential tables
   await supabase.from('knowledge_documents').delete().eq('filename', filename)

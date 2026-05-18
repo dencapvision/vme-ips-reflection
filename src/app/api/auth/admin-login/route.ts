@@ -11,17 +11,26 @@ export async function POST(request: NextRequest) {
 
     console.log('[admin-login] Attempting login for:', email)
 
-    // Check environment variables
+    // Check environment variables with detailed diagnostics
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY
     
-    if (!supabaseUrl || supabaseUrl.includes('your_supabase_url')) {
-      console.error('[admin-login] Error: NEXT_PUBLIC_SUPABASE_URL is missing or placeholder')
-      return NextResponse.json({ error: 'การตั้งค่าระบบไม่ถูกต้อง (Database URL)' }, { status: 500 })
+    console.log('[admin-login] Diagnostics - SUPABASE_URL present:', !!supabaseUrl, 'SERVICE_ROLE present:', !!serviceRole)
+    
+    if (!supabaseUrl || supabaseUrl.includes('your_supabase_url') || supabaseUrl === 'placeholder') {
+      console.error('[admin-login] Critical Error: NEXT_PUBLIC_SUPABASE_URL is missing, empty, or placeholder in runtime process.env.')
+      console.error('[admin-login] Diagnostic: If deploying to Cloudflare Pages, make sure to add NEXT_PUBLIC_SUPABASE_URL in Pages Project Settings > Environment Variables (both Production and Preview envs).')
+      return NextResponse.json({ 
+        error: 'การตั้งค่าระบบไม่ถูกต้อง (Database URL หรือ NEXT_PUBLIC_SUPABASE_URL ไม่ถูกกำหนดใน Cloudflare Pages)' 
+      }, { status: 500 })
     }
-    if (!serviceRole || serviceRole.includes('your_supabase_service_role')) {
-      console.error('[admin-login] Error: SUPABASE_SERVICE_ROLE_KEY is missing or placeholder')
-      return NextResponse.json({ error: 'การตั้งค่าระบบไม่ถูกต้อง (Service Key)' }, { status: 500 })
+    
+    if (!serviceRole || serviceRole.includes('your_supabase_service_role') || serviceRole === 'placeholder') {
+      console.error('[admin-login] Critical Error: SUPABASE_SERVICE_ROLE_KEY is missing, empty, or placeholder in runtime process.env.')
+      console.error('[admin-login] Diagnostic: Make sure SUPABASE_SERVICE_ROLE_KEY is added to Cloudflare Pages project settings or wrangler secrets.')
+      return NextResponse.json({ 
+        error: 'การตั้งค่าระบบไม่ถูกต้อง (Service Key หรือ SUPABASE_SERVICE_ROLE_KEY ไม่ถูกกำหนดใน Cloudflare Pages)' 
+      }, { status: 500 })
     }
 
     if (!email || !password) {

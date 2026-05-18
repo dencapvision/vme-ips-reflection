@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabase } from '@/lib/clients'
+import { getSupabaseAdmin } from '@/lib/clients'
 import { processPDFBuffer } from '@/lib/pdf-pipeline'
 
 export const maxDuration = 300
@@ -19,7 +19,7 @@ function extractDriveFileId(url: string): string | null {
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = getSupabase()
+    const supabase = getSupabaseAdmin()
     const { driveUrl, title, category } = await req.json()
 
     const fileId = extractDriveFileId(driveUrl)

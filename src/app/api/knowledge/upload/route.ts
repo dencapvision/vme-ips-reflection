@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabase } from '@/lib/clients'
+import { getSupabaseAdmin } from '@/lib/clients'
 import { processPDFBuffer } from '@/lib/pdf-pipeline'
 
 export const maxDuration = 300
@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   const LOG = (msg: string, data?: unknown) => console.log(`[upload] ${msg}`, data ?? '')
 
   try {
-    const supabase = getSupabase()
+    const supabase = getSupabaseAdmin()
     LOG('Request received')
 
     const body = await req.json()

@@ -83,6 +83,16 @@ export default async function DigitalCardPage({ params }: { params: Promise<{ id
             )}
 
             <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 12 }}>
+              <a href="https://www.facebook.com/share/p/1EuucsvLsR/" target="_blank" style={{...contactItemStyle, background: 'var(--saffron-50)', border: '1px solid var(--saffron-200)', textDecoration: 'none'}}>
+                <div style={{ ...contactIconWrapStyle, background: 'white' }}>
+                  <Icons.facebook size={16} stroke="var(--saffron-600)"/>
+                </div>
+                <div style={{ flex: 1, fontWeight: 600, color: 'var(--saffron-800)', fontSize: 13 }}>
+                  โครงการสร้างศาสนทายาท IPS
+                </div>
+                <Icons.arrowRight size={14} stroke="var(--saffron-400)"/>
+              </a>
+
               {profile.phone && (
                 <a href={`tel:${profile.phone}`} style={contactItemStyle}>
                   <div style={contactIconWrapStyle}>

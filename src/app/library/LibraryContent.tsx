@@ -10,6 +10,10 @@ interface LibraryLink {
   url: string;
   category: string;
   description?: string;
+  section?: string;
+  badge_text?: string;
+  meta_info?: string;
+  sort_order?: number;
 }
 
 interface LibraryVideo {
@@ -65,8 +69,13 @@ export default function LibraryContent() {
     return acc;
   }, {} as Record<string, LibraryVideo[]>);
 
-  // Group links by category
-  const linkCategories = links.reduce((acc, link) => {
+  // Split links by section
+  const prMediaLinks = links.filter(l => l.section === 'pr-media');
+  const featuredLinks = links.filter(l => l.section === 'featured');
+  const resourceLinks = links.filter(l => !l.section || l.section === 'resource');
+
+  // Group resource links by category
+  const linkCategories = resourceLinks.reduce((acc, link) => {
     const name = link.category || "ทั่วไป";
     if (!acc[name]) acc[name] = [];
     acc[name].push(link);
@@ -475,72 +484,94 @@ export default function LibraryContent() {
         </section>
       )}
 
-      {/* Featured PDF Section (Placeholder for consistency) */}
-      <section>
-        <SectionHeader title="ดาวน์โหลดสื่อ & หนังสือเชิญ" en="PR MEDIA & INVITATIONS" />
-        <div className="mt-4 grid grid-cols-1 gap-3">
-          <div style={{
-            background: "linear-gradient(140deg, #E3F2FD 0%, var(--white) 60%, #F1F8FE 100%)",
-            borderRadius: "var(--r-xl)", padding: 18, border: "1px solid #BBDEFB",
-          }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
-              <div>
-                <div style={{ fontFamily: "var(--font-en)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "#1976D2" }}>DOWNLOAD</div>
-                <div style={{ fontSize: 18, fontWeight: 600, marginTop: 4, lineHeight: 1.3 }}>สื่อประชาสัมพันธ์โครงการ IPS#11</div>
-                <div style={{ fontSize: 12, color: "var(--ink-600)", marginTop: 6 }}>โปสเตอร์, วิดีโอแนะนำ, และคอนเทนต์โซเชียล</div>
-              </div>
-              <div style={{ width: 48, height: 48, borderRadius: 14, background: "var(--white)", border: "1px solid #BBDEFB", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <Icons.download size={24} stroke="#1976D2"/>
-              </div>
-            </div>
-            <button className="btn-saffron" style={{ padding: "11px 18px", fontSize: 13, background: "#1976D2", borderColor: "#1976D2" }}>
-              เข้าสู่พื้นที่ดาวน์โหลด <Icons.arrow size={14} sw={2}/>
-            </button>
+      {/* PR MEDIA & INVITATIONS — dynamic */}
+      {prMediaLinks.length > 0 && (
+        <section>
+          <SectionHeader title="ดาวน์โหลดสื่อ & หนังสือเชิญ" en="PR MEDIA & INVITATIONS" />
+          <div className="mt-4 grid grid-cols-1 gap-3">
+            {prMediaLinks.map((link) => {
+              const isOfficial = link.badge_text?.toLowerCase().includes('official');
+              const borderColor = isOfficial ? "var(--saffron-100)" : "#BBDEFB";
+              const badgeColor = isOfficial ? "var(--saffron-600)" : "#1976D2";
+              const bg = isOfficial
+                ? "linear-gradient(140deg, #FDF1E6 0%, var(--white) 60%, #FCE3CE 100%)"
+                : "linear-gradient(140deg, #E3F2FD 0%, var(--white) 60%, #F1F8FE 100%)";
+              return (
+                <div key={link.id} style={{ background: bg, borderRadius: "var(--r-xl)", padding: 18, border: `1px solid ${borderColor}` }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
+                    <div>
+                      {link.badge_text && (
+                        <div style={{ fontFamily: "var(--font-en)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: badgeColor }}>
+                          {link.badge_text}
+                        </div>
+                      )}
+                      <div style={{ fontSize: 18, fontWeight: 600, marginTop: 4, lineHeight: 1.3 }}>{link.title}</div>
+                      {link.description && (
+                        <div style={{ fontSize: 12, color: "var(--ink-600)", marginTop: 6 }}>{link.description}</div>
+                      )}
+                    </div>
+                    <div style={{ width: 48, height: 48, borderRadius: 14, background: "var(--white)", border: `1px solid ${borderColor}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      {isOfficial ? <Icons.doc size={24} stroke={badgeColor}/> : <Icons.download size={24} stroke={badgeColor}/>}
+                    </div>
+                  </div>
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-saffron inline-flex items-center gap-1.5"
+                    style={{ padding: "11px 18px", fontSize: 13, ...(isOfficial ? {} : { background: "#1976D2", borderColor: "#1976D2" }) }}
+                  >
+                    {isOfficial ? "ดาวน์โหลดหนังสือเชิญ" : "เข้าสู่พื้นที่ดาวน์โหลด"}
+                    {isOfficial ? <Icons.download size={14} sw={2}/> : <Icons.arrow size={14} sw={2}/>}
+                  </a>
+                </div>
+              );
+            })}
           </div>
+        </section>
+      )}
 
-          <div style={{
-            background: "linear-gradient(140deg, #FDF1E6 0%, var(--white) 60%, #FCE3CE 100%)",
-            borderRadius: "var(--r-xl)", padding: 18, border: "1px solid var(--saffron-100)",
-          }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
-              <div>
-                <div style={{ fontFamily: "var(--font-en)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "var(--saffron-600)" }}>OFFICIAL</div>
-                <div style={{ fontSize: 18, fontWeight: 600, marginTop: 4, lineHeight: 1.3 }}>หนังสือเชิญร่วมโครงการ</div>
-                <div style={{ fontSize: 12, color: "var(--ink-600)", marginTop: 6 }}>ไฟล์ PDF สำหรับพิมพ์หรือส่งต่อทางแอปพลิเคชัน</div>
+      {/* FEATURED DOCUMENTS — dynamic */}
+      {featuredLinks.length > 0 && (
+        <section>
+          <SectionHeader title="คัดสรรมาเพื่อคุณ" en="FEATURED DOCUMENTS" />
+          <div className="mt-4 grid grid-cols-1 gap-3">
+            {featuredLinks.map((link) => (
+              <div key={link.id} style={{
+                background: "linear-gradient(140deg, #FDF1E6 0%, var(--white) 60%, #F0E9F1 100%)",
+                borderRadius: "var(--r-xl)", padding: 18, border: "1px solid var(--saffron-100)",
+              }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
+                  <div>
+                    <div style={{ fontFamily: "var(--font-en)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "var(--saffron-600)" }}>
+                      {link.badge_text || "FEATURED"}
+                    </div>
+                    <div style={{ fontSize: 18, fontWeight: 600, marginTop: 4, lineHeight: 1.3 }}>{link.title}</div>
+                    {(link.meta_info || link.description) && (
+                      <div style={{ fontSize: 12, color: "var(--ink-600)", marginTop: 6 }}>
+                        {link.meta_info || link.description}
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ width: 48, height: 48, borderRadius: 14, background: "var(--white)", border: "1px solid var(--saffron-100)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <Icons.lotus size={24} stroke="var(--saffron-600)"/>
+                  </div>
+                </div>
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-saffron inline-flex items-center gap-1.5"
+                  style={{ padding: "11px 18px", fontSize: 13 }}
+                >
+                  {link.url.includes('youtube') ? "ชมวิดีโอ" : "อ่านคู่มือ"}
+                  <Icons.arrow size={14} sw={2}/>
+                </a>
               </div>
-              <div style={{ width: 48, height: 48, borderRadius: 14, background: "var(--white)", border: "1px solid var(--saffron-100)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <Icons.doc size={24} stroke="var(--saffron-600)"/>
-              </div>
-            </div>
-            <button className="btn-saffron" style={{ padding: "11px 18px", fontSize: 13 }}>
-              ดาวน์โหลดหนังสือเชิญ <Icons.download size={14} sw={2}/>
-            </button>
+            ))}
           </div>
-        </div>
-      </section>
-
-      {/* Featured PDF Section (Placeholder for consistency) */}
-      <section>
-        <SectionHeader title="คัดสรรมาเพื่อคุณ" en="FEATURED DOCUMENTS" />
-        <div style={{
-          background: "linear-gradient(140deg, #FDF1E6 0%, var(--white) 60%, #F0E9F1 100%)",
-          borderRadius: "var(--r-xl)", padding: 18, marginTop: 16, border: "1px solid var(--saffron-100)",
-        }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
-            <div>
-              <div style={{ fontFamily: "var(--font-en)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "var(--saffron-600)" }}>FEATURED</div>
-              <div style={{ fontSize: 18, fontWeight: 600, marginTop: 4, lineHeight: 1.3 }}>โครงการ IPS#11 — คู่มือผู้ชวนบวช</div>
-              <div style={{ fontSize: 12, color: "var(--ink-600)", marginTop: 6 }}>26 หน้า · 4 วิดีโอ · อัปเดต พ.ค. 2569</div>
-            </div>
-            <div style={{ width: 48, height: 48, borderRadius: 14, background: "var(--white)", border: "1px solid var(--saffron-100)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Icons.lotus size={24} stroke="var(--saffron-600)"/>
-            </div>
-          </div>
-          <button className="btn-saffron" style={{ padding: "11px 18px", fontSize: 13 }}>
-            อ่านคู่มือ <Icons.arrow size={14} sw={2}/>
-          </button>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 }

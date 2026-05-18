@@ -44,7 +44,7 @@ export default function WelcomePage() {
           </div>
 
           <h1 className="text-6xl md:text-8xl font-bold text-gray-900 mb-8 tracking-tight leading-tight">
-            VME · <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 animate-gradient">IPS Reflection</span>
+            <span className="text-[#1B365D]">VME</span> · <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 animate-gradient">IPS Reflection</span>
           </h1>
           
           <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto mb-14 leading-relaxed font-light">
@@ -55,7 +55,7 @@ export default function WelcomePage() {
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <Link 
               href="/login" 
-              className="px-12 py-5 bg-gradient-to-r from-gray-900 to-gray-800 text-white rounded-2xl font-bold text-xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.25)] hover:-translate-y-1.5 transition-all active:scale-95 flex items-center justify-center gap-3 group"
+              className="px-12 py-5 bg-gradient-to-r from-[#1B365D] to-[#0F2042] text-white rounded-2xl font-bold text-xl shadow-[0_20px_50px_rgba(27,54,93,0.2)] hover:shadow-[0_20px_60px_rgba(27,54,93,0.3)] hover:-translate-y-1.5 transition-all active:scale-95 flex items-center justify-center gap-3 group"
             >
               เริ่มต้นใช้งาน
               <Icons.arrow className="w-6 h-6 group-hover:translate-x-1.5 transition-transform" />

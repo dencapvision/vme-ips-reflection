@@ -6,16 +6,26 @@ export async function listLibraryLinks() {
   const { data, error } = await supabase
     .from('library_links')
     .select('*')
+    .order('sort_order', { ascending: true })
     .order('created_at', { ascending: false })
   if (error) throw error
   return data ?? []
 }
 
-export async function addLibraryLink(payload: { title: string, url: string, category: string, description?: string }) {
+export async function addLibraryLink(payload: {
+  title: string
+  url: string
+  category: string
+  description?: string
+  section?: string
+  badge_text?: string
+  meta_info?: string
+  sort_order?: number
+}) {
   const supabase = getSupabase()
   const { data, error } = await supabase
     .from('library_links')
-    .insert([payload])
+    .insert([{ section: 'resource', ...payload }])
     .select()
   if (error) throw error
   return data?.[0]

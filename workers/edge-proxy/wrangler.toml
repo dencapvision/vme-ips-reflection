@@ -1,0 +1,7 @@
+name = "vme-edge-proxy"
+main = "src/index.ts"
+compatibility_date = "2026-05-10"
+
+[vars]
+PAGES_URL = "https://vme-ips-reflection.pages.dev"
+ALLOWED_ORIGINS = "*"

@@ -3,6 +3,7 @@ node_modules
 .open-next
 out
 .env*.local
+.dev.vars
 .DS_Store
 *.tsbuildinfo
 .vercel

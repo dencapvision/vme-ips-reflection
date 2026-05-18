@@ -85,6 +85,20 @@ export default async function HomePage() {
               <Icons.arrow size={18} stroke="var(--ink-300)"/>
             </div>
           </Link>
+
+          {/* 3. ARR & ติดตามผู้สมัคร */}
+          <Link href="/arr" style={{ textDecoration: "none", color: "inherit" }}>
+            <div className="card" style={{ padding: 18, display: "flex", alignItems: "center", gap: 16, borderLeft: "4px solid #FFA07A" }}>
+              <div style={{ width: 44, height: 44, borderRadius: 12, background: "#FFEFEA", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Icons.users size={22} stroke="#D45F1C"/>
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 16, fontWeight: 700 }}>3. ARR & ติดตามผู้สมัคร</div>
+                <div style={{ fontSize: 12, color: "var(--ink-500)", marginTop: 2 }}>บันทึก ARR กิจกรรมและติดตามดูแลกัลยาณมิตร</div>
+              </div>
+              <Icons.arrow size={18} stroke="var(--ink-300)"/>
+            </div>
+          </Link>
         </div>
       </div>
 
@@ -114,7 +128,7 @@ export default async function HomePage() {
           </div>
           <div style={{ flex: 1, minWidth: 0, position: "relative", zIndex: 1 }}>
             <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.15em", color: "#B45309", marginBottom: 4 }}>AI FACILITATOR</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: "#1F2937" }}>3. น้องแก้วใส 🙏</div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: "#1F2937" }}>4. น้องแก้วใส 🙏</div>
             <div style={{ fontSize: 13, color: "#4B5563", marginTop: 2, lineHeight: "1.4" }}>ยอดกัลยาณมิตร พร้อมปรึกษาเรื่องทุน IPS ค่ะ</div>
           </div>
           <div style={{
