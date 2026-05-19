@@ -62,6 +62,20 @@ export async function createUser(formData: FormData) {
     redirect(`/admin/users?error=${encodeURIComponent('ไม่สามารถสร้างโปรไฟล์ได้: ' + profileError.message)}`)
   }
 
+  // Insert into members table to whitelist this user for name-based login
+  const normFirstName = first_name.trim().replace(/\s+/g, ' ')
+  const normLastName = last_name.trim().replace(/\s+/g, ' ')
+  const { error: memberError } = await supabaseAdmin
+    .from('members')
+    .insert({
+      first_name: normFirstName,
+      last_name: normLastName,
+    })
+
+  if (memberError && memberError.code !== '23505') {
+    console.error('Error whitelisting member in members table:', memberError)
+  }
+
   revalidatePath('/admin/users')
   redirect('/admin/users?success=สร้างผู้ใช้งานสำเร็จ')
 }
@@ -70,9 +84,33 @@ export async function deleteUser(id: string) {
   await requireAdmin()
   const supabaseAdmin = getSupabaseAdmin()
 
+  // 1. Get the first_name and last_name from profiles before deleting the user
+  const { data: profileToDelete } = await supabaseAdmin
+    .from('profiles')
+    .select('first_name, last_name')
+    .eq('id', id)
+    .maybeSingle()
+
+  // 2. Delete Supabase auth user (this cascades and deletes from profiles too)
   const { error } = await supabaseAdmin.auth.admin.deleteUser(id)
   if (error) {
     redirect(`/admin/users?error=${encodeURIComponent(error.message)}`)
+  }
+
+  // 3. Delete from members table so they can no longer log in by name
+  if (profileToDelete?.first_name && profileToDelete?.last_name) {
+    const normFirstName = profileToDelete.first_name.trim().replace(/\s+/g, ' ')
+    const normLastName = profileToDelete.last_name.trim().replace(/\s+/g, ' ')
+
+    const { error: memberDelError } = await supabaseAdmin
+      .from('members')
+      .delete()
+      .eq('first_name', normFirstName)
+      .eq('last_name', normLastName)
+
+    if (memberDelError) {
+      console.error('Error deleting from members table:', memberDelError)
+    }
   }
 
   revalidatePath('/admin/users')

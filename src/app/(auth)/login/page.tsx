@@ -91,7 +91,7 @@ function LoginContent() {
             <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-1">IPS Reflection</h1>
-          <p className="text-gray-400 text-sm">สมุดสรุปบทเรียนและเครื่องมือช่วยสอน VME</p>
+          <p className="text-gray-400 text-sm">อาสาสมัครการศึกษาเพื่อศีลธรรม (Volunteers for Moral Education : VME)</p>
         </div>
 
         {/* Tab switcher */}

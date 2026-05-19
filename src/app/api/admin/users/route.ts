@@ -42,12 +42,28 @@ export async function POST(req: NextRequest) {
       // Small delay to ensure trigger has run
       await new Promise(r => setTimeout(r, 500))
       
-      await getSupabaseAdmin().from('profiles').update({
+      const adminClient = getSupabaseAdmin()
+      await adminClient.from('profiles').update({
         first_name: firstName,
         last_name: lastName,
         phone,
         role
       }).eq('id', authData.user.id)
+
+      // Sync to members table for name-based login whitelist
+      if (firstName && lastName) {
+        const normFirstName = firstName.trim().replace(/\s+/g, ' ')
+        const normLastName = lastName.trim().replace(/\s+/g, ' ')
+        const { error: memberError } = await adminClient
+          .from('members')
+          .insert({
+            first_name: normFirstName,
+            last_name: normLastName
+          })
+        if (memberError && memberError.code !== '23505') {
+          console.error('Error whitelisting member in members table via API:', memberError)
+        }
+      }
     }
 
     return NextResponse.json({ success: true, user: authData.user })
