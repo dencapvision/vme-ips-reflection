@@ -27,8 +27,8 @@ export function ReflectionForm({ category, fields, layout = "grid" }: Reflection
   useEffect(() => {
     async function loadData() {
       const response = await getUserResponse(category);
-      if (response?.data) {
-        setData(response.data as Record<string, string>);
+      if (response) {
+        setData(response as Record<string, string>);
       }
       setLoading(false);
     }
