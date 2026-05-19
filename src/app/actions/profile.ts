@@ -157,3 +157,64 @@ export async function updateProfile(formData: FormData) {
     return { error: 'เกิดข้อผิดพลาดที่ไม่คาดคิด', details: err.message }
   }
 }
+
+export async function uploadProfileImage(formData: FormData) {
+  const cookieStore = await cookies()
+  const supabase = getSupabaseServerClient({
+    getAll() { return cookieStore.getAll() },
+    setAll(cookiesToSet) { cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options)) }
+  })
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // Resolve user id — try Supabase Auth first, then JWT session
+  let userId: string | null = user?.id ?? null
+
+  if (!userId) {
+    const token = cookieStore.get(SESSION_COOKIE)?.value
+    if (token) {
+      const session = await verifySession(token)
+      userId = session?.profile_id ?? null
+    }
+  }
+
+  if (!userId) return { error: 'กรุณาเข้าสู่ระบบก่อนดำเนินการ' }
+
+  try {
+    const file = formData.get('file') as File
+    const bucket = formData.get('bucket') as string
+    
+    if (!file) return { error: 'ไม่พบไฟล์ที่ต้องการอัปโหลด' }
+    if (!bucket) return { error: 'ไม่พบชื่อ Bucket ที่ระบุ' }
+
+    if (bucket !== 'avatars' && bucket !== 'activity-photos') {
+      return { error: 'Bucket ไม่ถูกต้อง' }
+    }
+
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${userId}-${Math.random()}.${fileExt}`
+    const filePath = `${userId}/${fileName}`
+
+    const adminClient = getSupabaseAdmin()
+
+    // Ensure the bucket exists or upload directly with service role bypass
+    const { error: uploadError } = await adminClient.storage
+      .from(bucket)
+      .upload(filePath, buffer, {
+        contentType: file.type,
+        upsert: true
+      })
+
+    if (uploadError) {
+      return { error: `อัปโหลดไฟล์ล้มเหลว: ${uploadError.message}` }
+    }
+
+    const { data } = adminClient.storage.from(bucket).getPublicUrl(filePath)
+    
+    return { success: true, publicUrl: data.publicUrl }
+  } catch (err: any) {
+    return { error: `เกิดข้อผิดพลาดในการอัปโหลด: ${err.message}` }
+  }
+}
+

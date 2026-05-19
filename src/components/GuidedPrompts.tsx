@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 
 const PROMPTS = [
   '🙏 กำลังใจจากหลวงพ่อ',
@@ -12,7 +12,12 @@ const PROMPTS = [
 
 export default function GuidedPrompts() {
   const router = useRouter()
+  const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
+
+  if (pathname?.startsWith('/card/')) {
+    return null
+  }
 
   const handlePromptClick = (prompt: string) => {
     const cleanPrompt = prompt.replace(/^[^\s]+\s/, '') // Remove emoji for the query

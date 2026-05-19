@@ -86,6 +86,10 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('avatars', 'avatars', true)
 ON CONFLICT (id) DO NOTHING;
 
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('activity-photos', 'activity-photos', true)
+ON CONFLICT (id) DO NOTHING;
+
 DROP POLICY IF EXISTS "Avatar images are publicly accessible." ON storage.objects;
 CREATE POLICY "Avatar images are publicly accessible."
   ON storage.objects FOR SELECT
@@ -105,3 +109,23 @@ DROP POLICY IF EXISTS "Anyone can delete their own avatar." ON storage.objects;
 CREATE POLICY "Anyone can delete their own avatar."
   ON storage.objects FOR DELETE
   USING ( bucket_id = 'avatars' AND auth.uid()::text = (storage.foldername(name))[1] );
+
+DROP POLICY IF EXISTS "Activity photos are publicly accessible." ON storage.objects;
+CREATE POLICY "Activity photos are publicly accessible."
+  ON storage.objects FOR SELECT
+  USING ( bucket_id = 'activity-photos' );
+
+DROP POLICY IF EXISTS "Anyone can upload activity photos." ON storage.objects;
+CREATE POLICY "Anyone can upload activity photos."
+  ON storage.objects FOR INSERT
+  WITH CHECK ( bucket_id = 'activity-photos' AND auth.role() = 'authenticated' );
+
+DROP POLICY IF EXISTS "Anyone can update their own activity photos." ON storage.objects;
+CREATE POLICY "Anyone can update their own activity photos."
+  ON storage.objects FOR UPDATE
+  USING ( bucket_id = 'activity-photos' AND auth.uid()::text = (storage.foldername(name))[1] );
+
+DROP POLICY IF EXISTS "Anyone can delete their own activity photos." ON storage.objects;
+CREATE POLICY "Anyone can delete their own activity photos."
+  ON storage.objects FOR DELETE
+  USING ( bucket_id = 'activity-photos' AND auth.uid()::text = (storage.foldername(name))[1] );

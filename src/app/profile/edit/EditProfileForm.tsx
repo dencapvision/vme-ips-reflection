@@ -1,9 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { updateProfile } from '@/app/actions/profile'
+import { updateProfile, uploadProfileImage } from '@/app/actions/profile'
 import { Icons } from '@/components/Icons'
-import { createBrowserClient } from '@supabase/ssr'
 
 export default function EditProfileForm({ initialData }: { initialData: any }) {
   const [loading, setLoading] = useState(false)
@@ -12,11 +11,6 @@ export default function EditProfileForm({ initialData }: { initialData: any }) {
   const [activityPhotos, setActivityPhotos] = useState<string[]>(initialData.activity_photos || [])
   const [uploading, setUploading] = useState(false)
   const [uploadingType, setUploadingType] = useState<'avatar' | 'line_qr' | 'activity' | null>(null)
-
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
 
   const uploadFile = async (event: React.ChangeEvent<HTMLInputElement>, bucket: string, type: 'avatar' | 'line_qr' | 'activity') => {
     try {
@@ -28,30 +22,32 @@ export default function EditProfileForm({ initialData }: { initialData: any }) {
       }
 
       const file = event.target.files[0]
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${initialData.id}-${Math.random()}.${fileExt}`
-      const filePath = `${initialData.id}/${fileName}`
-
-      const { error: uploadError } = await supabase.storage
-        .from(bucket)
-        .upload(filePath, file)
-
-      if (uploadError) throw uploadError
-
-      const { data } = supabase.storage.from(bucket).getPublicUrl(filePath)
       
-      if (type === 'avatar') setAvatarUrl(data.publicUrl)
-      if (type === 'line_qr') setLineQrUrl(data.publicUrl)
-      if (type === 'activity') {
-        if (activityPhotos.length >= 5) {
-          alert('อัปโหลดได้สูงสุด 5 รูปครับ')
-          return
+      if (type === 'activity' && activityPhotos.length >= 5) {
+        alert('อัปโหลดได้สูงสุด 5 รูปครับ')
+        return
+      }
+
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('bucket', bucket)
+
+      const res = await uploadProfileImage(formData)
+      
+      if (res.error) {
+        throw new Error(res.error)
+      }
+
+      if (res.publicUrl) {
+        if (type === 'avatar') setAvatarUrl(res.publicUrl)
+        if (type === 'line_qr') setLineQrUrl(res.publicUrl)
+        if (type === 'activity') {
+          setActivityPhotos([...activityPhotos, res.publicUrl])
         }
-        setActivityPhotos([...activityPhotos, data.publicUrl])
       }
       
-    } catch (error) {
-      alert('Error uploading file!')
+    } catch (error: any) {
+      alert(error.message || 'Error uploading file!')
       console.error(error)
     } finally {
       setUploading(false)
