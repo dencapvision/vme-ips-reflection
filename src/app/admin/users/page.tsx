@@ -1,13 +1,10 @@
 import { getProfile } from '@/app/actions/profile'
 import { getSupabaseAdmin } from '@/lib/clients'
 import { createUser, deleteUser } from '@/app/actions/admin'
-import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import UserForm from './UserForm'
 
 export const dynamic = 'force-dynamic'
-
-const ROLES = ['member', 'leader', 'facilitator', 'admin']
-const GROUPS = ['กลุ่ม 1', 'กลุ่ม 2', 'กลุ่ม 3', 'กลุ่ม 4', 'กลุ่ม 5', 'กลุ่ม 6', 'วิทยากร', 'ทีมงาน']
 
 export default async function UsersAdminPage({
   searchParams,
@@ -62,49 +59,8 @@ export default async function UsersAdminPage({
           </div>
         )}
 
-        {/* Create User Form */}
-        <div style={{ background: "white", borderRadius: 16, border: "1px solid #E5D5F2", padding: 20, marginBottom: 20 }}>
-          <h2 style={{ fontSize: 15, fontWeight: 700, color: "#4A345E", marginBottom: 16, marginTop: 0 }}>เพิ่มผู้ใช้งานใหม่</h2>
-          <form action={createUser} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 12 }}>
-              <div>
-                <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 6, color: "#6A5A7A" }}>ชื่อจริง *</label>
-                <input name="first_name" required placeholder="กรอกชื่อจริง" style={inputStyle} />
-              </div>
-              <div>
-                <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 6, color: "#6A5A7A" }}>นามสกุล *</label>
-                <input name="last_name" required placeholder="กรอกนามสกุล" style={inputStyle} />
-              </div>
-            </div>
-            <div>
-              <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 6, color: "#6A5A7A" }}>เบอร์โทรศัพท์ * (ใช้เป็นรหัสผ่านเข้าใช้งาน)</label>
-              <input name="phone" type="tel" required placeholder="08x-xxx-xxxx" style={inputStyle} />
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 12 }}>
-              <div>
-                <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 6, color: "#6A5A7A" }}>บทบาท (Role)</label>
-                <select name="role" style={inputStyle}>
-                  {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
-                </select>
-              </div>
-              <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 600, marginBottom: 4, color: "#6A5A7A" }}>กลุ่ม</label>
-                <select name="group_name" style={inputStyle}>
-                  <option value="">— ไม่ระบุ —</option>
-                  {GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
-                </select>
-              </div>
-            </div>
-            <button type="submit" style={{
-              padding: "12px", borderRadius: 12, marginTop: 4,
-              background: "linear-gradient(135deg, #A67BCA 0%, #B68FD6 100%)",
-              color: "white", fontWeight: 700, fontSize: 14,
-              border: "none", cursor: "pointer"
-            }}>
-              + เพิ่มผู้ใช้งาน
-            </button>
-          </form>
-        </div>
+        {/* Create User Form - Client Component */}
+        <UserForm createUserAction={createUser} />
 
         {/* Users List */}
         <div style={{ background: "white", borderRadius: 16, border: "1px solid #E5D5F2", padding: 20 }}>
@@ -128,14 +84,14 @@ export default async function UsersAdminPage({
                     display: "flex", alignItems: "center", justifyContent: "center",
                     color: "white", fontWeight: 700, fontSize: 14, flexShrink: 0
                   }}>
-                    {u.first_name?.[0]}{u.last_name?.[0]}
+                    {u.first_name?.[0] || ''}{u.last_name?.[0] || ''}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 14, fontWeight: 600, color: "#4A345E" }}>
                       {u.first_name} {u.last_name}
                     </div>
                     <div style={{ fontSize: 11, color: "#8E6DA1", marginTop: 1 }}>
-                      📞 {u.phone || '—'} · {u.role || 'member'}{u.group_name ? ` · ${u.group_name}` : ''}
+                      {u.role === 'admin' ? '🔑 ผู้ดูแลระบบ (Admin)' : `📞 ${u.phone || '—'}`} · {u.role || 'member'}{u.group_name ? ` · ${u.group_name}` : ''}
                     </div>
                   </div>
                   <form action={deleteUser.bind(null, u.id)}>
@@ -158,10 +114,17 @@ export default async function UsersAdminPage({
         {/* Login Info */}
         <div style={{
           marginTop: 16, padding: 14, background: "#FFF7ED", borderRadius: 12,
-          border: "1px solid #FED7AA", fontSize: 12, color: "#92400E"
+          border: "1px solid #FED7AA", fontSize: 12, color: "#92400E",
+          display: "flex", flexDirection: "column", gap: 8
         }}>
-          <strong>วิธีเข้าสู่ระบบสำหรับสมาชิก:</strong><br/>
-          ชื่อจริง + นามสกุล + เบอร์โทรศัพท์ (เบอร์โทร = รหัสผ่าน)
+          <div>
+            <strong>วิธีเข้าสู่ระบบสำหรับสมาชิกทั่วไป:</strong><br/>
+            ชื่อจริง + นามสกุล + เบอร์โทรศัพท์ (ใช้เบอร์โทรศัพท์เป็นรหัสผ่าน)
+          </div>
+          <div style={{ borderTop: "1px dashed #FED7AA", paddingTop: 8 }}>
+            <strong>วิธีเข้าสู่ระบบสำหรับผู้ดูแลระบบ (Admin):</strong><br/>
+            เข้าสู่ระบบด้วย อีเมล + รหัสผ่าน ที่กำหนดไว้ ผ่านหน้าล็อกอินแอดมินโดยเฉพาะ
+          </div>
         </div>
 
       </div>
@@ -169,8 +132,3 @@ export default async function UsersAdminPage({
   )
 }
 
-const inputStyle: React.CSSProperties = {
-  width: "100%", padding: "14px 18px", borderRadius: 12,
-  border: "1px solid #E5D5F2", fontSize: 16, outline: "none",
-  background: "white", boxSizing: "border-box",
-}
