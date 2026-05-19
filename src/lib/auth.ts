@@ -78,17 +78,35 @@ function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('')
 }
 
-export function hashPassword(password: string): string {
-  // Node.js-only helper for seeding scripts (not called in CF Workers runtime)
-  // Hidden from bundlers using eval to avoid webpack errors
-  const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
-  if (!isNode) return '';
-  const nodeCrypto = eval("require")('crypto')
-  const salt = nodeCrypto.randomBytes(16).toString('hex')
+export async function hashPassword(password: string): Promise<string> {
+  const webCrypto = typeof crypto !== 'undefined' ? crypto : (globalThis as any).crypto;
+  
+  if (webCrypto?.subtle) {
+    const salt = webCrypto.getRandomValues(new Uint8Array(16));
+    const keyMaterial = await webCrypto.subtle.importKey(
+      'raw',
+      new TextEncoder().encode(password),
+      { name: 'PBKDF2' },
+      false,
+      ['deriveBits']
+    );
+    const derivedBits = await webCrypto.subtle.deriveBits(
+      { name: 'PBKDF2', salt, iterations: PBKDF2_ITERATIONS, hash: 'SHA-512' },
+      keyMaterial,
+      PBKDF2_KEYLEN * 8
+    );
+    const saltHex = bytesToHex(salt);
+    const hashHex = bytesToHex(new Uint8Array(derivedBits));
+    return `${saltHex}:${hashHex}`;
+  }
+
+  // Fallback to Node.js crypto if Web Crypto is not fully available
+  const nodeCrypto = eval("require")('crypto');
+  const salt = nodeCrypto.randomBytes(16).toString('hex');
   const hash = nodeCrypto
     .pbkdf2Sync(password, salt, PBKDF2_ITERATIONS, PBKDF2_KEYLEN, 'sha512')
-    .toString('hex')
-  return `${salt}:${hash}`
+    .toString('hex');
+  return `${salt}:${hash}`;
 }
 
 export async function verifyPassword(password: string, stored: string): Promise<boolean> {

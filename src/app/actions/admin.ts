@@ -17,8 +17,8 @@ async function requireAdmin() {
 export async function createUser(formData: FormData) {
   await requireAdmin()
 
-  const first_name = (formData.get('first_name') as string).trim()
-  const last_name = (formData.get('last_name') as string).trim()
+  const first_name = (formData.get('first_name') as string).trim().replace(/\s+/g, ' ')
+  const last_name = (formData.get('last_name') as string).trim().replace(/\s+/g, ' ')
   const role = (formData.get('role') as string) || 'member'
   const group_name = (formData.get('group_name') as string || '').trim() || null
 
@@ -66,7 +66,7 @@ export async function createUser(formData: FormData) {
 
     // 3. Save into admins table with PBKDF2 hash
     const { hashPassword } = await import('@/lib/auth')
-    const passwordHash = hashPassword(password)
+    const passwordHash = await hashPassword(password)
     const { error: adminTableError } = await supabaseAdmin
       .from('admins')
       .insert({
